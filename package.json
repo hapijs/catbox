@@ -1,0 +1,36 @@
+{
+    "name": "catbox",
+    "description": "Multi-strategy object caching service",
+    "version": "0.0.1",
+    "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+    "contributors":[
+        "Doug Pedley",
+        "Wyatt Preul <wpreul@gmail.com>"
+    ],
+    "repository": "git://github.com/walmartlabs/catbox",
+    "main": "index",
+    "keywords": [
+        "cache",
+        "memory",
+        "redis",
+        "mongodb"
+    ],
+    "engines": {
+        "node": ">=0.8.0"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+        "mocha": "1.x.x",
+        "chai": "1.2.x"
+    },
+    "scripts": {
+        "test": "make test && make unit"
+    },
+    "licenses": [
+        {
+            "type": "BSD",
+            "url": "http://github.com/walmartlabs/catbox/raw/master/LICENSE"
+        }
+    ]
+}
