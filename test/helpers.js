@@ -9,11 +9,19 @@ exports.redisPortInUse = function (callback) {
 
     connection.once('error', function() {
 
+        exports.redisPortInUse = function (cb) {
+
+            cb(false);
+        };
         callback(false);
     });
 
     connection.once('connect', function() {
 
+        exports.redisPortInUse = function (cb) {
+
+            cb(true);
+        };
         callback(true);
     });
 };
@@ -24,11 +32,19 @@ exports.mongoPortInUse = function (callback) {
 
     connection.once('error', function() {
 
+        exports.mongoPortInUse = function (cb) {
+
+            cb(false);
+        };
         callback(false);
     });
 
     connection.once('connect', function() {
 
+        exports.mongoPortInUse = function (cb) {
+
+            cb(true);
+        };
         callback(true);
     });
 };

@@ -38,7 +38,7 @@ describe('Cache', function () {
 
         Helpers.mongoPortInUse(function (useMongo) {
 
-            engines.mongo = useMongo;
+            engines.mongodb = useMongo;
             if (bothCalled) {
                 done();
             }
@@ -48,315 +48,314 @@ describe('Cache', function () {
         });
     });
 
-    describe('Client', function () {
+    setTimeout(function () {
 
-        it('throws an error if using an unknown engine type', function (done) {
+        describe('Client', function () {
 
-            var fn = function () {
-                var options = {
-                    engine: 'bob'
+            it('throws an error if using an unknown engine type', function (done) {
+
+                var fn = function () {
+                    var options = {
+                        engine: 'bob'
+                    };
+
+                    var client = new Cache.Client(options);
                 };
 
-                var client = new Cache.Client(options);
-            };
-
-            expect(fn).to.throw(Error);
-            done();
-        });
-
-        var testEngine = function (engine) {
-
-            var clientStart = function (next) {
-
-                var client = new Cache.Client(internals.getConfig(engine));
-                client.start(function (err) {
-
-                    next(err, client);
-                });
-            };
-
-            it('creates a new connection using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    expect(client.isReady()).to.equal(true);
-                    done();
-                });
+                expect(fn).to.throw(Error);
+                done();
             });
 
-            it('closes the connection using ' + engine, function (done) {
+            var testEngine = function (engine) {
 
-                clientStart(function (err, client) {
+                if (!engines[engine]) {
+                    return;
+                }
 
-                    expect(client.isReady()).to.equal(true);
-                    client.stop();
-                    expect(client.isReady()).to.equal(false);
-                    done();
-                });
-            });
+                var clientStart = function (next) {
 
-            it('ignored starting a connection twice on same event using ' + engine, function (done) {
-
-                var client = new Cache.Client(internals.getConfig(engine));
-                var x = 2;
-                var start = function () {
-
+                    var client = new Cache.Client(internals.getConfig(engine));
                     client.start(function (err) {
 
-                        expect(client.isReady()).to.equal(true);
-                        --x;
-                        if (!x) {
-                            done();
-                        }
+                        next(err, client);
                     });
                 };
 
-                start();
-                start();
-            });
+                it('creates a new connection using ' + engine, function (done) {
 
-            it('ignored starting a connection twice chained using ' + engine, function (done) {
+                    clientStart(function (err, client) {
 
-                clientStart(function (err, client) {
-
-                    expect(err).to.not.exist;
-                    expect(client.isReady()).to.equal(true);
-
-                    client.start(function (err) {
-
-                        expect(err).to.not.exist;
                         expect(client.isReady()).to.equal(true);
                         done();
                     });
                 });
-            });
 
-            it('returns not found on get when using null key using ' + engine, function (done) {
+                it('closes the connection using ' + engine, function (done) {
 
-                clientStart(function (err, client) {
+                    clientStart(function (err, client) {
 
-                    client.get(null, function (err, result) {
-
-                        expect(err).to.equal(null);
-                        expect(result).to.equal(null);
+                        expect(client.isReady()).to.equal(true);
+                        client.stop();
+                        expect(client.isReady()).to.equal(false);
                         done();
                     });
                 });
-            });
 
-            it('returns not found on get when item expired using ' + engine, function (done) {
+                it('ignored starting a connection twice on same event using ' + engine, function (done) {
 
-                clientStart(function (err, client) {
+                    var client = new Cache.Client(internals.getConfig(engine));
+                    var x = 2;
+                    var start = function () {
 
-                    client.set(key, 'x', 1, function (err) {
+                        client.start(function (err) {
 
-                        expect(err).to.not.exist;
-                        setTimeout(function () {
-
-                            client.get(key, function (err, result) {
-
-                                expect(err).to.equal(null);
-                                expect(result).to.equal(null);
+                            expect(client.isReady()).to.equal(true);
+                            --x;
+                            if (!x) {
                                 done();
-                            });
-                        }, 2);
-                    });
+                            }
+                        });
+                    };
+
+                    start();
+                    start();
                 });
-            });
 
-            it('returns error on set when using null key using ' + engine, function (done) {
+                it('ignored starting a connection twice chained using ' + engine, function (done) {
 
-                clientStart(function (err, client) {
-
-                    client.set(null, {}, 1000, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on get when using invalid key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.get({}, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on drop when using invalid key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.drop({}, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('returns error on set when using invalid key using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.set({}, {}, 1000, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
-                        done();
-                    });
-                });
-            });
-
-            it('ignores set when using non-positive ttl value using ' + engine, function (done) {
-
-                clientStart(function (err, client) {
-
-                    client.set(key, 'y', 0, function (err) {
+                    clientStart(function (err, client) {
 
                         expect(err).to.not.exist;
+                        expect(client.isReady()).to.equal(true);
+
+                        client.start(function (err) {
+
+                            expect(err).to.not.exist;
+                            expect(client.isReady()).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns not found on get when using null key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.get(null, function (err, result) {
+
+                            expect(err).to.equal(null);
+                            expect(result).to.equal(null);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns not found on get when item expired using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set(key, 'x', 1, function (err) {
+
+                            expect(err).to.not.exist;
+                            setTimeout(function () {
+
+                                client.get(key, function (err, result) {
+
+                                    expect(err).to.equal(null);
+                                    expect(result).to.equal(null);
+                                    done();
+                                });
+                            }, 2);
+                        });
+                    });
+                });
+
+                it('returns error on set when using null key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set(null, {}, 1000, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on get when using invalid key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.get({}, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on drop when using invalid key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.drop({}, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on set when using invalid key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set({}, {}, 1000, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('ignores set when using non-positive ttl value using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.set(key, 'y', 0, function (err) {
+
+                            expect(err).to.not.exist;
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on drop when using null key using ' + engine, function (done) {
+
+                    clientStart(function (err, client) {
+
+                        client.drop(null, function (err) {
+
+                            expect(err instanceof Error).to.equal(true);
+                            done();
+                        });
+                    });
+                });
+
+                it('returns error on get when stopped using ' + engine, function (done) {
+
+                    var client = new Cache.Client(internals.getConfig(engine));
+                    client.stop();
+                    client.connection.get(key, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(result).to.not.exist;
                         done();
                     });
                 });
-            });
 
-            it('returns error on drop when using null key using ' + engine, function (done) {
+                it('returns error on set when stopped using ' + engine, function (done) {
 
-                clientStart(function (err, client) {
+                    var client = new Cache.Client(internals.getConfig(engine));
+                    client.stop();
+                    client.connection.set(key, 'y', 1, function (err) {
 
-                    client.drop(null, function (err) {
-
-                        expect(err instanceof Error).to.equal(true);
+                        expect(err).to.exist;
                         done();
                     });
                 });
-            });
 
-            it('returns error on get when stopped using ' + engine, function (done) {
+                it('returns error on drop when stopped using ' + engine, function (done) {
 
-                var client = new Cache.Client(internals.getConfig(engine));
-                client.stop();
-                client.connection.get(key, function (err, result) {
-
-                    expect(err).to.exist;
-                    expect(result).to.not.exist;
-                    done();
-                });
-            });
-
-            it('returns error on set when stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(internals.getConfig(engine));
-                client.stop();
-                client.connection.set(key, 'y', 1, function (err) {
-
-                    expect(err).to.exist;
-                    done();
-                });
-            });
-
-            it('returns error on drop when stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(internals.getConfig(engine));
-                client.stop();
-                client.connection.drop(key, function (err) {
-
-                    expect(err).to.exist;
-                    done();
-                });
-            });
-
-            it('returns error on missing segment name using ' + engine, function (done) {
-
-                var config = {
-                    expiresIn: 50000,
-                    segment: ''
-                };
-                var fn = function () {
                     var client = new Cache.Client(internals.getConfig(engine));
-                    var cache = new Cache.Policy(config, client);
-                };
-                expect(fn).to.throw(Error);
-                done();
-            });
+                    client.stop();
+                    client.connection.drop(key, function (err) {
 
-            it('returns error on bad segment name using ' + engine, function (done) {
+                        expect(err).to.exist;
+                        done();
+                    });
+                });
 
-                var config = {
-                    expiresIn: 50000,
-                    segment: 'a\0b'
-                };
-                var fn = function () {
-                    var client = new Cache.Client(internals.getConfig(engine));
-                    var cache = new Cache.Policy(config, client);
-                };
-                expect(fn).to.throw(Error);
-                done();
-            });
+                it('returns error on missing segment name using ' + engine, function (done) {
 
-            it('returns error when cache item dropped while stopped using ' + engine, function (done) {
-
-                var client = new Cache.Client(internals.getConfig(engine));
-                client.stop();
-                client.drop('a', function (err) {
-
-                    expect(err).to.exist;
+                    var config = {
+                        expiresIn: 50000,
+                        segment: ''
+                    };
+                    var fn = function () {
+                        var client = new Cache.Client(internals.getConfig(engine));
+                        var cache = new Cache.Policy(config, client);
+                    };
+                    expect(fn).to.throw(Error);
                     done();
                 });
-            });
-        };
 
-        if (engines.memory) {
+                it('returns error on bad segment name using ' + engine, function (done) {
+
+                    var config = {
+                        expiresIn: 50000,
+                        segment: 'a\0b'
+                    };
+                    var fn = function () {
+                        var client = new Cache.Client(internals.getConfig(engine));
+                        var cache = new Cache.Policy(config, client);
+                    };
+                    expect(fn).to.throw(Error);
+                    done();
+                });
+
+                it('returns error when cache item dropped while stopped using ' + engine, function (done) {
+
+                    var client = new Cache.Client(internals.getConfig(engine));
+                    client.stop();
+                    client.drop('a', function (err) {
+
+                        expect(err).to.exist;
+                        done();
+                    });
+                });
+            };
+
             testEngine('memory');
-        }
-
-        if (engines.mongo) {
             testEngine('mongodb');
-        }
-
-        if (engines.redis) {
             testEngine('redis');
-        }
 
-        // Error engine
+            // Error engine
 
-        var failOn = function (method) {
+            var failOn = function (method) {
 
-            var err = new Error('FAIL');
-            var errorEngineImp = {
+                var err = new Error('FAIL');
+                var errorEngineImp = {
 
-                start: function (callback) { callback(method === 'start' ? err : null); },
-                stop: function () { },
-                isReady: function () { return method !== 'isReady'; },
-                validateSegmentName: function () { return method === 'validateSegmentName' ? err : null; },
-                get: function (key, callback) { return callback(method === 'get' ? err : null); },
-                set: function (key, value, ttl, callback) { return callback(method === 'set' ? err : null); },
-                drop: function (key, callback) { return callback(method === 'drop' ? err : null); }
+                    start: function (callback) { callback(method === 'start' ? err : null); },
+                    stop: function () { },
+                    isReady: function () { return method !== 'isReady'; },
+                    validateSegmentName: function () { return method === 'validateSegmentName' ? err : null; },
+                    get: function (key, callback) { return callback(method === 'get' ? err : null); },
+                    set: function (key, value, ttl, callback) { return callback(method === 'set' ? err : null); },
+                    drop: function (key, callback) { return callback(method === 'drop' ? err : null); }
+                };
+
+                var options = {
+                    engine: errorEngineImp,
+                    partition: 'hapi-cache'
+                };
+
+                return new Cache.Client(options);
             };
 
-            var options = {
-                engine: errorEngineImp,
-                partition: 'hapi-cache'
-            };
+            it('returns error when calling get on a bad connection', function (done) {
 
-            return new Cache.Client(options);
-        };
+                var client = failOn('get');
+                client.get(key, function (err, result) {
 
-        it('returns error when calling get on a bad connection', function (done) {
-
-            var client = failOn('get');
-            client.get(key, function (err, result) {
-
-                expect(err).to.exist;
-                expect(err.message).to.equal('FAIL');
-                done();
+                    expect(err).to.exist;
+                    expect(err.message).to.equal('FAIL');
+                    done();
+                });
             });
         });
-    });
+    }, 15);
 
     describe('Policy', function () {
 

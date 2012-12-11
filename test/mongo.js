@@ -2,10 +2,11 @@
 
 var expect = require('chai').expect;
 var Mongodb = require('mongodb');
+var Helpers = require('./helpers');
 var Mongo = process.env.TEST_COV ? require('../lib-cov/mongo') : require('../lib/mongo');
 
 
-require('./helpers').mongoPortInUse(function (useMongo) {
+Helpers.mongoPortInUse(function (useMongo) {
 
     if (useMongo) {
         describe('Mongo', function () {
