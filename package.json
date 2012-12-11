@@ -19,10 +19,14 @@
         "node": ">=0.8.0"
     },
     "dependencies": {
+        "hoek": "0.0.x",
+        "redis": "0.8.x",
+        "mongodb": "1.1.x"
     },
     "devDependencies": {
         "mocha": "1.x.x",
-        "chai": "1.2.x"
+        "chai": "1.2.x",
+        "async": "0.1.x"
     },
     "scripts": {
         "test": "make test && make unit"
