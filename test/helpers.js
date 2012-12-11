@@ -9,12 +9,12 @@ exports.redisPortInUse = function (callback) {
 
     connection.once('error', function() {
 
-        callback(null, false);
+        callback(false);
     });
 
     connection.once('connect', function() {
 
-        callback(null, true);
+        callback(true);
     });
 };
 
@@ -24,11 +24,11 @@ exports.mongoPortInUse = function (callback) {
 
     connection.once('error', function() {
 
-        callback(null, false);
+        callback(false);
     });
 
     connection.once('connect', function() {
 
-        callback(null, true);
+        callback(true);
     });
 };

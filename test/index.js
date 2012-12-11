@@ -1,6 +1,5 @@
 // Load modules
 
-var Async = require('async');
 var Chai = require('chai');
 var Cache = process.env.TEST_COV ? require('../lib-cov/') : require('../lib/');
 var Helpers = require('./helpers');
@@ -19,28 +18,37 @@ var expect = Chai.expect;
 describe('Cache', function () {
 
     var key = { id: 'x', segment: 'test' };
+    var engines = {
+        memory: true
+    };
+
+    before(function (done) {
+
+        var bothCalled = false;
+        Helpers.redisPortInUse(function (useRedis) {
+
+            engines.redis = useRedis;
+            if (bothCalled) {
+                done();
+            }
+            else {
+                bothCalled = true;
+            }
+        });
+
+        Helpers.mongoPortInUse(function (useMongo) {
+
+            engines.mongo = useMongo;
+            if (bothCalled) {
+                done();
+            }
+            else {
+                bothCalled = true;
+            }
+        });
+    });
 
     describe('Client', function () {
-
-        before(function (done) {
-
-            Async.series({
-                useRedis: Helpers.redisPortInUse,
-                useMongo: Helpers.mongoPortInUse
-            }, function (err, results) {
-
-                internals.testEngine('memory');
-
-                if (results.useMongo) {
-                    internals.testEngine('mongodb');
-                }
-                if (results.useRedis) {
-                    internals.testEngine('redis');
-                }
-
-                done();
-            });
-        });
 
         it('throws an error if using an unknown engine type', function (done) {
 
@@ -56,7 +64,7 @@ describe('Cache', function () {
             done();
         });
 
-        internals.testEngine = function (engine) {
+        var testEngine = function (engine) {
 
             var clientStart = function (next) {
 
@@ -301,6 +309,18 @@ describe('Cache', function () {
                 });
             });
         };
+
+        if (engines.memory) {
+            testEngine('memory');
+        }
+
+        if (engines.mongo) {
+            testEngine('mongodb');
+        }
+
+        if (engines.redis) {
+            testEngine('redis');
+        }
 
         // Error engine
 
