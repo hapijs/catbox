@@ -414,11 +414,187 @@ describe('Cache', function () {
                 }, 2);
             });
         });
+
+        describe('#get', function () {
+
+            it('passes an error to the callback when an error occurs getting the item', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return true;
+                        },
+                        get: function (key, callback) {
+
+                            callback(new Error());
+                        },
+                        validateSegmentName: function() {
+
+                            return null;
+                        }
+                    }
+                };
+                var policyConfig = {
+                    expiresIn: 50000,
+                    segment: 'test',
+                    mode: 'server'
+                };
+
+                var client = new Cache.Client(options);
+                var policy = new Cache.Policy(policyConfig, client);
+
+                policy.get({ id: 'test1', segment: 'test2' }, function (err, result) {
+
+                    expect(err).to.be.instanceOf(Error);
+                    expect(result).to.not.exist;
+                    done();
+                });
+            });
+
+            it('returns the cached result when no error occurs', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return true;
+                        },
+                        get: function (key, callback) {
+
+                            callback(null, {
+                                stored: 'stored',
+                                item: 'item'
+                            });
+                        },
+                        validateSegmentName: function() {
+
+                            return null;
+                        }
+                    }
+                };
+                var policyConfig = {
+                    expiresIn: 50000,
+                    segment: 'test',
+                    mode: 'server'
+                };
+
+                var client = new Cache.Client(options);
+                var policy = new Cache.Policy(policyConfig, client);
+
+                policy.get({ id: 'test1', segment: 'test2' }, function (err, result) {
+
+                    expect(result.item).to.equal('item');
+                    expect(result.isStale).to.be.false;
+                    done();
+                });
+            });
+        });
+
+        describe('#drop', function () {
+
+            it('calls the extension clients drop function', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return true;
+                        },
+                        drop: function (key, callback) {
+
+                            callback(null, 'success');
+                        },
+                        validateSegmentName: function() {
+
+                            return null;
+                        }
+                    }
+                };
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    segment: 'test',
+                    mode: 'server'
+                };
+
+                var client = new Cache.Client(options);
+                var policy = new Cache.Policy(policyConfig, client);
+
+                policy.drop('test', function (err, result) {
+
+                    expect(result).to.equal('success');
+                    done();
+                });
+            });
+        });
+
+        describe('#ttl', function () {
+
+            it('returns the ttl factoring in the created time', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return true;
+                        },
+                        validateSegmentName: function() {
+
+                            return null;
+                        }
+                    }
+                };
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    segment: 'test',
+                    mode: 'server'
+                };
+
+                var client = new Cache.Client(options);
+                var policy = new Cache.Policy(policyConfig, client);
+
+                var result = policy.ttl(Date.now() - 10000);
+                expect(result).to.equal(40000);
+                done();
+            });
+        });
     });
 
     describe('Rules', function () {
 
         describe('#compile', function () {
+
+            it('doesn\'t try to compile a null config', function (done) {
+
+                var rule = Cache.compile(null);
+
+                expect(rule).exist;
+                expect(rule.mode.length).to.not.exist;
+
+                done();
+            });
 
             it('compiles a single rule', function (done) {
 
@@ -955,6 +1131,154 @@ describe('Cache', function () {
                 var ttl = Cache.ttl(rule, created);
                 expect(ttl).to.be.closeTo(60 * 60 * 1000, 60 * 60 * 1000);
                 done();
+            });
+        });
+    });
+
+    describe('Extension client', function () {
+
+        describe('#start', function () {
+
+            it('logs an error when one occurs', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback(new Error());
+                        }
+                    },
+                    logFunc: function (tags, message) {
+
+                        expect(message).to.equal('Failed initializing cache engine');
+                        done();
+                    }
+                };
+
+                var client = new Cache.Client(options);
+            });
+        });
+
+        describe('#get', function () {
+
+            it('returns an error when the connection is not ready', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return false;
+                        }
+                    }
+                };
+
+                var client = new Cache.Client(options);
+                client.get('test', function (err) {
+
+                    expect(err).to.be.instanceOf(Error);
+                    expect(err.message).to.equal('Disconnected');
+                    done();
+                });
+            });
+
+            it('wraps the result with cached details', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return true;
+                        },
+                        get: function (key, callback) {
+
+                            var result = {
+                                item: 'test1',
+                                stored: 'test2'
+                            };
+
+                            callback(null, result);
+                        }
+                    }
+                };
+
+                var client = new Cache.Client(options);
+                client.get({ id: 'id', segment: 'segment' }, function (err, cached) {
+
+                    expect(cached.item).to.equal('test1');
+                    expect(cached.stored).to.equal('test2');
+                    expect(cached.ttl).to.exist;
+                    done();
+                });
+            });
+        });
+
+        describe('#set', function () {
+
+            it('returns an error when the connection is not ready', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return false;
+                        }
+                    }
+                };
+
+                var client = new Cache.Client(options);
+                client.set('test', 'test', 'test', function (err) {
+
+                    expect(err).to.be.instanceOf(Error);
+                    expect(err.message).to.equal('Disconnected');
+                    done();
+                });
+            });
+        });
+
+        describe('#drop', function () {
+
+            it('calls the extension clients drop function', function (done) {
+
+                var options = {
+                    partition: 'test',
+                    engine: {
+                        start: function (callback) {
+
+                            callback();
+                        },
+                        isReady: function () {
+
+                            return true;
+                        },
+                        drop: function (key, callback) {
+
+                            callback(null, 'success');
+                        }
+                    }
+                };
+
+                var client = new Cache.Client(options);
+                client.drop({ id: 'id', segment: 'segment' }, function (err, result) {
+
+                    expect(result).to.equal('success');
+                    done();
+                });
             });
         });
     });
