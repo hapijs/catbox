@@ -19,6 +19,9 @@
         "node": ">=0.8.0"
     },
     "dependencies": {
+        "hoek": "0.0.x",
+        "redis": "0.8.x",
+        "mongodb": "1.1.x"
     },
     "devDependencies": {
         "mocha": "1.x.x",
