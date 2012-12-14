@@ -1,9 +1,14 @@
 // Load modules
 
-var expect = require('chai').expect;
+var Chai = require('chai');
 var Mongodb = require('mongodb');
 var Helpers = require('../helpers');
-var Mongo = process.env.TEST_COV ? require('../../lib-cov/mongo') : require('../../lib/mongo');
+
+
+// Test shortcuts
+
+var expect = Chai.expect;
+var Mongo = Helpers.Catbox.Mongo;
 
 
 Helpers.mongoPortInUse(function (useMongo) {

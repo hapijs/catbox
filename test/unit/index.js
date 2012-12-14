@@ -1,7 +1,6 @@
 // Load modules
 
 var Chai = require('chai');
-var Cache = process.env.TEST_COV ? require('../../lib-cov/') : require('../../lib/');
 var Helpers = require('../helpers');
 
 
@@ -13,6 +12,7 @@ var internals = {};
 // Test shortcuts
 
 var expect = Chai.expect;
+var Cache = Helpers.Catbox;
 
 
 describe('Cache', function () {

@@ -2,7 +2,6 @@
 
 var Chai = require('chai');
 var Helpers = require('../helpers');
-var Redis = process.env.TEST_COV ? require('../../lib-cov/redis') : require('../../lib/redis');
 
 
 // Declare internals
@@ -13,6 +12,7 @@ var internals = {};
 // Test shortcuts
 
 var expect = Chai.expect;
+var Redis = Helpers.Catbox.Redis;
 
 
 Helpers.redisPortInUse(function (useRedis) {
@@ -348,6 +348,27 @@ Helpers.redisPortInUse(function (useRedis) {
                         expect(err).to.not.exist;
                         done();
                     });
+                });
+            });
+        });
+
+        describe('#stop', function () {
+
+            it('sets the client to null', function (done) {
+
+                var options = {
+                    host: '127.0.0.1',
+                    port: 6379
+                };
+
+                var redis = new Redis.Connection(options);
+
+                redis.start(function () {
+
+                    expect(redis.client).to.exist;
+                    redis.stop();
+                    expect(redis.client).to.not.exist;
+                    done();
                 });
             });
         });
