@@ -25,7 +25,8 @@
     },
     "devDependencies": {
         "mocha": "1.x.x",
-        "chai": "1.2.x"
+        "chai": "1.2.x",
+        "hapi": "0.x.x"
     },
     "scripts": {
         "test": "make test && make unit"
