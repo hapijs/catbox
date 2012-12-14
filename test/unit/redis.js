@@ -1,8 +1,8 @@
 // Load modules
 
 var Chai = require('chai');
-var Helpers = require('./helpers');
-var Redis = process.env.TEST_COV ? require('../lib-cov/redis') : require('../lib/redis');
+var Helpers = require('../helpers');
+var Redis = process.env.TEST_COV ? require('../../lib-cov/redis') : require('../../lib/redis');
 
 
 // Declare internals

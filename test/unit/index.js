@@ -1,8 +1,8 @@
 // Load modules
 
 var Chai = require('chai');
-var Cache = process.env.TEST_COV ? require('../lib-cov/') : require('../lib/');
-var Helpers = require('./helpers');
+var Cache = process.env.TEST_COV ? require('../../lib-cov/') : require('../../lib/');
+var Helpers = require('../helpers');
 
 
 // Declare internals
@@ -66,6 +66,16 @@ describe('Cache', function () {
                 done();
             });
 
+            it('doesn\'t initialize client when engine is none', function (done) {
+
+                var fn = function () {
+                    var client = new Cache.Client('none');
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+
             var testEngine = function (engine) {
 
                 if (!engines[engine]) {
@@ -74,7 +84,7 @@ describe('Cache', function () {
 
                 var clientStart = function (next) {
 
-                    var client = new Cache.Client(internals.getConfig(engine));
+                    var client = new Cache.Client(engine);
                     client.start(function (err) {
 
                         next(err, client);
@@ -103,7 +113,7 @@ describe('Cache', function () {
 
                 it('ignored starting a connection twice on same event using ' + engine, function (done) {
 
-                    var client = new Cache.Client(internals.getConfig(engine));
+                    var client = new Cache.Client(engine);
                     var x = 2;
                     var start = function () {
 
@@ -244,7 +254,7 @@ describe('Cache', function () {
 
                 it('returns error on get when stopped using ' + engine, function (done) {
 
-                    var client = new Cache.Client(internals.getConfig(engine));
+                    var client = new Cache.Client(engine);
                     client.stop();
                     client.connection.get(key, function (err, result) {
 
@@ -256,7 +266,7 @@ describe('Cache', function () {
 
                 it('returns error on set when stopped using ' + engine, function (done) {
 
-                    var client = new Cache.Client(internals.getConfig(engine));
+                    var client = new Cache.Client(engine);
                     client.stop();
                     client.connection.set(key, 'y', 1, function (err) {
 
@@ -267,7 +277,7 @@ describe('Cache', function () {
 
                 it('returns error on drop when stopped using ' + engine, function (done) {
 
-                    var client = new Cache.Client(internals.getConfig(engine));
+                    var client = new Cache.Client(engine);
                     client.stop();
                     client.connection.drop(key, function (err) {
 
@@ -283,7 +293,7 @@ describe('Cache', function () {
                         segment: ''
                     };
                     var fn = function () {
-                        var client = new Cache.Client(internals.getConfig(engine));
+                        var client = new Cache.Client(engine);
                         var cache = new Cache.Policy(config, client);
                     };
                     expect(fn).to.throw(Error);
@@ -297,7 +307,7 @@ describe('Cache', function () {
                         segment: 'a\0b'
                     };
                     var fn = function () {
-                        var client = new Cache.Client(internals.getConfig(engine));
+                        var client = new Cache.Client(engine);
                         var cache = new Cache.Policy(config, client);
                     };
                     expect(fn).to.throw(Error);
@@ -306,7 +316,7 @@ describe('Cache', function () {
 
                 it('returns error when cache item dropped while stopped using ' + engine, function (done) {
 
-                    var client = new Cache.Client(internals.getConfig(engine));
+                    var client = new Cache.Client(engine);
                     client.stop();
                     client.drop('a', function (err) {
 
@@ -365,7 +375,7 @@ describe('Cache', function () {
                 mode: 'client',
                 expiresIn: 1
             };
-            var client = new Cache.Client(internals.getConfig('memory'));
+            var client = new Cache.Client('memory');
             var cache = new Cache.Policy(config, client);
             return cache;
         };
@@ -400,7 +410,7 @@ describe('Cache', function () {
 
         it('returns null on get when item expired', function (done) {
 
-            var client = new Cache.Client(internals.getConfig('memory'));
+            var client = new Cache.Client('memory');
             client.set(key, 'y', 1, function (err) {
 
                 setTimeout(function () {
@@ -614,7 +624,7 @@ describe('Cache', function () {
                     expiresIn: 50000,
                     segment: 'test'
                 };
-                var client = new Cache.Client(internals.getConfig('memory'));
+                var client = new Cache.Client('memory');
                 var cache = new Cache.Policy(config, client);
 
                 expect(cache.isMode('server')).to.equal(true);
@@ -629,7 +639,7 @@ describe('Cache', function () {
                 var config = {
                     mode: 'none'
                 };
-                var client = new Cache.Client(internals.getConfig('memory'));
+                var client = new Cache.Client('memory');
                 var cache = new Cache.Policy(config, client);
 
                 expect(cache.isEnabled()).to.equal(false);
@@ -661,7 +671,7 @@ describe('Cache', function () {
                 };
                 var fn = function () {
 
-                    var client = new Cache.Client(internals.getConfig('memory'));
+                    var client = new Cache.Client('memory');
                     var cache = new Cache.Policy(config, client);
                 };
 
@@ -1283,32 +1293,3 @@ describe('Cache', function () {
         });
     });
 });
-
-
-internals.getConfig = function (engine) {
-
-    if (engine !== null && typeof engine === 'object') {
-        engine = engine.engine;
-    }
-
-    if (engine === false) {
-        return null;
-    }
-
-    var config = {
-        engine: engine,
-        partition: 'hapi-cache'
-    };
-
-    if (engine === 'redis') {
-        config.host = '127.0.0.1';
-        config.port = 6379;
-    }
-    else if (engine === 'mongodb') {
-        config.host = '127.0.0.1';
-        config.port = 27017;
-        config.poolSize = 5;
-    }
-
-    return config;
-};

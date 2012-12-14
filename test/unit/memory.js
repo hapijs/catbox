@@ -1,7 +1,7 @@
 // Load modules
 
 var Chai = require('chai');
-var Memory = process.env.TEST_COV ? require('../lib-cov/memory') : require('../lib/memory');
+var Memory = process.env.TEST_COV ? require('../../lib-cov/memory') : require('../../lib/memory');
 
 
 // Declare internals
