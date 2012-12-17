@@ -156,7 +156,7 @@ describe('Cache', function () {
                     id: 'test2'
                 };
 
-                var memory = new Memory.Connection({ maxByteSize: 6 });
+                var memory = new Memory.Connection({ maxByteSize: 30 });
                 expect(memory.cache).to.not.exist;
 
                 memory.start(function () {
@@ -198,7 +198,7 @@ describe('Cache', function () {
                     expect(memory.cache).to.exist;
                     memory.set(key1, itemToStore, 10, function () {
 
-                        expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(66);
+                        expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(102);
                         expect(memory.cache[key1.segment][key1.id].item.my).to.exist;
                         done();
                     });
@@ -229,11 +229,11 @@ describe('Cache', function () {
                     expect(memory.cache).to.exist;
                     memory.set(key1, itemToStore, 10, function () {
 
-                        expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(68);
+                        expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(111);
                         expect(memory.cache[key1.segment][key1.id].item.my).to.exist;
                         memory.set(key1, itemToStore, 10, function () {
 
-                            expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(68);
+                            expect(memory.cache[key1.segment][key1.id].byteSize).to.equal(111);
                             expect(memory.cache[key1.segment][key1.id].item.my).to.exist;
                             done();
                         });
