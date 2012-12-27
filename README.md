@@ -6,9 +6,12 @@ Multi-strategy object caching service
 [![Build Status](https://secure.travis-ci.org/walmartlabs/catbox.png)](http://travis-ci.org/walmartlabs/catbox)
 
 
-### Overview
+The provided implementation includes support for Redis, MongoDB, and an experimental memory store (each must be manually installed and configured).  _'Catbox'_ is useful for conveniently managing item cache rules and storage.
 
-The provided implementations include Redis and MongoDB support (each must be manually installed and configured).  Catbox has a _'Client'_ constructor that takes the following options.
+
+### Client
+
+Catbox has a _'Client'_ constructor that takes the following options.
 
 * `engine` - the cache server implementation. Options are redis, mongodb, and memory. (required)
 * `host` - the cache server hostname.
@@ -22,7 +25,6 @@ For convenience, pre-configured options are provided for Redis, MongoDB, and an 
 * 'mongodb' - Connects to 127.0.0.1:27017, no authentication, and pool size 5.
 * 'memory' - This is an experimental engine and should be avoided in production environments. The memory engine will run within the node process and supports the following option:
    * maxByteSize - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine. Once this limit is reached no more items will be added to the cache.
-
 
 #### Client Interface
 
@@ -40,7 +42,7 @@ _'key'_ is an object with the following properties:
 * id - should be unique across the segment, used to identify the stored item
 
 
-#### Policy
+### Policy
 
 Instead of dealing directly with the client interface using the _'Policy'_ interface is often preferred.  It provides several helper methods like _'getOrGenerate'_ that will handle retrieving an item from cache when available or generating a new item and storing it in cache.  _'Policy'_ is also useful for creating cache rules for different items and having them enforced.  To construct a new _'Policy'_ the constructor takes the following parameters:
 
@@ -56,6 +58,8 @@ Instead of dealing directly with the client interface using the _'Policy'_ inter
     * `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than _'expiresIn'_.
     * `staleTimeout` - number of milliseconds to wait before checking if an item is stale
 * `cache` - a cache client that has been started
+
+#### Policy Interface
 
 After a _'Policy'_ is constructed the following methods are available.
 
