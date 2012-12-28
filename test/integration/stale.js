@@ -19,11 +19,10 @@ describe('Stale', function () {
     it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
 
         var options = {
-            cache: {
-                expiresIn: 100,
-                staleIn: 20,
-                staleTimeout: 5
-            }
+            expiresIn: 100,
+            staleIn: 20,
+            staleTimeout: 5,
+            segment: 'user'
         };
 
         var gen = 0;
@@ -35,7 +34,7 @@ describe('Stale', function () {
             }, 6);
         };
 
-        var server = new Helpers.Server('0.0.0.0', 8097, { cache: 'memory' });
+        var server = Helpers.Server({ engine: 'memory' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
@@ -63,11 +62,10 @@ describe('Stale', function () {
     it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
 
         var options = {
-            cache: {
-                expiresIn: 100,
-                staleIn: 20,
-                staleTimeout: 5
-            }
+            expiresIn: 100,
+            staleIn: 20,
+            staleTimeout: 5,
+            segment: 'user'
         };
 
         var gen = 0;
@@ -85,7 +83,7 @@ describe('Stale', function () {
             }, 6);
         };
 
-        var server = new Helpers.Server('0.0.0.0', 8097, { cache: 'memory' });
+        var server = Helpers.Server({ engine: 'memory' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
@@ -118,11 +116,10 @@ describe('Stale', function () {
     it('returns fresh object calling a helper using the cache with stale config', function (done) {
 
         var options = {
-            cache: {
-                expiresIn: 100,
-                staleIn: 20,
-                staleTimeout: 10
-            }
+            expiresIn: 100,
+            staleIn: 20,
+            staleTimeout: 10,
+            segment: 'user'
         };
 
         var gen = 0;
@@ -131,7 +128,7 @@ describe('Stale', function () {
             return next({ id: id, gen: ++gen });
         };
 
-        var server = new Helpers.Server('0.0.0.0', 8097, { cache: 'memory' });
+        var server = Helpers.Server({ engine: 'memory' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
@@ -159,10 +156,10 @@ describe('Stale', function () {
 
     it('returns a valid result when calling a helper using the cache with bad cache connection', function (done) {
 
-        var server = new Helpers.Server('0.0.0.0', 8097, { cache: 'memory' });
-        server.cache.stop();
+        var server = Helpers.Server({ engine: 'memory' });
+        server.client.stop();
         var gen = 0;
-        server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { cache: { expiresIn: 2000 } });
+        server.addHelper('user', function (id, next) { return next({ id: id, gen: ++gen }); }, { expiresIn: 2000, segment: 'user' });
         var id = Math.random();
         server.helpers.user(id, function (result1) {
 
@@ -180,11 +177,10 @@ describe('Stale', function () {
     it('returns error when calling a helper using the cache with stale config when arrives within stale timeout', function (done) {
 
         var options = {
-            cache: {
-                expiresIn: 30,
-                staleIn: 20,
-                staleTimeout: 5
-            }
+            expiresIn: 30,
+            staleIn: 20,
+            staleTimeout: 5,
+            segment: 'user'
         };
 
         var gen = 0;
@@ -199,7 +195,7 @@ describe('Stale', function () {
             }
         };
 
-        var server = new Helpers.Server('0.0.0.0', 8097, { cache: 'memory' });
+        var server = Helpers.Server({ engine: 'memory' });
         server.addHelper('user', method, options);
 
         var id = Math.random();
