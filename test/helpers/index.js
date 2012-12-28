@@ -2,9 +2,7 @@
 
 var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
 var Net = require('net');
-var NodeUtil = require('util');
-var Events = require('events');
-var Hapi = require('hapi');
+var Server = require('./server');
 var Catbox = require(libPath);
 var Defaults = require(libPath + 'defaults');
 var Memory = require(libPath + 'memory');
@@ -18,7 +16,6 @@ var Stale = require(libPath + 'stale');
 var internals = {};
 
 
-module.exports = Hapi;
 module.exports.Catbox = Catbox;
 module.exports.Catbox.Defaults = Defaults;
 module.exports.Catbox.Memory = Memory;
@@ -27,14 +24,9 @@ module.exports.Catbox.Redis = Redis;
 module.exports.Catbox.Stale = Stale;
 
 
-module.exports.Server = function (host, port, settings) {
+module.exports.Server = function (settings) {
 
-    var server = new Hapi.server(host, port, settings);
-    if (settings.cache) {
-        server.cache = new Catbox.Client(settings.cache);
-    }
-
-    return server;
+    return new Server(settings);
 };
 
 
@@ -83,23 +75,4 @@ module.exports.mongoPortInUse = function (callback) {
         };
         callback(true);
     });
-};
-
-
-internals.Logger = function () {
-
-    Events.EventEmitter.call(this);
-
-    return this;
-};
-
-NodeUtil.inherits(internals.Logger, Events.EventEmitter);
-module.exports._TEST = internals.logger = new internals.Logger();
-
-
-// Override Log's console method
-
-Hapi.log.console = function (message) {
-
-    internals.logger.emit('log', message);
 };
