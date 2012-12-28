@@ -17,8 +17,7 @@ Catbox has a _'Client'_ constructor that takes the following options.
 * `partition` - the partition name used to isolate the cached results across different servers. (required)
 * `host` - the cache server hostname.
 * `port` - the cache server port.
-* `username`, `password`, `poolSize` - MongoDB-specific options.
-* `maxByteSize` - memory specific option for the max number of bytes the store can consume
+** username, password, poolSize - MongoDB-specific options.
 
 For convenience, pre-configured options are provided for Redis, MongoDB, and an experimental memory store. Below are the defaults used for each of the stores.
 
