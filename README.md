@@ -15,16 +15,28 @@ Catbox has a _'Client'_ constructor that takes the following options.
 
 * `engine` - the cache server implementation. Options are redis, mongodb, and memory. (required)
 * `partition` - the partition name used to isolate the cached results across different servers. (required)
+
+##### Mongo Specific
 * `host` - the cache server hostname.
 * `port` - the cache server port.
-** username, password, poolSize - MongoDB-specific options.
+* `username` - when the mongo server requires authentication 
+* `password` - used for authentication 
+* `poolSize` - number of connections to leave open that can be used for catbox
 
-For convenience, pre-configured options are provided for Redis, MongoDB, and an experimental memory store. Below are the defaults used for each of the stores.
+##### Redis Specific
+* `host` - the cache server hostname.
+* `port` - the cache server port.
+
+##### Memory Specific
+This is an experimental engine and should be avoided in production environments.
+* `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine. Once this limit is reached no more items will be added to the cache.
+
+##### Defaults
 
 * 'redis' - Connects to 127.0.0.1:6379.
 * 'mongodb' - Connects to 127.0.0.1:27017, no authentication, and pool size 5.
-* 'memory' - This is an experimental engine and should be avoided in production environments. The memory engine will run within the node process and supports the following option:
-   * maxByteSize - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine. Once this limit is reached no more items will be added to the cache.
+* 'memory' - No maxByteSize is set
+   
 
 #### Client Interface
 
@@ -38,8 +50,8 @@ After constructing a cache client the following methods are available.  After ea
 
 _'key'_ is an object with the following properties:
 
-* segment - the parent category to store the item under
-* id - should be unique across the segment, used to identify the stored item
+* `segment` - the parent category to store the item under
+* `id` - should be unique across the segment, used to identify the stored item
 
 
 ### Policy
