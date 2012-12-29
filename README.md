@@ -42,11 +42,11 @@ This is an experimental engine and should be avoided in production environments.
 
 After constructing a cache client the following methods are available.  After each method description is the method signature.  Please note that _'start'_ should be called before calling any of these methods.
 
-* `start` - creates a connection to the cache server.  (_'function (callback)'_)
-* `stop` - terminates the connection to the cache server. (_'function ()'_)
-* `get` - retrieve an item from the cache engine if its stored. (_'function (key, callback)'_)
-* `set` - store an item in the cache at the given key for a specified length of time. (_'function (key, value, ttl, callback)'_)
-* `drop` - remove the item from cache found at the given key. (_'function (key, callback)'_)
+* `start` - creates a connection to the cache server.  (`function (callback)`)
+* `stop` - terminates the connection to the cache server. (`function ()`)
+* `get` - retrieve an item from the cache engine if its stored. (`function (key, callback)`)
+* `set` - store an item in the cache at the given key for a specified length of time. (`function (key, value, ttl, callback)`)
+* `drop` - remove the item from cache found at the given key. (`function (key, callback)`)
 
 _'key'_ is an object with the following properties:
 
@@ -75,13 +75,13 @@ Instead of dealing directly with the client interface using the _'Policy'_ inter
 
 After a _'Policy'_ is constructed the following methods are available.
 
-* `isMode` - determines if the policy supports the given mode.  (_'function (mode)'_)
-* `isEnabled` - determines if the policy has a mode enabled. (_'function ()'_)
-* `get` - retrieve an item from the cache engine if its stored. (_'function (key, callback)'_)
-* `set` - store an item in the cache at the given key for a specified length of time. (_'function (key, value, ttl, callback)'_)
-* `drop` - remove the item from cache found at the given key. (_'function (key, callback)'_)
-* `ttl` - get the number of milliseconds that an item has left before it is expired from a given time. (_'function (created)'_)
-* `getOrGenerate` - get and item from cache if it exists, or generate it and store it in cache. (_'function (key, logFunc, generateFunc, callback)'_)
+* `isMode` - determines if the policy supports the given mode.  (`function (mode)`)
+* `isEnabled` - determines if the policy has a mode enabled. (`function ()`)
+* `get` - retrieve an item from the cache engine if its stored. (`function (key, callback)`)
+* `set` - store an item in the cache at the given key for a specified length of time. (`function (key, value, ttl, callback)`)
+* `drop` - remove the item from cache found at the given key. (`function (key, callback)`)
+* `ttl` - get the number of milliseconds that an item has left before it is expired from a given time. (`function (created)`)
+* `getOrGenerate` - get and item from cache if it exists, or generate it and store it in cache. (`function (key, logFunc, generateFunc, callback)`)
 
 As a result of the _'Policy'_ constructor taking the segment, the key used should just be the item ID instead of the object used in the cache _'Client'_ previously used.
 
