@@ -17,26 +17,24 @@ Catbox has a _'Client'_ constructor that takes the following options.
 * `partition` - the partition name used to isolate the cached results across different servers. (required)
 
 ##### Mongo Specific
-* `host` - the cache server hostname.
-* `port` - the cache server port.
-* `username` - when the mongo server requires authentication 
-* `password` - used for authentication 
-* `poolSize` - number of connections to leave open that can be used for catbox
+Defaults are in parentheses after option. 
+* `host` - the cache server hostname. (127.0.0.1)
+* `port` - the cache server port. (27017)
+* `username` - when the mongo server requires authentication (undefined)
+* `password` - used for authentication (undefined)
+* `poolSize` - number of connections to leave open that can be used for catbox (5)
+
 
 ##### Redis Specific
-* `host` - the cache server hostname.
-* `port` - the cache server port.
+Defaults are in parentheses after option. 
+* `host` - the cache server hostname. (127.0.0.1)
+* `port` - the cache server port. (6479)
+
 
 ##### Memory Specific
 This is an experimental engine and should be avoided in production environments.
-* `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine. Once this limit is reached no more items will be added to the cache.
+* `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine. Once this limit is reached no more items will be added to the cache. (undefined)
 
-##### Defaults
-
-* 'redis' - Connects to 127.0.0.1:6379.
-* 'mongodb' - Connects to 127.0.0.1:27017, no authentication, and pool size 5.
-* 'memory' - No maxByteSize is set
-   
 
 #### Client Interface
 
