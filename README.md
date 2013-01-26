@@ -65,6 +65,7 @@ Instead of dealing directly with the client interface using the _'Policy'_ inter
     * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
     * `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than _'expiresIn'_.
     * `staleTimeout` - number of milliseconds to wait before checking if an item is stale
+    * `privacy` - optional cache control override for setting _'public'_ or _'private'_ mode. Defaults to _'default'_ (HTTP protocol cache-control defaults).
 * `cache` - a cache client that has been started
 
 #### Policy Interface
