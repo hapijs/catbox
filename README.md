@@ -8,6 +8,10 @@ Multi-strategy object caching service
 
 The provided implementation includes support for Redis, MongoDB, and an experimental memory store (each must be manually installed and configured).  _'Catbox'_ is useful for conveniently managing item cache rules and storage.
 
+### Installing the appropriate module dependency
+
+The _'mongodb'_ and _'redis'_ modules are currently used only in a development environment.  Therefore, to use _'Catbox'_ in production you will need to manually install the _'mongodb'_ or _'redis'_ modules.  One way that these modules can be installed is by running the command `npm install mongodb` or `npm install redis`.  Another way to install the modules is to add the appropriate one to the applications _'package.json'_ `dependencies` section and then by running `npm install`.
+
 
 ### Client
 
