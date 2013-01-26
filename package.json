@@ -1,7 +1,7 @@
 {
     "name": "catbox",
     "description": "Multi-strategy object caching service",
-    "version": "0.0.3",
+    "version": "0.1.0",
     "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
     "contributors":[
         "Doug Pedley",
@@ -20,13 +20,12 @@
     },
     "dependencies": {
         "hoek": "0.0.x",
-        "redis": "0.8.x",
-        "mongodb": "1.1.x"
     },
     "devDependencies": {
+        "redis": "0.8.x",
+        "mongodb": "1.1.x",
         "mocha": "1.x.x",
-        "chai": "1.2.x",
-        "hapi": "0.x.x"
+        "chai": "1.2.x"
     },
     "scripts": {
         "test": "make test && make unit"

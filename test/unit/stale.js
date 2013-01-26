@@ -307,5 +307,96 @@ describe('Stale', function () {
                 });
             });
         });
+
+        it('stores fresh copy when generation takes longer than ttl to return value', function (done) {
+
+            var key = { id: 'test', segment: 'test' };
+            var cache = new Cache.Memory.Connection();
+            var isGetTtlCalled = false;
+
+            cache.rule = {
+                staleTimeout: 1
+            };
+            cache.isMode = function () {
+
+                return true;
+            };
+            cache.get = function (key, callback) {
+
+                callback(null, { item: 'testitem', isStale: true, ttl: 3 });
+            };
+            cache.set = function (key) {
+
+                expect(key.id).to.equal('test');
+            };
+
+            var generateFunc = function (callback) {
+
+                setTimeout(function () {
+
+                    callback(null, { getTtl: function () {
+
+                        isGetTtlCalled = true;
+                        return 2;
+                    }});
+                }, 10);
+
+            };
+            var logFunc = function (tags, data) {
+            };
+
+            cache.start(function () {
+
+                Cache.Stale.process(cache, key, logFunc, ['test'], generateFunc, function (result) {
+
+                    expect(result).to.equal('testitem');
+                    done();
+                });
+            });
+        });
+
+        it('drops cached item when generation takes longer than ttl and returns an error', function (done) {
+
+            var key = { id: 'test', segment: 'test' };
+            var cache = new Cache.Memory.Connection();
+            var isGetTtlCalled = false;
+
+            cache.rule = {
+                staleTimeout: 1
+            };
+            cache.isMode = function () {
+
+                return true;
+            };
+            cache.get = function (key, callback) {
+
+                callback(null, { item: 'testitem', isStale: true, ttl: 3 });
+            };
+            cache.drop = function (key, callback) {
+
+                expect(key.id).to.equal('test');
+                callback();
+            };
+
+            var generateFunc = function (callback) {
+
+                setTimeout(function () {
+
+                    callback(new Error());
+                }, 10);
+
+            };
+            var logFunc = function (tags, data) {
+            };
+
+            cache.start(function () {
+
+                Cache.Stale.process(cache, key, logFunc, ['test'], generateFunc, function (result) {
+
+                    expect(result).to.equal('testitem');
+                    done();
+                });
+            });
+        });
     });
 });
