@@ -1,5 +1,5 @@
-<a href="/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
-![catbox Logo](https://raw.github.com/walmartlabs/catbox/master/images/catbox.png)
+<a href="https://github.com/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
+![catbox Logo](/images/catbox.png)
 
 Multi-strategy object caching service
 
