@@ -1,7 +1,7 @@
 {
     "name": "catbox",
     "description": "Multi-strategy object caching service",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
     "contributors":[
         "Doug Pedley",
@@ -19,7 +19,7 @@
         "node": ">=0.8.0"
     },
     "dependencies": {
-        "hoek": "0.1.x"
+        "hoek": "0.4.x"
     },
     "devDependencies": {
         "redis": "0.8.x",
