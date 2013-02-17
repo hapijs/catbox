@@ -1,39 +1,43 @@
 {
-    "name": "catbox",
-    "description": "Multi-strategy object caching service",
-    "version": "0.1.2",
-    "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
-    "contributors":[
-        "Doug Pedley",
-        "Wyatt Preul <wpreul@gmail.com>"
-    ],
-    "repository": "git://github.com/walmartlabs/catbox",
-    "main": "index",
-    "keywords": [
-        "cache",
-        "memory",
-        "redis",
-        "mongodb"
-    ],
-    "engines": {
-        "node": ">=0.8.0"
-    },
-    "dependencies": {
-        "hoek": "0.4.x"
-    },
-    "devDependencies": {
-        "redis": "0.8.x",
-        "mongodb": "1.1.x",
-        "mocha": "1.x.x",
-        "chai": "1.2.x"
-    },
-    "scripts": {
-        "test": "make test && make unit"
-    },
-    "licenses": [
-        {
-            "type": "BSD",
-            "url": "http://github.com/walmartlabs/catbox/raw/master/LICENSE"
-        }
-    ]
+  "name": "catbox",
+  "description": "Multi-strategy object caching service",
+  "version": "0.1.3",
+  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+  "contributors":[
+    "Doug Pedley",
+    "Wyatt Preul <wpreul@gmail.com>"
+  ],
+  "repository": "git://github.com/walmartlabs/catbox",
+  "main": "index",
+  "keywords": [
+    "cache",
+    "memory",
+    "redis",
+    "mongodb"
+  ],
+  "engines": {
+    "node": "0.8.x"
+  },
+  "dependencies": {
+    "hoek": "0.4.x"
+  },
+  "devDependencies": {
+    "redis": "0.8.x",
+    "mongodb": "1.1.x",
+    "mocha": "1.x.x",
+    "chai": "1.x.x",
+    "blanket": "1.0.x",
+    "travis-cov": "0.2.x"
+  },
+  "scripts": {
+    "test": "make test && make test-cov",
+    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } },
+    "travis-cov": { "threshold": 100 }
+  },
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "http://github.com/walmartlabs/catbox/raw/master/LICENSE"
+    }
+  ]
 }
