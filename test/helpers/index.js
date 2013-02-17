@@ -1,14 +1,13 @@
 // Load modules
 
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
 var Net = require('net');
 var Server = require('./server');
-var Catbox = require(libPath);
-var Defaults = require(libPath + 'defaults');
-var Memory = require(libPath + 'memory');
-var Mongo = require(libPath + 'mongo');
-var Redis = require(libPath + 'redis');
-var Stale = require(libPath + 'stale');
+var Catbox = require('../../lib/');
+var Defaults = require('../../lib/defaults');
+var Memory = require('../../lib/memory');
+var Mongo = require('../../lib/mongo');
+var Redis = require('../../lib/redis');
+var Stale = require('../../lib/stale');
 
 
 // Declare internals

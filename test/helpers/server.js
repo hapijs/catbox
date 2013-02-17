@@ -1,7 +1,7 @@
 // Load modules
 
-var libPath = process.env.TEST_COV ? '../../lib-cov/' : '../../lib/';
-var Catbox = require(libPath);
+var Catbox = require('../../lib/');
+
 
 // Declare internals
 
