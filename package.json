@@ -7,7 +7,7 @@
     "Doug Pedley",
     "Wyatt Preul <wpreul@gmail.com>"
   ],
-  "repository": "git://github.com/walmartlabs/catbox",
+  "repository": "git://github.com/spumko/catbox",
   "main": "index",
   "keywords": [
     "cache",
@@ -37,7 +37,7 @@
   "licenses": [
     {
       "type": "BSD",
-      "url": "http://github.com/walmartlabs/catbox/raw/master/LICENSE"
+      "url": "http://github.com/spumko/catbox/raw/master/LICENSE"
     }
   ]
 }
