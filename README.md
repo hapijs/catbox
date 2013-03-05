@@ -1,5 +1,5 @@
 <a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
-![catbox Logo](/images/catbox.png)
+![catbox Logo](https://raw.github.com/spumko/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
 
@@ -59,17 +59,17 @@ _'key'_ is an object with the following properties:
 Instead of dealing directly with the client interface using the _'Policy'_ interface is often preferred.  It provides several helper methods like _'getOrGenerate'_ that will handle retrieving an item from cache when available or generating a new item and storing it in cache.  _'Policy'_ is also useful for creating cache rules for different items and having them enforced.  To construct a new _'Policy'_ the constructor takes the following parameters:
 
 * `config`
-    * `mode` - determines if the item is cached on the server, client, or both. (required)
-        * `server+client` - Caches the item on the server and client
-        * `client` - Won't store the item on the server
-        * `server` - Caches the item on the server only
-        * `none` - Disable cache for the item on both the client and server
-    * `segment` - Required segment name, used to isolate cached items within the cache partition. (required)
-    * `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-    * `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
-    * `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than _'expiresIn'_.
-    * `staleTimeout` - number of milliseconds to wait before checking if an item is stale
-    * `privacy` - optional cache control override for setting _'public'_ or _'private'_ mode. Defaults to _'default'_ (HTTP protocol cache-control defaults).
+* `mode` - determines if the item is cached on the server, client, or both. (required)
+* `server+client` - Caches the item on the server and client
+* `client` - Won't store the item on the server
+* `server` - Caches the item on the server only
+* `none` - Disable cache for the item on both the client and server
+* `segment` - Required segment name, used to isolate cached items within the cache partition. (required)
+* `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
+* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
+* `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than _'expiresIn'_.
+* `staleTimeout` - number of milliseconds to wait before checking if an item is stale
+* `privacy` - optional cache control override for setting _'public'_ or _'private'_ mode. Defaults to _'default'_ (HTTP protocol cache-control defaults).
 * `cache` - a cache client that has been started
 
 #### Policy Interface
