@@ -1,9 +1,9 @@
-<a href="https://github.com/walmartlabs/blammo"><img src="https://raw.github.com/walmartlabs/blammo/master/images/from.png" align="right" /></a>
+<a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
 ![catbox Logo](/images/catbox.png)
 
 Multi-strategy object caching service
 
-[![Build Status](https://secure.travis-ci.org/walmartlabs/catbox.png)](http://travis-ci.org/walmartlabs/catbox)
+[![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
 
 The provided implementation includes support for Redis, MongoDB, and an experimental memory store (each must be manually installed and configured).  _'Catbox'_ is useful for conveniently managing item cache rules and storage.
