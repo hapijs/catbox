@@ -78,11 +78,14 @@ Helpers.mongoPortInUse(function (useMongo) {
 
             _server.getResponse('/item', function () {
 
-                _server.client.get({ segment: '/item', id: '/item' }, function (err, cached) {
+                setTimeout(function () {
 
-                    expect(cached).to.exist;
-                    done();
-                });
+                    _server.client.get({ segment: '/item', id: '/item' }, function (err, cached) {
+
+                        expect(cached).to.exist;
+                        done();
+                    });
+                }, 10);                         // Wait for item to be added to cache
             });
         });
 
