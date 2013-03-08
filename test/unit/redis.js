@@ -51,6 +51,28 @@ Helpers.redisPortInUse(function (useRedis) {
                     });
                 });
 
+                it('reuses the client when a connection is already started', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379
+                    };
+
+                    var redis = new Redis.Connection(options);
+
+                    redis.start(function (err) {
+
+                        expect(err).to.not.exist;
+                        var client = redis.client;
+
+                        redis.start(function () {
+
+                            expect(client).to.equal(redis.client);
+                            done();
+                        });
+                    });
+                });
+
                 it('returns an error when connection fails', function (done) {
 
                     var options = {

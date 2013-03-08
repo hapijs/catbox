@@ -46,7 +46,7 @@ describe('Memory Cache', function () {
         _server.addRoute('/empty', badGenerator, { mode: 'server', expiresIn: 120000, segment: '/empty' });
         _server.addRoute('/expired', activeItemGenerator, { mode: 'server', expiresIn: 10, segment: '/expired' });
 
-        done();
+        _server.start(done);
     }
 
     before(setupServer);
