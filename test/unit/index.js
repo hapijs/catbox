@@ -586,7 +586,7 @@ describe('Cache', function () {
                 var policy = new Cache.Policy(policyConfig, client);
 
                 var result = policy.ttl(Date.now() - 10000);
-                expect(result).to.equal(40000);
+                expect(result).to.be.within(39999, 40001);                    // There can occassionally be a 1ms difference
                 done();
             });
         });
