@@ -37,25 +37,28 @@ describe('Stale', function () {
         var server = Helpers.Server({ engine: 'memory' });
         server.addHelper('user', method, options);
 
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
+        server.start(function () {
 
-            expect(result1.gen).to.equal(1);     // Fresh
-            setTimeout(function () {
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
 
-                server.helpers.user(id, function (result2) {
+                expect(result1.gen).to.equal(1);     // Fresh
+                setTimeout(function () {
 
-                    expect(result2.gen).to.equal(1);     // Stale
-                    setTimeout(function () {
+                    server.helpers.user(id, function (result2) {
 
-                        server.helpers.user(id, function (result3) {
+                        expect(result2.gen).to.equal(1);     // Stale
+                        setTimeout(function () {
 
-                            expect(result3.gen).to.equal(2);     // Fresh
-                            done();
-                        });
-                    }, 3);
-                });
-            }, 21);
+                            server.helpers.user(id, function (result3) {
+
+                                expect(result3.gen).to.equal(2);     // Fresh
+                                done();
+                            });
+                        }, 3);
+                    });
+                }, 21);
+            });
         });
     });
 
@@ -131,26 +134,29 @@ describe('Stale', function () {
         var server = Helpers.Server({ engine: 'memory' });
         server.addHelper('user', method, options);
 
-        var id = Math.random();
-        server.helpers.user(id, function (result1) {
+        server.start(function () {
 
-            expect(result1.gen).to.equal(1);     // Fresh
-            setTimeout(function () {
+            var id = Math.random();
+            server.helpers.user(id, function (result1) {
 
-                server.helpers.user(id, function (result2) {
+                expect(result1.gen).to.equal(1);     // Fresh
+                setTimeout(function () {
 
-                    expect(result2.gen).to.equal(2);     // Fresh
+                    server.helpers.user(id, function (result2) {
 
-                    setTimeout(function () {
+                        expect(result2.gen).to.equal(2);     // Fresh
 
-                        server.helpers.user(id, function (result3) {
+                        setTimeout(function () {
 
-                            expect(result3.gen).to.equal(2);     // Fresh
-                            done();
-                        });
-                    }, 1);
-                });
-            }, 21);
+                            server.helpers.user(id, function (result3) {
+
+                                expect(result3.gen).to.equal(2);     // Fresh
+                                done();
+                            });
+                        }, 1);
+                    });
+                }, 21);
+            });
         });
     });
 

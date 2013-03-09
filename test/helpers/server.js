@@ -16,6 +16,12 @@ module.exports = internals.Server = function (settings) {
 };
 
 
+internals.Server.prototype.start = function (callback) {
+
+    this.client.start(callback || function () { });
+};
+
+
 internals.Server.prototype.addRoute = function (path, generator, policyOptions) {
 
     this._routes[path] = {

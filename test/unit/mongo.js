@@ -116,6 +116,28 @@ Helpers.mongoPortInUse(function (useMongo) {
                         done();
                     });
                 });
+
+                it('calls any pending callbacks waiting for a start', function (done) {
+
+                    var options = {
+                        partition: 'unit-testing',
+                        host: '127.0.0.1',
+                        port: 27017,
+                        poolSize: 5
+                    };
+                    var mongo = new Mongo.Connection(options);
+
+                    mongo.start(function (err) {
+
+                        expect(err).to.not.exist;
+                    });
+
+                    mongo.start(function (err) {
+
+                        expect(err).to.not.exist;
+                        done();
+                    });
+                });
             });
 
             describe('#validateSegmentName', function () {
