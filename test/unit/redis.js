@@ -68,6 +68,24 @@ Helpers.redisPortInUse(function (useRedis) {
                         done();
                     });
                 });
+
+                it('sends auth command when password is provided', function (done) {
+
+                    var options = {
+                        host: '127.0.0.1',
+                        port: 6379,
+                        password: 'test'
+                    };
+
+                    var redis = new Redis.Connection(options);
+
+                    redis.start(function (err, result) {
+
+                        expect(err).to.exist;                           // Will error out since by default no password is set
+                        expect(result).to.not.exist;
+                        done();
+                    });
+                });
             });
 
             describe('#validateSegmentName', function () {
