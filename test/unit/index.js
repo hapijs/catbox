@@ -369,59 +369,75 @@ describe('Cache', function () {
 
     describe('Policy', function () {
 
-        var getCache = function () {
+        var getCache = function (callback) {
 
             var config = {
                 mode: 'client',
                 expiresIn: 1
             };
             var client = new Cache.Client('memory');
-            var cache = new Cache.Policy(config, client);
-            return cache;
+
+            client.start(function () {
+
+                var cache = new Cache.Policy(config, client);
+                callback(cache);
+            });
         };
 
         it('returns null on get when cache mode is not server', function (done) {
 
-            getCache().get(key, function (err, result) {
+            getCache(function (cache) {
 
-                expect(err).to.not.exist;
-                expect(result).to.not.exist;
-                done();
+                cache.get(key, function (err, result) {
+
+                    expect(err).to.not.exist;
+                    expect(result).to.not.exist;
+                    done();
+                });
             });
         });
 
         it('returns null on set when cache mode is not server', function (done) {
 
-            getCache().set(key, 'y', 100, function (err) {
+            getCache(function (cache) {
 
-                expect(err).to.not.exist;
-                done();
+                cache.set(key, 'y', 100, function (err) {
+
+                    expect(err).to.not.exist;
+                    done();
+                });
             });
         });
 
         it('returns null on drop when cache mode is not server', function (done) {
 
-            getCache().drop(key, function (err) {
+            getCache(function (cache) {
 
-                expect(err).to.not.exist;
-                done();
+                cache.drop(key, function (err) {
+
+                    expect(err).to.not.exist;
+                    done();
+                });
             });
         });
 
         it('returns null on get when item expired', function (done) {
 
             var client = new Cache.Client('memory');
-            client.set(key, 'y', 1, function (err) {
+            client.start(function () {
 
-                setTimeout(function () {
+                client.set(key, 'y', 1, function (err) {
 
-                    client.get(key, function (err, result) {
+                    setTimeout(function () {
 
-                        expect(err).to.not.exist;
-                        expect(result).to.not.exist;
-                        done();
-                    });
-                }, 2);
+                        client.get(key, function (err, result) {
+
+                            expect(err).to.not.exist;
+                            expect(result).to.not.exist;
+                            done();
+                        });
+                    }, 2);
+                });
             });
         });
 
@@ -1149,7 +1165,7 @@ describe('Cache', function () {
 
         describe('#start', function () {
 
-            it('logs an error when one occurs', function (done) {
+            it('passes an error in the callback when one occurs', function (done) {
 
                 var options = {
                     partition: 'test',
@@ -1158,15 +1174,15 @@ describe('Cache', function () {
 
                             callback(new Error());
                         }
-                    },
-                    logFunc: function (tags, message) {
-
-                        expect(message).to.equal('Failed initializing cache engine');
-                        done();
                     }
                 };
 
                 var client = new Cache.Client(options);
+                client.start(function (err) {
+
+                    expect(err).to.exist;
+                    done();
+                });
             });
         });
 
