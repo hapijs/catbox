@@ -21,16 +21,16 @@ Helpers.mongoPortInUse(function (useMongo) {
                 var db = new Mongodb.Db('unit-testing', new Mongodb.Server('127.0.0.1', 27017, { auto_reconnect: false, poolSize: 4 }), { safe: false });
                 db.open(function (err, db) {
 
-                    db.dropDatabase(function (err, done) {
+                    db.dropDatabase(function (err) {
 
                         db.addUser('tester', 'secret', function (err, result) {
 
                             expect(err).to.not.exist;
                             db.close();
+                            done();
                         });
                     });
                 });
-                done();
             });
 
             it('throws an error if not created with new', function (done) {
