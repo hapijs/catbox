@@ -1,7 +1,8 @@
 // Load modules
 
-var Chai = require('chai');
-var Helpers = require('../helpers');
+var Lab = require('lab');
+var Catbox = require('..');
+var Defaults = require('../lib/defaults');
 
 
 // Declare internals
@@ -11,8 +12,11 @@ var internals = {};
 
 // Test shortcuts
 
-var expect = Chai.expect;
-var Defaults = Helpers.Catbox.Defaults;
+var expect = Lab.expect;
+var before = Lab.before;
+var after = Lab.after;
+var describe = Lab.experiment;
+var it = Lab.test;
 
 
 describe('Defaults', function () {

@@ -1,7 +1,7 @@
 {
   "name": "catbox",
   "description": "Multi-strategy object caching service",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors":[
     "Doug Pedley",
@@ -22,17 +22,12 @@
     "hoek": "0.6.x"
   },
   "devDependencies": {
+    "lab": "0.0.x",
     "redis": "0.8.x",
-    "mongodb": "1.2.x",
-    "mocha": "1.x.x",
-    "chai": "1.x.x",
-    "blanket": "1.0.x",
-    "travis-cov": "0.2.x"
+    "mongodb": "1.2.x"
   },
   "scripts": {
-    "test": "make test && make test-cov",
-    "blanket": { "pattern": "//^((?!\/node_modules\/)(?!\/test\/helpers\/)(?!\/test\/unit\/)(?!\/test\/integration\/).)*$/ig", "onlyCwd": true, "data-cover-flags": { "branchTracking": true } },
-    "travis-cov": { "threshold": 100 }
+    "test": "make test-cov"
   },
   "licenses": [
     {
