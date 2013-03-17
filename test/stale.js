@@ -44,7 +44,7 @@ describe('Stale', function () {
             client.get = function (key, callback) { callback(new Error('bad client')); };
         }
 
-        var policy = new Catbox.Policy(rule, client);
+        var policy = new Catbox.Policy(rule, client, 'test-segment');
 
         var logFunc = function () { };
 
@@ -86,8 +86,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 100,
             staleIn: 20,
-            staleTimeout: 5,
-            segment: 'test-segment'
+            staleTimeout: 5
         };
 
         setup(rule, 0, false, 0, function (get) {
@@ -105,8 +104,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 100,
             staleIn: 20,
-            staleTimeout: 5,
-            segment: 'test-segment'
+            staleTimeout: 5
         };
 
         setup(rule, 0, false, 0, function (get) {
@@ -124,8 +122,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 26,
             staleIn: 20,
-            staleTimeout: 5,
-            segment: 'test-segment'
+            staleTimeout: 5
         };
 
         setup(rule, 6, false, 100, function (get) {
@@ -150,8 +147,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 100,
             staleIn: 20,
-            staleTimeout: 5,
-            segment: 'user'
+            staleTimeout: 5
         };
 
         setup(rule, 6, false, 100, function (get) {
@@ -183,8 +179,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 100,
             staleIn: 20,
-            staleTimeout: 5,
-            segment: 'user'
+            staleTimeout: 5
         };
 
         setup(rule, 6, true, 0, function (get) {
@@ -218,8 +213,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 100,
             staleIn: 20,
-            staleTimeout: 10,
-            segment: 'user'
+            staleTimeout: 10
         };
 
         setup(rule, 0, false, 0, function (get) {
@@ -252,8 +246,7 @@ describe('Stale', function () {
         var rule = {
             expiresIn: 30,
             staleIn: 20,
-            staleTimeout: 5,
-            segment: 'user'
+            staleTimeout: 5
         };
 
         setup(rule, 0, true, 0, function (get) {

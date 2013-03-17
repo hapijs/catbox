@@ -274,13 +274,12 @@ exports.test = function (engine) {
         it('returns error on missing segment name using ' + engine, function (done) {
 
             var config = {
-                expiresIn: 50000,
-                segment: ''
+                expiresIn: 50000
             };
             var fn = function () {
 
                 var client = new Catbox.Client(engine);
-                var cache = new Catbox.Policy(config, client);
+                var cache = new Catbox.Policy(config, client, '');
             };
             expect(fn).to.throw(Error);
             done();
@@ -289,13 +288,12 @@ exports.test = function (engine) {
         it('returns error on bad segment name using ' + engine, function (done) {
 
             var config = {
-                expiresIn: 50000,
-                segment: 'a\0b'
+                expiresIn: 50000
             };
             var fn = function () {
 
                 var client = new Catbox.Client(engine);
-                var cache = new Catbox.Policy(config, client);
+                var cache = new Catbox.Policy(config, client, 'a\0b');
             };
             expect(fn).to.throw(Error);
             done();

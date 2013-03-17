@@ -46,15 +46,13 @@ internals.startCache = function (callback) {
     };
 
     var policyOptions = {
-        mode: 'server',
-        expiresIn: 5000,
-        segment: 'example'
+        expiresIn: 5000
     };
 
     var client = new Catbox.Client(clientOptions);
     client.start(function () {
 
-        internals.policy = new Catbox.Policy(policyOptions, client);
+        internals.policy = new Catbox.Policy(policyOptions, client, 'example');
         callback();
     });
 };

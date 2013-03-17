@@ -104,13 +104,11 @@ describe('Policy', function () {
                 }
             };
             var policyConfig = {
-                expiresIn: 50000,
-                segment: 'test',
-                mode: 'server'
+                expiresIn: 50000
             };
 
             var client = new Catbox.Client(options);
-            var policy = new Catbox.Policy(policyConfig, client);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.get({ id: 'test1', segment: 'test2' }, function (err, result) {
 
@@ -147,13 +145,11 @@ describe('Policy', function () {
                 }
             };
             var policyConfig = {
-                expiresIn: 50000,
-                segment: 'test',
-                mode: 'server'
+                expiresIn: 50000
             };
 
             var client = new Catbox.Client(options);
-            var policy = new Catbox.Policy(policyConfig, client);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.get({ id: 'test1', segment: 'test2' }, function (err, result) {
 
@@ -191,13 +187,11 @@ describe('Policy', function () {
             };
 
             var policyConfig = {
-                expiresIn: 50000,
-                segment: 'test',
-                mode: 'server'
+                expiresIn: 50000
             };
 
             var client = new Catbox.Client(options);
-            var policy = new Catbox.Policy(policyConfig, client);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.drop('test', function (err, result) {
 
@@ -230,12 +224,11 @@ describe('Policy', function () {
             };
 
             var policyConfig = {
-                expiresIn: 50000,
-                segment: 'test'
+                expiresIn: 50000
             };
 
             var client = new Catbox.Client(options);
-            var policy = new Catbox.Policy(policyConfig, client);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             var result = policy.ttl(Date.now() - 10000);
             expect(result).to.be.within(39999, 40001);                    // There can occassionally be a 1ms difference
@@ -448,7 +441,7 @@ describe('Policy', function () {
             };
             var fn = function () {
 
-                var cache = new Catbox.Policy(config, false);
+                var cache = new Catbox.Policy(config);
             };
 
             expect(fn).to.throw(Error);
