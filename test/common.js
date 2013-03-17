@@ -75,7 +75,7 @@ exports.test = function (engine) {
                     client.get(key, function (err, result) {
 
                         expect(err).to.equal(null);
-                        expect(result.item).to.equal('123');
+                        expect(result && result.item).to.equal('123');
                         done();
                     });
                 });
