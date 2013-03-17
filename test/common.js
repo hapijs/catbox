@@ -63,21 +63,32 @@ exports.test = function (engine) {
             });
         });
 
-        it('gets an item after settig it with very long ttl', function (done) {
+        it('fails setting an item circular references', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
 
                 var key = { id: 'x', segment: 'test' };
-                client.set(key, '123', Math.pow(2, 63), function (err) {
+                var value = { a: 1 };
+                value.b = value;
+                client.set(key, value, 10, function (err) {
 
-                    expect(err).to.not.exist;
-                    client.get(key, function (err, result) {
+                    expect(err.message).to.equal('Converting circular structure to JSON');
+                    done();
+                });
+            });
+        });
 
-                        expect(err).to.equal(null);
-                        expect(result && result.item).to.equal('123');
-                        done();
-                    });
+        it('fails setting an item with very long ttl', function (done) {
+
+            var client = new Catbox.Client(engine);
+            client.start(function (err) {
+
+                var key = { id: 'x', segment: 'test' };
+                client.set(key, '123', Math.pow(2, 31), function (err) {
+
+                    expect(err.message).to.equal('Invalid ttl (greater than 2147483647)');
+                    done();
                 });
             });
         });
