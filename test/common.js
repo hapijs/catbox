@@ -22,7 +22,7 @@ exports.test = function (engine) {
 
     describe('Common', function () {
 
-        it('creates a new connection using ' + engine, function (done) {
+        it('creates a new connection', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -32,7 +32,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('closes the connection using ' + engine, function (done) {
+        it('closes the connection', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -44,7 +44,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('gets an item after settig it using ' + engine, function (done) {
+        it('gets an item after settig it', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -63,7 +63,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('gets an item after settig it with very long ttl using ' + engine, function (done) {
+        it('gets an item after settig it with very long ttl', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -82,7 +82,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('ignored starting a connection twice on same event using ' + engine, function (done) {
+        it('ignored starting a connection twice on same event', function (done) {
 
             var client = new Catbox.Client(engine);
             var x = 2;
@@ -102,7 +102,7 @@ exports.test = function (engine) {
             start();
         });
 
-        it('ignored starting a connection twice chained using ' + engine, function (done) {
+        it('ignored starting a connection twice chained', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -119,7 +119,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns not found on get when using null key using ' + engine, function (done) {
+        it('returns not found on get when using null key', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -133,7 +133,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns not found on get when item expired using ' + engine, function (done) {
+        it('returns not found on get when item expired', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -155,7 +155,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on set when using null key using ' + engine, function (done) {
+        it('returns error on set when using null key', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -168,7 +168,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on get when using invalid key using ' + engine, function (done) {
+        it('returns error on get when using invalid key', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -181,7 +181,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on drop when using invalid key using ' + engine, function (done) {
+        it('returns error on drop when using invalid key', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -194,7 +194,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on set when using invalid key using ' + engine, function (done) {
+        it('returns error on set when using invalid key', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -207,7 +207,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('ignores set when using non-positive ttl value using ' + engine, function (done) {
+        it('ignores set when using non-positive ttl value', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -221,7 +221,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on drop when using null key using ' + engine, function (done) {
+        it('returns error on drop when using null key', function (done) {
 
             var client = new Catbox.Client(engine);
             client.start(function (err) {
@@ -234,7 +234,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on get when stopped using ' + engine, function (done) {
+        it('returns error on get when stopped', function (done) {
 
             var client = new Catbox.Client(engine);
             client.stop();
@@ -247,7 +247,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on set when stopped using ' + engine, function (done) {
+        it('returns error on set when stopped', function (done) {
 
             var client = new Catbox.Client(engine);
             client.stop();
@@ -259,7 +259,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on drop when stopped using ' + engine, function (done) {
+        it('returns error on drop when stopped', function (done) {
 
             var client = new Catbox.Client(engine);
             client.stop();
@@ -271,7 +271,7 @@ exports.test = function (engine) {
             });
         });
 
-        it('returns error on missing segment name using ' + engine, function (done) {
+        it('returns error on missing segment name', function (done) {
 
             var config = {
                 expiresIn: 50000
@@ -285,7 +285,7 @@ exports.test = function (engine) {
             done();
         });
 
-        it('returns error on bad segment name using ' + engine, function (done) {
+        it('returns error on bad segment name', function (done) {
 
             var config = {
                 expiresIn: 50000
@@ -299,7 +299,7 @@ exports.test = function (engine) {
             done();
         });
 
-        it('returns error when cache item dropped while stopped using ' + engine, function (done) {
+        it('returns error when cache item dropped while stopped', function (done) {
 
             var client = new Catbox.Client(engine);
             client.stop();
