@@ -731,5 +731,259 @@ describe('Policy', function () {
             done();
         });
     });
+
+    describe('Stale', function () {
+
+        it('bypasses cache when not configured', function (done) {
+
+            var cache = new Catbox.Policy({ expiresIn: 1 });
+
+            var generateFunc = function (callback) {
+
+                callback(null, 'new result');
+            };
+
+            cache.getOrGenerate('test', generateFunc, function (err, value, cached) {
+
+                expect(err).to.not.exist;
+                expect(value).to.equal('new result');
+                expect(cached).to.not.exist;
+                done();
+            });
+        });
+
+        var setup = function (rule, genTimeout, simError, ttl, run, broken) {
+
+            var client = new Catbox.Client({ engine: 'memory', partition: 'test-partition' });
+            if (broken) {
+                client.get = function (key, callback) { callback(new Error('bad client')); };
+            }
+
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                ++gen;
+
+                setTimeout(function () {
+
+                    if (!simError || gen !== 2) {
+                        var item = {
+                            gen: gen,
+                            toCache: function () { return { gen: gen }; }
+                        };
+
+                        if (ttl) {
+                            item.getTtl = function () { return ttl; };
+                        }
+
+                        return callback(null, item);
+                    }
+
+                    return callback(new Error());
+                }, genTimeout);
+            };
+
+            client.start(function () {
+
+                run(function (key, callback) {
+
+                    policy.getOrGenerate(key, generateFunc, callback);
+                });
+            });
+        };
+
+        it('returns the processed cached item', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            setup(rule, 0, false, 0, function (get) {
+
+                get('test', function (err, value, cached) {
+
+                    expect(value.gen).to.equal(1);
+                    done();
+                });
+            });
+        });
+
+        it('returns the processed cached item after cache error', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            setup(rule, 0, false, 0, function (get) {
+
+                get('test', function (err, value, cached) {
+
+                    expect(value.gen).to.equal(1);
+                    done();
+                });
+            }, true);
+        });
+
+        it('returns the processed cached item using manual ttl', function (done) {
+
+            var rule = {
+                expiresIn: 26,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            setup(rule, 6, false, 100, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);        // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            expect(value2.gen).to.equal(1);        // Stale
+                            done();
+                        });
+                    }, 27);
+                });
+            });
+        });
+
+        it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            setup(rule, 6, false, 100, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);        // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            expect(value2.gen).to.equal(1);        // Stale
+                            setTimeout(function () {
+
+                                get('test', function (err, value3, cached) {
+
+                                    expect(value3.gen).to.equal(2);        // Fresh
+                                    done();
+                                });
+                            }, 3);
+                        });
+                    }, 21);
+                });
+            });
+        });
+
+        it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            setup(rule, 6, true, 0, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);     // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            // Generates a new one in background which will produce Error and clear the cache
+
+                            expect(value2.gen).to.equal(1);     // Stale
+                            setTimeout(function () {
+
+                                get('test', function (err, value3, cached) {
+
+                                    expect(value3.gen).to.equal(3);     // Fresh
+                                    done();
+                                });
+                            }, 3);
+                        });
+                    }, 21);
+                });
+            });
+        });
+
+        it('returns fresh object calling a helper using the cache with stale config', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 10
+            };
+
+            setup(rule, 0, false, 0, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);     // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            expect(value2.gen).to.equal(2);     // Fresh
+
+                            setTimeout(function () {
+
+                                get('test', function (err, value3, cached) {
+
+                                    expect(value3.gen).to.equal(2);     // Fresh
+                                    done();
+                                });
+                            }, 1);
+                        });
+                    }, 21);
+                });
+            });
+        });
+
+        it('returns error when calling a helper using the cache with stale config when arrives within stale timeout', function (done) {
+
+            var rule = {
+                expiresIn: 30,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            setup(rule, 0, true, 0, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);     // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            // Generates a new one which will produce Error
+
+                            expect(err).to.be.instanceof(Error);     // Stale
+                            done();
+                        });
+                    }, 21);
+                });
+            });
+        });
+
+        it('uses result toCache() when available', function (done) {
+            done();
+        });
+    });
 });
 
