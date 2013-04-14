@@ -14,7 +14,7 @@ and a limited memory store (not suitable for production environments). **catbox*
 ### Installation
 
 In order to reduce module dependencies, **catbox** does not depend on the [mongodb](https://npmjs.org/package/mongodb) or
-(redis)[https://npmjs.org/package/redis] modules. To use these strategies, each service must be available on the network and
+[redis](https://npmjs.org/package/redis) modules. To use these strategies, each service must be available on the network and
 each module must be manually installed.
 
 
