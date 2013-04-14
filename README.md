@@ -6,87 +6,113 @@ Multi-strategy object caching service
 [![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
 
-The provided implementation includes support for Redis, MongoDB, and an experimental memory store (each must be manually installed and configured).  _'Catbox'_ is useful for conveniently managing item cache rules and storage.
-
-### Installing the appropriate module dependency
-
-The _'mongodb'_ and _'redis'_ modules are currently used only in a development environment.  Therefore, to use _'Catbox'_ in production you will need to manually install the _'mongodb'_ or _'redis'_ modules.  One way that these modules can be installed is by running the command `npm install mongodb` or `npm install redis`.  Another way to install the modules is to add the appropriate one to the applications _'package.json'_ `dependencies` section and then by running `npm install`.
+**catbox** is a multi-strategy key-value object store. It includes support for [Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/),
+and a limited memory store (not suitable for production environments). **catbox** provides two interfaces: a low-level `Client` and a high-level
+`Policy`.
 
 
-### Client
+### Installation
 
-Catbox has a _'Client'_ constructor that takes the following options.
-
-* `engine` - the cache server implementation. Options are redis, mongodb, and memory. (required)
-* `partition` - the partition name used to isolate the cached results across different servers. (required)
-
-##### Mongo Specific
-* `host` - the cache server hostname. Defaults to _'127.0.0.1'_.
-* `port` - the cache server port. Defaults to _'27017'_.
-* `username` - when the mongo server requires authentication. Defaults to no authentication.
-* `password` - used for authentication.
-* `poolSize` - number of connections to leave open that can be used for catbox. Defaults to _'5'_.
+In order to reduce module dependencies, **catbox** does not depend on the [mongodb](https://npmjs.org/package/mongodb) or
+(redis)[https://npmjs.org/package/redis] modules. To use these strategies, each service must be available on the network and
+each module must be manually installed.
 
 
-##### Redis Specific
-* `host` - the cache server hostname. Defaults to _'127.0.0.1'_.
-* `port` - the cache server port. Defaults to _'6479'_.
+### `Client`
 
+The `Client` object provides a low-level cache abstraction. The object is constructed using `new Client(options)` where:
 
-##### Memory Specific
-This is an experimental engine and should be avoided in production environments.
-* `maxByteSize` - Sets an upper limit on the number of bytes that can be consumed by the total of everything cached in the memory engine. Once this limit is reached no more items will be added to the cache. Defaults to no limit.
+- `options` - is an object with the following keys:
+    - `engine` - the cache server implementation. Options are:
+        - `redis`
+        - `mongodb`
+        - `memory`
+        - an object with **catbox** compatible interface (use the `memory` cache implementation as prototype).
+    - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
+      as the MongoDB database name or as a key prefix in Redis. To share the cache across multiple clients, use the same
+      partition name.
+    - additional strategy specific options:
+        - MongoDB:
+            - `host` - the MongoDB server hostname. Defaults to `127.0.0.1`.
+            - `port` - the MongoDB server port. Defaults to `27017`.
+            - `username` - when the mongo server requires authentication. Defaults to no authentication.
+            - `password` - the authentication password when `username` is configured.
+            - `poolSize` - number of connections. Defaults to `5`.
+        - Redis:
+            - `host` - the Redis server hostname. Defaults to `127.0.0.1`.
+            - `port` - the Redis server port. Defaults to `6479`.
+        - Memory:
+            - `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
+              reached no additional items will be added to the cache until some expire. The utilized memory calculation is
+              a rough approximation and must not be relied on. Defaults to `104857600` (100MB).
 
+#### API
 
-#### Client Interface
+The `Client` object provides the following methods:
 
-After constructing a cache client the following methods are available.  After each method description is the method signature.  Please note that _'start'_ should be called before calling any of these methods.
+- `start(callback)` - creates a connection to the cache server. Must be called before any other method is available.
+  The `callback` signature is `function(err)`.
+- `stop()` - terminates the connection to the cache server.
+- `get(key, callback)` - retrieve an item from the cache engine if found where:
+    - `key` - a cache key object (see below).
+    - `callback` - a function with the signature `function(err, cached)`. If the item is not found, both `err` and `cached` are `null`.
+      If found, the `cached` object contains the following:
+        - `item` - the value stored in the cache using `set()`.
+        - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
+        - `ttl` - the remaining time-to-live (not the original value used when storing the object).
+- `set(key, value, ttl, callback)` - store an item in the cache for a specified length of time, where:
+    - `key` - a cache key object (see below).
+    - `value` - the string or object value to be stored.
+    - `ttl` - a time-to-live value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
+    - `callback` - a function with the signature `function(err)`.
+- `drop(key, callback)` - remove an item from cache where:
+    - `key` - a cache key object (see below).
+    - `callback` - a function with the signature `function(err)`.
 
-* `start` - creates a connection to the cache server.  (`function (callback)`)
-* `stop` - terminates the connection to the cache server. (`function ()`)
-* `get` - retrieve an item from the cache engine if its stored. (`function (key, callback)`)
-* `set` - store an item in the cache at the given key for a specified length of time. (`function (key, value, ttl, callback)`)
-* `drop` - remove the item from cache found at the given key. (`function (key, callback)`)
-
-_'key'_ is an object with the following properties:
-
-* `segment` - the parent category to store the item under
-* `id` - should be unique across the segment, used to identify the stored item
+Any method with a `key` argument takes an object with the following required properties:
+- `segment` - a caching segment name. Enables using a single cache server for storing different sets of items with overlapping ids.
+- `id` - a unique item identifies (per segment).
 
 
 ### Policy
 
-Instead of dealing directly with the client interface using the _'Policy'_ interface is often preferred.  It provides several helper methods like _'getOrGenerate'_ that will handle retrieving an item from cache when available or generating a new item and storing it in cache.  _'Policy'_ is also useful for creating cache rules for different items and having them enforced.  To construct a new _'Policy'_ the constructor takes the following parameters:
+The `Policy` object provides a convenient cache interface by setting a global policy which is automatically applied to every storage action.
+The object is constructed using `new Policy(options, [cache, segment])` where:
 
-* `config`
-* `mode` - determines if the item is cached on the server, client, or both. (required)
-* `server+client` - Caches the item on the server and client
-* `client` - Won't store the item on the server
-* `server` - Caches the item on the server only
-* `none` - Disable cache for the item on both the client and server
-* `segment` - Required segment name, used to isolate cached items within the cache partition. (required)
-* `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with `expiresAt`.
-* `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route expire. Cannot be used together with `expiresIn`.
-* `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than _'expiresIn'_.
-* `staleTimeout` - number of milliseconds to wait before checking if an item is stale
-* `privacy` - optional cache control override for setting _'public'_ or _'private'_ mode. Defaults to _'default'_ (HTTP protocol cache-control defaults).
-* `cache` - a cache client that has been started
+- `options` - is an object with the following keys:
+    - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
+      together with `expiresAt`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
+      expire. Cannot be used together with `expiresIn`.
+    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than _'expiresIn'_.
+    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+- `cache` - a `Client` instance (which has already been started).
+- `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
 
-#### Policy Interface
+#### API
 
-After a _'Policy'_ is constructed the following methods are available.
+The `Policy` object provides the following methods:
 
-* `isMode` - determines if the policy supports the given mode.  (`function (mode)`)
-* `isEnabled` - determines if the policy has a mode enabled. (`function ()`)
-* `get` - retrieve an item from the cache engine if its stored. (`function (key, callback)`)
-* `set` - store an item in the cache at the given key for a specified length of time. (`function (key, value, ttl, callback)`)
-* `drop` - remove the item from cache found at the given key. (`function (key, callback)`)
-* `ttl` - get the number of milliseconds that an item has left before it is expired from a given time. (`function (created)`)
-* `getOrGenerate` - get and item from cache if it exists, or generate it and store it in cache. (`function (key, logFunc, generateFunc, callback)`)
-
-As a result of the _'Policy'_ constructor taking the segment, the key used should just be the item ID instead of the object used in the cache _'Client'_ previously used.
-
-
-### Examples
-
-For examples of creating a server that uses one of the above engines look in the _'examples'_ folder.
+- `get(id, callback)` - retrieve an item from the cache where:
+    - `id` - the unique item identifier (within the policy segment).
+    - `callback` - a function with the signature `function(err, cached)` where `cached` is the object returned by the `client.get()` with
+      the additional `isStale` boolean key.
+- `set(id, value, ttl, callback)` - store an item in the cache where:
+    - `id` - the unique item identifier (within the policy segment).
+    - `value` - the string or object value to be stored.
+    - `ttl` - a time-to-live **override** value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
+      This should be set to `0` in order to use the caching rules configured when creating the `Policy` object.
+    - `callback` - a function with the signature `function(err)`.
+- `drop(id, callback)` - remove the item from cache where:
+    - `id` - the unique item identifier (within the policy segment).
+    - `callback` - a function with the signature `function(err)`.
+- `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
+- `getOrGenerate(id, generateFunc, callback)` - get an item from the cache if found, otherwise calls the `generateFunc` to produce a new value
+  and stores it in the cache. This method applies the staleness rules. Its arguments are:
+    - `id` - the unique item identifier (within the policy segment).
+    - `generateFunc` - a function with the signature `function(callback = function (err, result))` where `result` is the value to be stored.
+    - `callback` - a function with the signature `function(err, value, cached, report)` where:
+        - `err` - any errors encountered.
+        - `value` - the fetched or generated value.
+        - `cached` - the `cached` object returned by `policy.get()` is the item was found in the cache.
+        - `report` - an object with logging information about the operation.
