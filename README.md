@@ -74,7 +74,7 @@ Any method with a `key` argument takes an object with the following required pro
 - `id` - a unique item identifies (per segment).
 
 
-### Policy
+### `Policy`
 
 The `Policy` object provides a convenient cache interface by setting a global policy which is automatically applied to every storage action.
 The object is constructed using `new Policy(options, [cache, segment])` where:
