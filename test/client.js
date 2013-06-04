@@ -82,6 +82,27 @@ describe('Client', function () {
 
     describe('Extension', function () {
 
+        it('should allow defaults to be applied multiple times', function (done) {
+            var options = {
+                partition: 'test',
+                engine: {
+                    start: function (callback) {
+
+                        callback();
+                    }
+                }
+            };
+
+            var defaultOptions = Catbox.defaults.apply(options);
+            var client = new Catbox.Client(defaultOptions);
+
+            client.start(function (err) {
+
+                expect(err).to.not.exist;
+                done();
+            });
+        });
+
         describe('#start', function () {
 
             it('passes an error in the callback when one occurs', function (done) {
