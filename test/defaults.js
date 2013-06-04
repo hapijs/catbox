@@ -32,6 +32,42 @@ describe('Defaults', function () {
             done();
         });
 
+        it('throws when engine is set to \'extension\'', function (done) {
+
+            expect(function () {
+
+                Defaults.apply('extension');
+            }).to.throw(Error);
+            done();
+        });
+
+        it('doesn\'t throw when a custom engine is specified', function (done) {
+
+            var customDefaults = Defaults.apply({ 'engine': {}, 'partition': 'gilden-yak' });
+
+            expect(customDefaults.engine).to.equal('extension');
+            expect(customDefaults.extension).to.deep.equal({});
+            expect(customDefaults.partition).to.equal('gilden-yak');
+
+            done();
+        });
+
+        it('doesn\'t throw when applying defaults to a custom engine multiple times', function (done) {
+
+            var engineSettings = { 'engine': { 'yakStatus': 'shaven', 'hasColeSlaw': true } };
+            var customDefaults = Defaults.apply(engineSettings);
+            var reappliedDefaults = Defaults.apply(customDefaults);
+
+            expect(reappliedDefaults.engine).to.equal('extension');
+            expect(reappliedDefaults.partition).to.equal('catbox');
+            expect(reappliedDefaults.extension).to.deep.equal({ 'yakStatus': 'shaven', 'hasColeSlaw': true });
+
+            expect(reappliedDefaults).to.not.equal(customDefaults);
+            expect(customDefaults).to.not.equal(engineSettings);
+
+            done();
+        });
+
         it('returns correct defaults for redis', function (done) {
 
             var redisDefaults = Defaults.apply('redis');
