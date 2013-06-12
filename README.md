@@ -40,7 +40,7 @@ The `Client` object provides a low-level cache abstraction. The object is constr
             - `poolSize` - number of connections. Defaults to `5`.
         - Redis:
             - `host` - the Redis server hostname. Defaults to `127.0.0.1`.
-            - `port` - the Redis server port. Defaults to `6479`.
+            - `port` - the Redis server port. Defaults to `6379`.
         - Memory:
             - `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
               reached no additional items will be added to the cache until some expire. The utilized memory calculation is
