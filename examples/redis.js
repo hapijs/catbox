@@ -35,6 +35,9 @@ internals.getResponse = function (callback) {
         id: 'myExample'
     };
 
+    var cacheValue = 'my example';
+    var ttl = 10000;                         // How long item will be cached in milliseconds
+
     internals.client.get(key, function (err, cached) {
 
         if (err) {
@@ -44,9 +47,9 @@ internals.getResponse = function (callback) {
             return callback(null, 'From cache: ' + cached.item);
         }
         else {
-            internals.client.set(key, 'my example', 5000, function (error) {
+            internals.client.set(key, cacheValue, ttl, function (error) {
 
-                callback(error, 'my example');
+                callback(error, cacheValue);
             });
         }
     });
@@ -57,7 +60,10 @@ internals.startCache = function (callback) {
 
     var options = {
         engine: 'redis',
-        partition: 'examples'               // For redis this will store items under keys that start with examples:
+        partition: 'examples',               // For redis this will store items under keys that start with examples:
+        host: '127.0.0.1',                   // If you don't supply, 127.0.0.1 is the default
+        port: '6379',                        // If you don't supply, 6379 is the default
+        password: ''                         // If you don't supply, auth command not sent to redis
     };
 
     internals.client = new Catbox.Client(options);
@@ -65,11 +71,17 @@ internals.startCache = function (callback) {
 };
 
 
-internals.startServer = function () {
+internals.startServer = function (err) {
 
-    var server = Http.createServer(internals.handler);
-    server.listen(8080);
-    console.log('Server started at http://localhost:8080/');
+    if (err) {
+        console.log(err);
+        console.log('Could not connect to redis. Ending process.')
+        process.exit();
+    } else {
+        var server = Http.createServer(internals.handler);
+        server.listen(8080);
+        console.log('Server started at http://localhost:8080/');
+    }
 };
 
 
