@@ -107,15 +107,19 @@ Helper.testRedis(function (available) {
                 var options = {
                     host: '127.0.0.1',
                     port: 6379,
-                    password: 'test'
+                    password: 'wrongpassword'
                 };
 
                 var redis = new Redis.Connection(options);
 
-                redis.start(function (err, result) {
+                var log = console.log;
+                console.log = function (message) {
 
-                    expect(err).to.exist;                           // Will error out since by default no password is set
-                    expect(result).to.not.exist;
+                    expect(message).to.contain('Warning');
+                    console.log = log;
+                };
+
+                redis.start(function (err, result) {
                     done();
                 });
             });
