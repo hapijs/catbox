@@ -7,7 +7,7 @@ Multi-strategy object caching service
 
 
 **catbox** is a multi-strategy key-value object store. It includes support for [Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/),
-and a limited memory store (not suitable for production environments). **catbox** provides two interfaces: a low-level `Client` and a high-level
+[Memcached](http://memcached.org/), and a limited memory store (not suitable for production environments). **catbox** provides two interfaces: a low-level `Client` and a high-level
 `Policy`.
 
 
@@ -26,10 +26,11 @@ The `Client` object provides a low-level cache abstraction. The object is constr
     - `engine` - the cache server implementation. Options are:
         - `redis`
         - `mongodb`
+        - `memcache`
         - `memory`
         - an object with **catbox** compatible interface (use the `memory` cache implementation as prototype).
     - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
-      as the MongoDB database name or as a key prefix in Redis. To share the cache across multiple clients, use the same
+      as the MongoDB database name or as a key prefix in Redis & Memcached. To share the cache across multiple clients, use the same
       partition name.
     - additional strategy specific options:
         - MongoDB:
@@ -42,6 +43,9 @@ The `Client` object provides a low-level cache abstraction. The object is constr
             - `host` - the Redis server hostname. Defaults to `127.0.0.1`.
             - `port` - the Redis server port. Defaults to `6379`.
             - `password` - the Redis authentication password when required.
+        - Memcache:
+            - `location` - the Memcache server hostname and port. Defaults to `127.0.0.1:11212`. Can be a String, Array, or an Object
+              as per [node-memcached locations specification](https://github.com/3rd-Eden/node-memcached#server-locations).
         - Memory:
             - `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
               reached no additional items will be added to the cache until some expire. The utilized memory calculation is
