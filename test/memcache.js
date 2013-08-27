@@ -47,7 +47,7 @@ Helper.testMemcache(function (available) {
             it('sets client to when the connection succeeds', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212',
+                    location: '127.0.0.1:11212',
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -64,7 +64,7 @@ Helper.testMemcache(function (available) {
             it('reuses the client when a connection is already started', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -85,7 +85,7 @@ Helper.testMemcache(function (available) {
             it('returns an error when connection fails', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11213'
+                    location: '127.0.0.1:11213'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -106,7 +106,7 @@ Helper.testMemcache(function (available) {
             it('returns an error when the name is empty', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -121,7 +121,7 @@ Helper.testMemcache(function (available) {
             it('returns an error when the name has a null character', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -135,7 +135,7 @@ Helper.testMemcache(function (available) {
             it('returns an error when the name has a string character', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -149,7 +149,7 @@ Helper.testMemcache(function (available) {
             it('returns an error when the name has a newline character', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -163,7 +163,7 @@ Helper.testMemcache(function (available) {
             it('returns null when there aren\'t any errors', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -181,7 +181,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when the connection is closed', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -198,7 +198,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when there is an error returned from getting an item', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -220,7 +220,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when there is an error parsing the result', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -242,7 +242,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when there is an error with the envelope structure', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212'
+                    location: '127.0.0.1:11212'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -264,7 +264,7 @@ Helper.testMemcache(function (available) {
             it('is able to retrieve an object thats stored when connection is started', function (done) {
 
                 var options = {
-                    locations: '127.0.0.1:11212',
+                    location: '127.0.0.1:11212',
                     partition: 'wwwtest'
                 };
                 var key = {

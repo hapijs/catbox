@@ -45,7 +45,7 @@ The `Client` object provides a low-level cache abstraction. The object is constr
             - `password` - the Redis authentication password when required.
         - Memcache:
             - `location` - the Memcache server hostname and port. Defaults to `127.0.0.1:11212`. Can be a String, Array, or an Object
-              as per [node-memcached locations specification](https://github.com/3rd-Eden/node-memcached#server-locations).
+              as per [node-memcached location specification](https://github.com/3rd-Eden/node-memcached#server-locations).
         - Memory:
             - `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
               reached no additional items will be added to the cache until some expire. The utilized memory calculation is
