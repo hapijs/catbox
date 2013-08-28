@@ -24,7 +24,7 @@ exports.testRedis = function (callback) {
 
 exports.testMemcache = function (callback) {
 
-    var memcache = Net.createConnection(11212);
+    var memcache = Net.createConnection(11211);
     memcache.once('error', function () {
 
         callback(false);
