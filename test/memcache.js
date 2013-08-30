@@ -103,10 +103,44 @@ Helper.testMemcache(function (available) {
                     port: 11212
                 };
 
-                var memcache = new Memcache.Connection(options);
+                var fn = function () {
 
-                expect(memcache.settings.location).to.equal(options.location);
-                expect(memcache.settings.location).to.not.equal(options.host + ':' + options.port);
+                    var memcache = new Memcache.Connection(options);
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+
+            it('does not take both location and host', function (done) {
+
+                var options = {
+                    location: '127.0.0.1:11211',
+                    host: '127.0.0.1'
+                };
+
+                var fn = function () {
+
+                    var memcache = new Memcache.Connection(options);
+                };
+
+                expect(fn).to.throw(Error);
+                done();
+            });
+
+            it('does not take both location and port', function (done) {
+
+                var options = {
+                    location: '127.0.0.1:11211',
+                    port: 11211
+                };
+
+                var fn = function () {
+
+                    var memcache = new Memcache.Connection(options);
+                };
+
+                expect(fn).to.throw(Error);
                 done();
             });
         });
@@ -380,7 +414,7 @@ Helper.testMemcache(function (available) {
             it('returns null when unable to find the item', function (done) {
 
                 var options = {
-                    host: '127.0.0.1:11211',
+                    location: '127.0.0.1:11211',
                     partition: 'wwwtest'
                 };
                 var key = {
@@ -407,7 +441,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when the connection is closed', function (done) {
 
                 var options = {
-                    host: '127.0.0.1:11211'
+                    location: '127.0.0.1:11211'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -424,7 +458,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when there is an error returned from setting an item', function (done) {
 
                 var options = {
-                    host: '127.0.0.1:11211'
+                    location: '127.0.0.1:11211'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -449,7 +483,7 @@ Helper.testMemcache(function (available) {
             it('passes an error to the callback when the connection is closed', function (done) {
 
                 var options = {
-                    host: '127.0.0.1:11211'
+                    location: '127.0.0.1:11211'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -466,7 +500,7 @@ Helper.testMemcache(function (available) {
             it('deletes the item from redis', function (done) {
 
                 var options = {
-                    host: '127.0.0.1:11211'
+                    location: '127.0.0.1:11211'
                 };
 
                 var memcache = new Memcache.Connection(options);
@@ -491,7 +525,7 @@ Helper.testMemcache(function (available) {
         it('sets the client to null', function (done) {
 
             var options = {
-                host: '127.0.0.1:11211'
+                location: '127.0.0.1:11211'
             };
 
             var memcache = new Memcache.Connection(options);
