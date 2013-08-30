@@ -95,7 +95,7 @@ Helper.testMemcache(function (available) {
                 done();
             });
 
-            it('does not take both location and host/port', function (done) {
+            it('throws when both location and host/port are given', function (done) {
 
                 var options = {
                     location: '127.0.0.1:11211',
@@ -112,7 +112,7 @@ Helper.testMemcache(function (available) {
                 done();
             });
 
-            it('does not take both location and host', function (done) {
+            it('throws when both location and host are given', function (done) {
 
                 var options = {
                     location: '127.0.0.1:11211',
@@ -128,7 +128,7 @@ Helper.testMemcache(function (available) {
                 done();
             });
 
-            it('does not take both location and port', function (done) {
+            it('throws when both location and port are given', function (done) {
 
                 var options = {
                     location: '127.0.0.1:11211',
