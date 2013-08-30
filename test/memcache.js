@@ -42,12 +42,81 @@ Helper.testMemcache(function (available) {
             done();
         });
 
+        describe('#constructor', function () {
+
+            it('takes location as a string', function (done) {
+
+                var options = {
+                    location: '127.0.0.1:11211'
+                };
+
+                var memcache = new Memcache.Connection(options);
+
+                expect(memcache.settings.location).to.equal(options.location);
+                done();
+            });
+
+            it('takes location as an array', function (done) {
+
+                var options = {
+                    location: ['127.0.0.1:11211']
+                };
+
+                var memcache = new Memcache.Connection(options);
+
+                expect(memcache.settings.location).to.equal(options.location);
+                done();
+            });
+
+            it('takes location as an object', function (done) {
+
+                var options = {
+                    location: {
+                        '127.0.0.1:11211': 1
+                    }
+                };
+
+                var memcache = new Memcache.Connection(options);
+
+                expect(memcache.settings.location).to.equal(options.location);
+                done();
+            });
+
+            it('takes a single host and port instead of location', function (done) {
+
+                var options = {
+                    host: '127.0.0.1',
+                    port: 11211
+                };
+
+                var memcache = new Memcache.Connection(options);
+
+                expect(memcache.settings.location).to.equal(options.host + ':' + options.port);
+                done();
+            });
+
+            it('does not take both location and host/port', function (done) {
+
+                var options = {
+                    location: '127.0.0.1:11211',
+                    host: '127.0.0.1',
+                    port: 11212
+                };
+
+                var memcache = new Memcache.Connection(options);
+
+                expect(memcache.settings.location).to.equal(options.location);
+                expect(memcache.settings.location).to.not.equal(options.host + ':' + options.port);
+                done();
+            });
+        });
+
         describe('#start', function () {
 
             it('sets client to when the connection succeeds', function (done) {
 
                 var options = {
-                    location: '127.0.0.1:11211',
+                    location: '127.0.0.1:11211'
                 };
 
                 var memcache = new Memcache.Connection(options);
