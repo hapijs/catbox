@@ -254,6 +254,20 @@ Helper.testMemcache(function (available) {
                 done();
             });
 
+            it('returns no error when the name has an "s" character', function (done) {
+
+                var options = {
+                    location: '127.0.0.1:11211'
+                };
+
+                var memcache = new Memcache.Connection(options);
+
+                var result = memcache.validateSegmentName('space');
+
+                expect(result).to.not.exist;
+                done();
+            });
+
             it('returns an error when the name has a tab character', function (done) {
 
                 var options = {
