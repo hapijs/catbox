@@ -22,6 +22,20 @@ exports.testRedis = function (callback) {
     });
 };
 
+exports.testMemcache = function (callback) {
+
+    var memcache = Net.createConnection(11211);
+    memcache.once('error', function () {
+
+        callback(false);
+    });
+    memcache.once('connect', function () {
+
+        memcache.end();
+        callback(true);
+    });
+};
+
 
 exports.testMongo = function (callback) {
 
