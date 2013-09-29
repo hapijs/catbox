@@ -83,5 +83,13 @@ describe('Defaults', function () {
             expect(mongoDefaults.port).to.equal(27017);
             done();
         });
+
+        it('returns correct defaults for memcache', function (done) {
+
+            var memcacheDefaults = Defaults.apply('memcache');
+
+            expect(memcacheDefaults.location).to.equal('127.0.0.1:11211');
+            done();
+        });
     });
 });
