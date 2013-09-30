@@ -30,23 +30,23 @@ The `Client` object provides a low-level cache abstraction. The object is constr
         - `memory`
         - an object with **catbox** compatible interface (use the `memory` cache implementation as prototype).
     - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
-      as the MongoDB database name or as a key prefix in Redis & Memcached. To share the cache across multiple clients, use the same
+      as the MongoDB database name or as a key prefix in Redis and Memcached. To share the cache across multiple clients, use the same
       partition name.
     - additional strategy specific options:
         - MongoDB:
-            - `host` - the MongoDB server hostname. Defaults to `127.0.0.1`.
+            - `host` - the MongoDB server hostname. Defaults to `'127.0.0.1'`.
             - `port` - the MongoDB server port. Defaults to `27017`.
             - `username` - when the mongo server requires authentication. Defaults to no authentication.
             - `password` - the authentication password when `username` is configured.
             - `poolSize` - number of connections. Defaults to `5`.
         - Redis:
-            - `host` - the Redis server hostname. Defaults to `127.0.0.1`.
+            - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
             - `port` - the Redis server port. Defaults to `6379`.
             - `password` - the Redis authentication password when required.
         - Memcache:
-            - `host` - the Memcache server hostname. Defaults to `127.0.0.1`. Cannot be used with location.
-            - `port` - the Memcache server port. Defaults to `11211`.
-            - `location` - the Memcache server hostname and port. Defaults to `127.0.0.1:11211`.
+            - `host` - the Memcache server hostname. Defaults to '`127.0.0.1'`. Cannot be used with `location`.
+            - `port` - the Memcache server port. Defaults to `11211`. Cannot be used with `location`.
+            - `location` - the Memcache server hostname and port. Defaults to ''127.0.0.1:11211''.
             Can be a String, Array, or an Object as per [node-memcached location specification](https://github.com/3rd-Eden/node-memcached#server-locations).
         - Memory:
             - `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is

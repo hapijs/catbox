@@ -81,68 +81,6 @@ Helper.testMemcache(function (available) {
                 expect(memcache.settings.location).to.equal(options.location);
                 done();
             });
-
-            it('takes a single host and port instead of location', function (done) {
-
-                var options = {
-                    host: '127.0.0.1',
-                    port: 11211
-                };
-
-                var memcache = new Memcache.Connection(options);
-
-                expect(memcache.settings.location).to.equal(options.host + ':' + options.port);
-                done();
-            });
-
-            it('throws when both location and host/port are given', function (done) {
-
-                var options = {
-                    location: '127.0.0.1:11211',
-                    host: '127.0.0.1',
-                    port: 11212
-                };
-
-                var fn = function () {
-
-                    var memcache = new Memcache.Connection(options);
-                };
-
-                expect(fn).to.throw(Error);
-                done();
-            });
-
-            it('throws when both location and host are given', function (done) {
-
-                var options = {
-                    location: '127.0.0.1:11211',
-                    host: '127.0.0.1'
-                };
-
-                var fn = function () {
-
-                    var memcache = new Memcache.Connection(options);
-                };
-
-                expect(fn).to.throw(Error);
-                done();
-            });
-
-            it('throws when both location and port are given', function (done) {
-
-                var options = {
-                    location: '127.0.0.1:11211',
-                    port: 11211
-                };
-
-                var fn = function () {
-
-                    var memcache = new Memcache.Connection(options);
-                };
-
-                expect(fn).to.throw(Error);
-                done();
-            });
         });
 
         describe('#start', function () {

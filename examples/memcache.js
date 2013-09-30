@@ -1,10 +1,10 @@
-// After starting this example load http://localhost:8080 and hit refresh, you will notice that it loads the response from cache for the first 5 seconds and then reloads the cache
+// After starting this example load http://localhost:8080 and hit refresh, you will notice that it loads the response from
+// cache for the first 5 seconds and then reloads the cache
 
 // Load modules
 
 var Catbox = require('../');
 var Http = require('http');
-
 
 
 // Declare internals
@@ -21,7 +21,7 @@ internals.handler = function (req, res) {
             res.end();
         }
         else {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end(item);
         }
     });
@@ -75,7 +75,8 @@ internals.startServer = function (err) {
         console.log(err);
         console.log('Could not connect to memcache. Ending process.')
         process.exit();
-    } else {
+    }
+    else {
         var server = Http.createServer(internals.handler);
         server.listen(8080);
         console.log('Server started at http://localhost:8080/');

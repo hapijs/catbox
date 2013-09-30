@@ -91,5 +91,72 @@ describe('Defaults', function () {
             expect(memcacheDefaults.location).to.equal('127.0.0.1:11211');
             done();
         });
+
+
+        it('takes a single host and port instead of location', function (done) {
+
+            var options = {
+                engine: 'memcache',
+                host: '127.0.0.1',
+                port: 11211
+            };
+
+            var memcacheDefaults = Defaults.apply(options);
+
+            expect(memcacheDefaults.location).to.equal('127.0.0.1:11211');
+            done();
+        });
+
+        it('throws when both location and host/port are given', function (done) {
+
+            var options = {
+                engine: 'memcache',
+                location: '127.0.0.1:11211',
+                host: '127.0.0.1',
+                port: 11212
+            };
+
+            var fn = function () {
+
+                var memcacheDefaults = Defaults.apply(options);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('throws when both location and host are given', function (done) {
+
+            var options = {
+                engine: 'memcache',
+                location: '127.0.0.1:11211',
+                host: '127.0.0.1'
+            };
+
+            var fn = function () {
+
+                var memcacheDefaults = Defaults.apply(options);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
+
+        it('throws when both location and port are given', function (done) {
+
+            var options = {
+                engine: 'memcache',
+                location: '127.0.0.1:11211',
+                port: 11211
+            };
+
+            var fn = function () {
+
+                var memcacheDefaults = Defaults.apply(options);
+            };
+
+            expect(fn).to.throw(Error);
+            done();
+        });
     });
 });
