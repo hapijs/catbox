@@ -20,7 +20,73 @@ var it = Lab.test;
 
 describe('Policy', function () {
 
-    it('returns null on get when cache mode is not server', function (done) {
+    it('returns cached item', function (done) {
+
+        var client = new Catbox.Client('memory');
+        var cache = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+
+        client.start(function (err) {
+
+            expect(err).to.not.exist;
+
+            cache.set('x', '123', null, function (err) {
+                expect(err).to.not.exist;
+
+                cache.get('x', function (err, result) {
+
+                    expect(err).to.not.exist;
+                    expect(result.item).to.equal('123');
+                    done();
+                });
+            });
+        });
+    });
+
+    it('finds nothing when using empty policy rules', function (done) {
+
+        var client = new Catbox.Client('memory');
+        var cache = new Catbox.Policy({}, client, 'test');
+
+        client.start(function (err) {
+
+            expect(err).to.not.exist;
+
+            cache.set('x', '123', null, function (err) {
+                expect(err).to.not.exist;
+
+                cache.get('x', function (err, result) {
+
+                    expect(err).to.not.exist;
+                    expect(result).to.not.exist;
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns cached item with no global rules and manual ttl', function (done) {
+
+        var client = new Catbox.Client('memory');
+        var cache = new Catbox.Policy({}, client, 'test');
+
+        client.start(function (err) {
+
+            expect(err).to.not.exist;
+
+            cache.set('x', '123', 1000, function (err) {
+                expect(err).to.not.exist;
+
+                cache.get('x', function (err, result) {
+
+                    expect(err).to.not.exist;
+                    expect(result.item).to.equal('123');
+                    done();
+                });
+            });
+        });
+    });
+
+    it('returns null on get when no cache client provided', function (done) {
 
         var cache = new Catbox.Policy({ expiresIn: 1 });
 
@@ -33,7 +99,7 @@ describe('Policy', function () {
         });
     });
 
-    it('returns null on set when cache mode is not server', function (done) {
+    it('returns null on set when no cache client provided', function (done) {
 
         var cache = new Catbox.Policy({ expiresIn: 1 });
 
@@ -45,7 +111,7 @@ describe('Policy', function () {
         });
     });
 
-    it('returns null on drop when cache mode is not server', function (done) {
+    it('returns null on drop when no cache client provided', function (done) {
 
         var cache = new Catbox.Policy({ expiresIn: 1 });
 
@@ -305,11 +371,9 @@ describe('Policy', function () {
 
         it('throws an error when parsing a rule with niether expiresAt or expiresIn', function (done) {
 
-            var config = {
-            };
             var fn = function () {
 
-                Catbox.policy.compile(config, false);
+                Catbox.policy.compile({ a: 1 }, false);
             };
 
             expect(fn).to.throw(Error);
