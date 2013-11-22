@@ -89,8 +89,8 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
 - `options` - is an object with the following keys:
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
-    - `expiresAt` - time of day expressed in 24h notation using the 'MM:HH' format, at which point all cache records for the route
-      expire. Cannot be used together with `expiresIn`.
+    - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records for the route
+      expire. Uses local time. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
 - `cache` - a `Client` instance (which has already been started).
