@@ -189,7 +189,7 @@ Helper.testRiak(function (available) {
                 riak.client = {
                     get: function (item, callback) {
 
-                        callback(null, 'test');
+                        callback(null, { content: [{ value: 'test' }] });
                     }
                 };
 
@@ -212,7 +212,7 @@ Helper.testRiak(function (available) {
                 riak.client = {
                     get: function (item, callback) {
 
-                        callback(null, '{ "item": "false" }');
+                        callback(null, { content: [{ value: '{ "item": "false" }' }] });
                     }
                 };
 
@@ -308,7 +308,7 @@ Helper.testRiak(function (available) {
 
                 var riak = new Riak.Connection(options);
                 riak.client = {
-                    set: function (key, item, callback) {
+                    put: function (key, callback) {
 
                         callback(new Error());
                     }
