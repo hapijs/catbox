@@ -299,6 +299,29 @@ Helper.testRiak(function (available) {
                 });
             });
 
+            it('test for proper ttl bubbling', function (done) {
+
+                var options = {
+                    host: '127.0.0.1',
+                    port: 8087
+                };
+
+                var riak = new Riak.Connection(options);
+                riak.start(function () {
+
+                    riak.set('test1', 'test1', 3600, function (err) {
+
+                        expect(err).to.not.exist;
+
+                        riak.set('test2', 'test2', 300, function (err) {
+
+                            expect(err).to.not.exist;
+                            done();
+                        });
+                    });
+                });
+            });
+
             it('passes an error to the callback when there is an error returned from setting an item', function (done) {
 
                 var options = {
@@ -311,6 +334,17 @@ Helper.testRiak(function (available) {
                     put: function (key, callback) {
 
                         callback(new Error());
+                    },
+                    getIndex: function () {
+                        var fakestream = new require('stream').Readable();
+                        fakestream._read = function () { 
+                            this.push({ keys: ['a'] });
+                            this.push(null);
+                        };
+                        return fakestream;
+                    },
+                    del: function (q, cb) {
+                        cb();
                     }
                 };
 
