@@ -22,6 +22,20 @@ exports.testRedis = function (callback) {
     });
 };
 
+exports.testRiak = function (callback) {
+
+    var riak = Net.createConnection(8087);
+    riak.once('error', function () {
+
+        callback(false);
+    });
+    riak.once('connect', function () {
+
+        riak.end();
+        callback(true);
+    });
+};
+
 exports.testMemcache = function (callback) {
 
     var memcache = Net.createConnection(11211);

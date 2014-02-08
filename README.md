@@ -17,6 +17,10 @@ In order to reduce module dependencies, **catbox** does not depend on the [mongo
 [redis](https://npmjs.org/package/redis) modules. To use these strategies, each service must be available on the network and
 each module must be manually installed.
 
+### Notes
+
+Since Riak doesn't have ttl built in, a garbage collection function will run periodically to remove expired keys. This function makes a getIndex call, so your riak backend cannot be set to `riak_kv_bitcask_backend`, this call streams the keys that need to be deleted and deletes them as they are received. 
+In order to prevent siblings we recomend you set `last_write_wins` on the bucket to true.
 
 ### `Client`
 
@@ -28,9 +32,10 @@ The `Client` object provides a low-level cache abstraction. The object is constr
         - `mongodb`
         - `memcache`
         - `memory`
+        - `riak`
         - an object with **catbox** compatible interface (use the `memory` cache implementation as prototype).
     - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
-      as the MongoDB database name or as a key prefix in Redis and Memcached. To share the cache across multiple clients, use the same
+      as the MongoDB database name, the Riak bucket, or as a key prefix in Redis and Memcached. To share the cache across multiple clients, use the same
       partition name.
     - additional strategy specific options:
         - MongoDB:
@@ -43,6 +48,9 @@ The `Client` object provides a low-level cache abstraction. The object is constr
             - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
             - `port` - the Redis server port. Defaults to `6379`.
             - `password` - the Redis authentication password when required.
+        - Riak:
+            - `host` - the Riak server hostname. Defaults to `127.0.0.1`.
+            - `port` - the Riak PBC port. Defaults to `8087`.
         - Memcache:
             - `host` - the Memcache server hostname. Defaults to '`127.0.0.1'`. Cannot be used with `location`.
             - `port` - the Memcache server port. Defaults to `11211`. Cannot be used with `location`.

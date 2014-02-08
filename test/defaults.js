@@ -76,6 +76,14 @@ describe('Defaults', function () {
             done();
         });
 
+        it('returns correct defaults for riak', function (done) {
+
+            var riakDefaults = Defaults.apply('riak');
+
+            expect(riakDefaults.port).to.equal(8087);
+            done();
+        });
+
         it('returns correct defaults for mongo', function (done) {
 
             var mongoDefaults = Defaults.apply('mongodb');
