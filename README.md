@@ -48,6 +48,7 @@ The `Client` object provides a low-level cache abstraction. The object is constr
             - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
             - `port` - the Redis server port. Defaults to `6379`.
             - `password` - the Redis authentication password when required.
+            - `client` - the existing Redis client object you normally get from redis.createClient()
         - Riak:
             - `host` - the Riak server hostname. Defaults to `127.0.0.1`.
             - `port` - the Riak PBC port. Defaults to `8087`.
