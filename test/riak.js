@@ -48,7 +48,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -66,7 +67,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -91,7 +93,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -107,7 +110,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -122,7 +126,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -141,7 +146,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -159,7 +165,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -182,7 +189,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -205,7 +213,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -285,7 +294,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'errortest'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -303,7 +313,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'ttltest'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -326,7 +337,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'errortest'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -363,7 +375,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'errortest'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -381,7 +394,8 @@ Helper.testRiak(function (available) {
 
                 var options = {
                     host: '127.0.0.1',
-                    port: 8087
+                    port: 8087,
+                    partition: 'test'
                 };
 
                 var riak = new Riak.Connection(options);
@@ -407,7 +421,8 @@ Helper.testRiak(function (available) {
 
             var options = {
                 host: '127.0.0.1',
-                port: 8087
+                port: 8087,
+                partition: 'test'
             };
 
             var riak = new Riak.Connection(options);
