@@ -377,19 +377,29 @@ Helper.testRiak(function (available) {
                 };
 
                 var riak = new Riak.Connection(options);
+                riak.client = {
+                    put: function (key, callback) {
+
+                        callback();
+                    },
+                    getIndex: function () {
+                        var fakestream = new require('stream').Readable({ objectMode: true });
+                        fakestream._read = function () { 
+                            this.push({ keys: ['a'] });
+                            this.push(null);
+                        };
+                        return fakestream;
+                    },
+                    del: function (q, cb) {
+                        cb();
+                        done();
+                    }
+                };
                 riak.start(function () {
 
                     riak.set('test', 'test', 200, function (err) {
 
-                        setTimeout(function () {
-
-                            riak.get('test', function (err, reply) {
-
-                                expect(err).to.not.exist;
-                                expect(reply).to.not.exist;
-                                done();
-                            });
-                        }, 500);
+                        expect(err).to.not.exist;
                     });
                 });
             });
