@@ -367,6 +367,32 @@ Helper.testRiak(function (available) {
                     done();
                 });
             });
+
+            it('deletes an expired key in a timely manner', function (done) {
+
+                var options = {
+                    host: '127.0.0.1',
+                    port: 8087,
+                    partition: 'expiretest'
+                };
+
+                var riak = new Riak.Connection(options);
+                riak.start(function () {
+
+                    riak.set('test', 'test', 200, function (err) {
+
+                        setTimeout(function () {
+
+                            riak.get('test', function (err, reply) {
+
+                                expect(err).to.not.exist;
+                                expect(reply).to.not.exist;
+                                done();
+                            });
+                        }, 500);
+                    });
+                });
+            });
         });
 
         describe('#drop', function () {
