@@ -383,6 +383,7 @@ Helper.testRiak(function (available) {
                         callback();
                     },
                     getIndex: function () {
+
                         var fakestream = new require('stream').Readable({ objectMode: true });
                         fakestream._read = function () { 
                             this.push({ keys: ['a'] });
