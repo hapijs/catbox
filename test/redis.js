@@ -53,10 +53,9 @@ Helper.testRedis(function (available) {
 
                 var redis = new Redis.Connection(options);
 
-                redis.start(function (err, result) {
+                redis.start(function (err) {
 
                     expect(err).to.not.exist;
-                    expect(result).to.not.exist;
                     expect(redis.client).to.exist;
                     done();
                 });
@@ -93,7 +92,7 @@ Helper.testRedis(function (available) {
 
                 var redis = new Redis.Connection(options);
 
-                redis.start(function (err, result) {
+                redis.start(function (err) {
 
                     expect(err).to.exist;
                     expect(err).to.be.instanceOf(Error);
@@ -119,7 +118,27 @@ Helper.testRedis(function (available) {
                     console.log = log;
                 };
 
-                redis.start(function (err, result) {
+                redis.start(function (err) {
+                    done();
+                });
+            });
+
+            it('stops the client on error post connection', function (done) {
+
+                var options = {
+                    host: '127.0.0.1',
+                    port: 6379
+                };
+
+                var redis = new Redis.Connection(options);
+
+                redis.start(function (err) {
+
+                    expect(err).to.not.exist;
+                    expect(redis.client).to.exist;
+
+                    redis.client.emit('error', new Error('injected'));
+                    expect(redis.client).to.not.exist;
                     done();
                 });
             });
@@ -424,24 +443,6 @@ Helper.testRedis(function (available) {
                 redis.stop();
                 expect(redis.client).to.not.exist;
                 done();
-            });
-        });
-
-        it('stops the client from trying to reconnect', function (done) {
-
-            var options = {
-                host: '127.0.0.1',
-                port: 6380
-            };
-
-            var redis = new Redis.Connection(options);
-
-            redis.start(function () {
-
-                //expect(redis.client).to.exist;
-                redis.stop();
-                expect(redis.client).to.not.exist;
-                //done();
             });
         });
     });
