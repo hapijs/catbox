@@ -426,5 +426,23 @@ Helper.testRedis(function (available) {
                 done();
             });
         });
+
+        it('stops the client from trying to reconnect', function (done) {
+
+            var options = {
+                host: '127.0.0.1',
+                port: 6380
+            };
+
+            var redis = new Redis.Connection(options);
+
+            redis.start(function () {
+
+                //expect(redis.client).to.exist;
+                redis.stop();
+                expect(redis.client).to.not.exist;
+                //done();
+            });
+        });
     });
 });
