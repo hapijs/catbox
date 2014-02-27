@@ -148,32 +148,29 @@ describe('Policy', function () {
 
         it('passes an error to the callback when an error occurs getting the item', function (done) {
 
-            var options = {
-                partition: 'test',
-                engine: {
-                    start: function (callback) {
+            var engine = {
+                start: function (callback) {
 
-                        callback();
-                    },
-                    isReady: function () {
+                    callback();
+                },
+                isReady: function () {
 
-                        return true;
-                    },
-                    get: function (key, callback) {
+                    return true;
+                },
+                get: function (key, callback) {
 
-                        callback(new Error());
-                    },
-                    validateSegmentName: function () {
+                    callback(new Error());
+                },
+                validateSegmentName: function () {
 
-                        return null;
-                    }
+                    return null;
                 }
             };
             var policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(options);
+            var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.get({ id: 'test1', segment: 'test2' }, function (err, result) {
@@ -186,35 +183,32 @@ describe('Policy', function () {
 
         it('returns the cached result when no error occurs', function (done) {
 
-            var options = {
-                partition: 'test',
-                engine: {
-                    start: function (callback) {
+            var engine = {
+                start: function (callback) {
 
-                        callback();
-                    },
-                    isReady: function () {
+                    callback();
+                },
+                isReady: function () {
 
-                        return true;
-                    },
-                    get: function (key, callback) {
+                    return true;
+                },
+                get: function (key, callback) {
 
-                        callback(null, {
-                            stored: 'stored',
-                            item: 'item'
-                        });
-                    },
-                    validateSegmentName: function () {
+                    callback(null, {
+                        stored: 'stored',
+                        item: 'item'
+                    });
+                },
+                validateSegmentName: function () {
 
-                        return null;
-                    }
+                    return null;
                 }
             };
             var policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(options);
+            var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.get({ id: 'test1', segment: 'test2' }, function (err, result) {
@@ -230,25 +224,22 @@ describe('Policy', function () {
 
         it('calls the extension clients drop function', function (done) {
 
-            var options = {
-                partition: 'test',
-                engine: {
-                    start: function (callback) {
+            var engine = {
+                start: function (callback) {
 
-                        callback();
-                    },
-                    isReady: function () {
+                    callback();
+                },
+                isReady: function () {
 
-                        return true;
-                    },
-                    drop: function (key, callback) {
+                    return true;
+                },
+                drop: function (key, callback) {
 
-                        callback(null, 'success');
-                    },
-                    validateSegmentName: function () {
+                    callback(null, 'success');
+                },
+                validateSegmentName: function () {
 
-                        return null;
-                    }
+                    return null;
                 }
             };
 
@@ -256,7 +247,7 @@ describe('Policy', function () {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(options);
+            var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.drop('test', function (err, result) {
@@ -271,21 +262,18 @@ describe('Policy', function () {
 
         it('returns the ttl factoring in the created time', function (done) {
 
-            var options = {
-                partition: 'test',
-                engine: {
-                    start: function (callback) {
+            var engine = {
+                start: function (callback) {
 
-                        callback();
-                    },
-                    isReady: function () {
+                    callback();
+                },
+                isReady: function () {
 
-                        return true;
-                    },
-                    validateSegmentName: function () {
+                    return true;
+                },
+                validateSegmentName: function () {
 
-                        return null;
-                    }
+                    return null;
                 }
             };
 
@@ -293,7 +281,7 @@ describe('Policy', function () {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(options);
+            var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
             var result = policy.ttl(Date.now() - 10000);
@@ -304,7 +292,7 @@ describe('Policy', function () {
 
     describe('#compile', function () {
 
-        it('doesn\'t try to compile a null config', function (done) {
+        it('does not try to compile a null config', function (done) {
 
             var rule = Catbox.policy.compile(null);
 
@@ -818,7 +806,7 @@ describe('Policy', function () {
 
         var setup = function (rule, genTimeout, simError, ttl, run, broken) {
 
-            var client = new Catbox.Client({ engine: 'memory', partition: 'test-partition' });
+            var client = new Catbox.Client('memory', { partition: 'test-partition' });
             if (broken) {
                 client.get = function (key, callback) { callback(new Error('bad client')); };
             }
@@ -1043,10 +1031,6 @@ describe('Policy', function () {
                     }, 21);
                 });
             });
-        });
-
-        it('uses result toCache() when available', function (done) {
-            done();
         });
     });
 });

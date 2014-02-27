@@ -2,64 +2,48 @@
 ![catbox Logo](https://raw.github.com/spumko/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
+Version: **2.0.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
-
-**catbox** is a multi-strategy key-value object store. It includes support for [Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/),
-[Memcached](http://memcached.org/), and a limited memory store (not suitable for production environments). **catbox** provides two interfaces: a low-level `Client` and a high-level
-`Policy`.
+**catbox** is a multi-strategy key-value object store. It comes with a limited memory-based cache and extensions supporting
+[Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), and [Riak](http://basho.com/riak/).
+**catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
 
 
 ### Installation
 
-In order to reduce module dependencies, **catbox** does not depend on the [mongodb](https://npmjs.org/package/mongodb) or
-[redis](https://npmjs.org/package/redis) modules. To use these strategies, each service must be available on the network and
-each module must be manually installed.
+In order to reduce module dependencies, **catbox** does not includes the external caching strategies. To use other strategies,
+each service must be manually installed via npm or package dependencies manually. The available strategies are:
 
-### Notes
+- [Redis](https://github.com/spumko/catbox-redis)
+- [MongoDB](https://github.com/spumko/catbox-mongodb)
+- [Memcached](https://github.com/spumko/catbox-memcached)
+- [Riak](https://github.com/spumko/catbox-riak)
 
-Since Riak doesn't have ttl built in, a garbage collection function will run periodically to remove expired keys. This function makes a getIndex call, so your riak backend cannot be set to `riak_kv_bitcask_backend`, this call streams the keys that need to be deleted and deletes them as they are received. 
-In order to prevent siblings we recomend you set `last_write_wins` on the bucket to true.
 
 ### `Client`
 
-The `Client` object provides a low-level cache abstraction. The object is constructed using `new Client(options)` where:
+The `Client` object provides a low-level cache abstraction. The object is constructed using `new Client(engine, options, loader)` where:
 
-- `options` - is an object with the following keys:
-    - `engine` - the cache server implementation. Options are:
-        - `redis`
-        - `mongodb`
-        - `memcache`
-        - `memory`
-        - `riak`
-        - an object with **catbox** compatible interface (use the `memory` cache implementation as prototype).
+- `engine` - is a string, object, or function detailing the cache strategy implementation details:
+    - string - the node module name used via `require()`. The required module must export a prototype function with the signature
+      `function(options)`. **catbox** will call `new require(name)(options)` with the provided `name` string. To use the built-in
+      memory cache, use the reserved string `'memory'`.
+    - function - a prototype function with the signature `function(options)`. **catbox** will call `new func(options)`.
+    - object - a pre instantiated client implementation object. Does not support passing `options`.
+- `options` - the strategy configuration object. Each strategy defines its own configuration options with the following common options:
     - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
-      as the MongoDB database name, the Riak bucket, or as a key prefix in Redis and Memcached. To share the cache across multiple clients, use the same
-      partition name.
-    - additional strategy specific options:
-        - MongoDB:
-            - `host` - the MongoDB server hostname. Defaults to `'127.0.0.1'`.
-            - `port` - the MongoDB server port. Defaults to `27017`.
-            - `username` - when the mongo server requires authentication. Defaults to no authentication.
-            - `password` - the authentication password when `username` is configured.
-            - `poolSize` - number of connections. Defaults to `5`.
-        - Redis:
-            - `host` - the Redis server hostname. Defaults to `'127.0.0.1'`.
-            - `port` - the Redis server port. Defaults to `6379`.
-            - `password` - the Redis authentication password when required.
-        - Riak:
-            - `host` - the Riak server hostname. Defaults to `127.0.0.1`.
-            - `port` - the Riak PBC port. Defaults to `8087`.
-        - Memcache:
-            - `host` - the Memcache server hostname. Defaults to '`127.0.0.1'`. Cannot be used with `location`.
-            - `port` - the Memcache server port. Defaults to `11211`. Cannot be used with `location`.
-            - `location` - the Memcache server hostname and port. Defaults to ''127.0.0.1:11211''.
-            Can be a String, Array, or an Object as per [node-memcached location specification](https://github.com/3rd-Eden/node-memcached#server-locations).
-        - Memory:
-            - `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
-              reached no additional items will be added to the cache until some expire. The utilized memory calculation is
-              a rough approximation and must not be relied on. Defaults to `104857600` (100MB).
+      as the MongoDB database name, the Riak bucket, or as a key prefix in Redis and Memcached. To share the cache across multiple clients,
+      use the same partition name.
+- `loader` - when using a string `engine`, if the required module is not within the `node_modules` file path from where **catbox**
+      is located, the `loader` argument can be used to pass a localized copy of node's `require`.
+
+The built-in `'memory'` strategy supports the following options:
+- `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
+    reached no additional items will be added to the cache until some expire. The utilized memory calculation is
+    a rough approximation and must not be relied on. Defaults to `104857600` (100MB).
+
 
 #### API
 
@@ -103,6 +87,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
 - `cache` - a `Client` instance (which has already been started).
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
+
 
 #### API
 

@@ -1,9 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
-var Catbox = require('..');
 var Memory = require('../lib/memory');
-var Common = require('./common');
 
 
 // Declare internals
@@ -22,26 +20,13 @@ var it = Lab.test;
 
 describe('Memory', function () {
 
-    Common.test('memory');
-
     describe('#Connection', function () {
-
-        it('throws an error when constructed without new', function (done) {
-
-            var fn = function () {
-
-                var memory = Memory.Connection();
-            };
-
-            expect(fn).to.throw(Error);
-            done();
-        });
 
         it('constructs a new Connection when constructed with new', function (done) {
 
             var fn = function () {
 
-                var memory = new Memory.Connection();
+                var memory = new Memory();
             };
 
             expect(fn).to.not.throw(Error);
@@ -53,7 +38,7 @@ describe('Memory', function () {
 
         it('creates an empty cache object', function (done) {
 
-            var memory = new Memory.Connection();
+            var memory = new Memory();
             expect(memory.cache).to.not.exist;
             memory.start(function () {
 
@@ -67,7 +52,7 @@ describe('Memory', function () {
 
         it('sets the cache object to null', function (done) {
 
-            var memory = new Memory.Connection();
+            var memory = new Memory();
             expect(memory.cache).to.not.exist;
             memory.start(function () {
 
@@ -88,7 +73,7 @@ describe('Memory', function () {
                 id: 'test'
             };
 
-            var memory = new Memory.Connection();
+            var memory = new Memory();
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
@@ -117,7 +102,7 @@ describe('Memory', function () {
                 id: 'test'
             };
 
-            var memory = new Memory.Connection();
+            var memory = new Memory();
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
@@ -138,7 +123,7 @@ describe('Memory', function () {
                 id: 'test'
             };
 
-            var memory = new Memory.Connection();
+            var memory = new Memory();
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
@@ -163,7 +148,7 @@ describe('Memory', function () {
                 id: 'test'
             };
 
-            var memory = new Memory.Connection({ maxByteSize: 4 });
+            var memory = new Memory({ maxByteSize: 4 });
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
@@ -190,7 +175,7 @@ describe('Memory', function () {
                 id: 'test2'
             };
 
-            var memory = new Memory.Connection({ maxByteSize: 70 });
+            var memory = new Memory({ maxByteSize: 70 });
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
@@ -223,7 +208,7 @@ describe('Memory', function () {
                 }
             };
 
-            var memory = new Memory.Connection({ maxByteSize: 2000 });
+            var memory = new Memory({ maxByteSize: 2000 });
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
@@ -253,7 +238,7 @@ describe('Memory', function () {
                 }
             };
 
-            var memory = new Memory.Connection({ maxByteSize: 2000 });
+            var memory = new Memory({ maxByteSize: 2000 });
             expect(memory.cache).to.not.exist;
 
             memory.start(function () {
