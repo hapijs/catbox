@@ -2,7 +2,6 @@
 
 var Lab = require('lab');
 var Catbox = require('..');
-var Memory = require('../lib/memory');
 
 
 // Declare internals
@@ -20,50 +19,6 @@ var it = Lab.test;
 
 
 describe('Client', function () {
-
-    it('uses built-in memory engine', function (done) {
-
-        var client = new Catbox.Client('memory');
-        client.start(function (err) {
-
-            expect(err).to.not.exist;
-
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, '123', 1000, function (err) {
-
-                expect(err).to.not.exist;
-
-                client.get(key, function (err, result) {
-
-                    expect(err).to.not.exist;
-                    expect(result.item).to.equal('123');
-                    done();
-                });
-            });
-        });
-    });
-
-    it('uses string engine', function (done) {
-
-        var client = new Catbox.Client('./memory');
-        client.start(function (err) {
-
-            expect(err).to.not.exist;
-
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, '123', 1000, function (err) {
-
-                expect(err).to.not.exist;
-
-                client.get(key, function (err, result) {
-
-                    expect(err).to.not.exist;
-                    expect(result.item).to.equal('123');
-                    done();
-                });
-            });
-        });
-    });
 
     it('uses string engine with override loader', function (done) {
 
@@ -89,7 +44,8 @@ describe('Client', function () {
 
     it('uses prototype engine', function (done) {
 
-        var client = new Catbox.Client(Memory);
+        var Obj = require('./import');
+        var client = new Catbox.Client(Obj);
         client.start(function (err) {
 
             expect(err).to.not.exist;
@@ -111,7 +67,8 @@ describe('Client', function () {
 
     it('uses object instance engine', function (done) {
 
-        var client = new Catbox.Client(new Memory());
+        var Obj = require('./import');
+        var client = new Catbox.Client(new Obj());
         client.start(function (err) {
 
             expect(err).to.not.exist;

@@ -6,7 +6,7 @@ Version: **2.0.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
-**catbox** is a multi-strategy key-value object store. It comes with a limited memory-based cache and extensions supporting
+**catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory cache,
 [Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), and [Riak](http://basho.com/riak/).
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
 
@@ -16,10 +16,11 @@ Version: **2.0.x**
 In order to reduce module dependencies, **catbox** does not includes the external caching strategies. To use other strategies,
 each service must be manually installed via npm or package dependencies manually. The available strategies are:
 
+- [Memory](https://github.com/spumko/catbox-memory)
 - [Redis](https://github.com/spumko/catbox-redis)
 - [MongoDB](https://github.com/spumko/catbox-mongodb)
 - [Memcached](https://github.com/spumko/catbox-memcached)
-- [Riak](https://github.com/spumko/catbox-riak)
+- [Riak](https://github.com/DanielBarnes/catbox-riak)
 
 
 ### `Client`
@@ -28,8 +29,7 @@ The `Client` object provides a low-level cache abstraction. The object is constr
 
 - `engine` - is a string, object, or function detailing the cache strategy implementation details:
     - string - the node module name used via `require()`. The required module must export a prototype function with the signature
-      `function(options)`. **catbox** will call `new require(name)(options)` with the provided `name` string. To use the built-in
-      memory cache, use the reserved string `'memory'`.
+      `function(options)`. **catbox** will call `new require(name)(options)` with the provided `name` string.
     - function - a prototype function with the signature `function(options)`. **catbox** will call `new func(options)`.
     - object - a pre instantiated client implementation object. Does not support passing `options`.
 - `options` - the strategy configuration object. Each strategy defines its own configuration options with the following common options:
@@ -38,11 +38,6 @@ The `Client` object provides a low-level cache abstraction. The object is constr
       use the same partition name.
 - `loader` - when using a string `engine`, if the required module is not within the `node_modules` file path from where **catbox**
       is located, the `loader` argument can be used to pass a localized copy of node's `require`.
-
-The built-in `'memory'` strategy supports the following options:
-- `maxByteSize` - sets an upper limit on the number of bytes that can be stored in the cached. Once this limit is
-    reached no additional items will be added to the cache until some expire. The utilized memory calculation is
-    a rough approximation and must not be relied on. Defaults to `104857600` (100MB).
 
 
 #### API
