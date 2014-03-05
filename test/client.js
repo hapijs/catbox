@@ -20,9 +20,9 @@ var it = Lab.test;
 
 describe('Client', function () {
 
-    it('uses string engine with override loader', function (done) {
+    it('uses string engine', function (done) {
 
-        var client = new Catbox.Client('./import', {}, require);
+        var client = new Catbox.Client('../test/import');
         client.start(function (err) {
 
             expect(err).to.not.exist;

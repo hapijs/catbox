@@ -36,8 +36,6 @@ The `Client` object provides a low-level cache abstraction. The object is constr
     - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
       as the MongoDB database name, the Riak bucket, or as a key prefix in Redis and Memcached. To share the cache across multiple clients,
       use the same partition name.
-- `loader` - when using a string `engine`, if the required module is not within the `node_modules` file path from where **catbox**
-      is located, the `loader` argument can be used to pass a localized copy of node's `require`.
 
 
 #### API
