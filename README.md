@@ -2,7 +2,7 @@
 ![catbox Logo](https://raw.github.com/spumko/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
-Version: **2.0.x**
+Version: **2.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
@@ -36,6 +36,9 @@ The `Client` object provides a low-level cache abstraction. The object is constr
     - `partition` - the partition name used to isolate the cached results across multiple clients. The partition name is used
       as the MongoDB database name, the Riak bucket, or as a key prefix in Redis and Memcached. To share the cache across multiple clients,
       use the same partition name.
+
+Note that any implementation of client strategies must return deep copies of the stored data as the API assumes that the object returned
+from a `get()` is owned by the called and can be safely modified without affecting the cache copy.
 
 
 #### API
