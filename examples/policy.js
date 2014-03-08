@@ -41,7 +41,6 @@ internals.getResponse = function (callback) {
 internals.startCache = function (callback) {
 
     var clientOptions = {
-        engine: 'redis',
         partition: 'examples'               // For redis this will store items under keys that start with examples:
     };
 
@@ -49,7 +48,7 @@ internals.startCache = function (callback) {
         expiresIn: 5000
     };
 
-    var client = new Catbox.Client(clientOptions);
+    var client = new Catbox.Client(require('../test/import'), clientOptions);
     client.start(function () {
 
         internals.policy = new Catbox.Policy(policyOptions, client, 'example');

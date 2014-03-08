@@ -30,6 +30,7 @@ describe('Policy', function () {
             expect(err).to.not.exist;
 
             cache.set('x', '123', null, function (err) {
+
                 expect(err).to.not.exist;
 
                 cache.get('x', function (err, result) {
@@ -822,15 +823,10 @@ describe('Policy', function () {
 
                     if (!simError || gen !== 2) {
                         var item = {
-                            gen: gen,
-                            toCache: function () { return { gen: gen }; }
+                            gen: gen
                         };
 
-                        if (ttl) {
-                            item.getTtl = function () { return ttl; };
-                        }
-
-                        return callback(null, item);
+                        return callback(null, item, ttl);
                     }
 
                     return callback(new Error());
@@ -854,7 +850,7 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 0, false, 0, function (get) {
+            setup(rule, 0, false, null, function (get) {
 
                 get('test', function (err, value, cached) {
 
@@ -872,7 +868,7 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 0, false, 0, function (get) {
+            setup(rule, 0, false, null, function (get) {
 
                 get('test', function (err, value, cached) {
 
@@ -947,7 +943,7 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 6, true, 0, function (get) {
+            setup(rule, 6, true, null, function (get) {
 
                 get('test', function (err, value1, cached) {
 
@@ -981,7 +977,7 @@ describe('Policy', function () {
                 staleTimeout: 10
             };
 
-            setup(rule, 0, false, 0, function (get) {
+            setup(rule, 0, false, null, function (get) {
 
                 get('test', function (err, value1, cached) {
 
@@ -1014,7 +1010,7 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 0, true, 0, function (get) {
+            setup(rule, 0, true, null, function (get) {
 
                 get('test', function (err, value1, cached) {
 

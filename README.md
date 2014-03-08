@@ -106,7 +106,11 @@ The `Policy` object provides the following methods:
 - `getOrGenerate(id, generateFunc, callback)` - get an item from the cache if found, otherwise calls the `generateFunc` to produce a new value
   and stores it in the cache. This method applies the staleness rules. Its arguments are:
     - `id` - the unique item identifier (within the policy segment).
-    - `generateFunc` - a function with the signature `function(callback = function (err, result))` where `result` is the value to be stored.
+    - `generateFunc` - the function used to generate a new cache item if one is not found in the cache. The method's signature is
+      `function(err, value, ttl)` where:
+        - `err` - an error condition.
+        - `value` - the new value generated.
+        - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
     - `callback` - a function with the signature `function(err, value, cached, report)` where:
         - `err` - any errors encountered.
         - `value` - the fetched or generated value.
