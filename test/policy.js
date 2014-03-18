@@ -221,6 +221,51 @@ describe('Policy', function () {
         });
     });
 
+    describe('#getOrGenerate', function () {
+
+        it('returns falsey items', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    callback(null, {
+                        stored: false,
+                        item: false
+                    });
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            function generateFunc(next) {
+                next(null, false);
+            }
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            policy.getOrGenerate('test1', generateFunc, function (err, item) {
+
+                expect(err).to.equal(null);
+                expect(item).to.equal(false);
+                done();
+            });
+        });
+    });
+
     describe('#drop', function () {
 
         it('calls the extension clients drop function', function (done) {
