@@ -1,7 +1,7 @@
 {
   "name": "catbox",
   "description": "Multi-strategy object caching service",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
   "contributors": [
     "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
