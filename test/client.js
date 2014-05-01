@@ -223,6 +223,32 @@ describe('Client', function () {
             });
         });
 
+        it('returns nothing when item is not found (undefined item)', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    callback(null, { item: undefined });
+                }
+            };
+
+            var client = new Catbox.Client(engine);
+            client.get({ id: 'id', segment: 'segment' }, function (err, cached) {
+
+                expect(err).to.equal(null);
+                expect(cached).to.equal(null);
+                done();
+            });
+        });
+
         it('returns falsey items', function (done) {
 
             var engine = {
