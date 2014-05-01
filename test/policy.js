@@ -785,7 +785,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('Stale', function () {
+    describe('getOrGenerate', function () {
 
         it('bypasses cache when not configured', function (done) {
 
@@ -1025,6 +1025,38 @@ describe('Policy', function () {
                             done();
                         });
                     }, 21);
+                });
+            });
+        });
+
+        it('returns new object when stale has less than staleTimeout time left', function (done) {
+
+            var rule = {
+                expiresIn: 23,
+                staleIn: 15,
+                staleTimeout: 4
+            };
+
+            setup(rule, 0, false, null, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);        // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            expect(value2.gen).to.equal(1);        // Fresh
+                            setTimeout(function () {
+
+                                get('test', function (err, value3, cached) {
+
+                                    expect(value3.gen).to.equal(2);        // Fresh
+                                    done();
+                                });
+                            }, 10);
+                        });
+                    }, 10);
                 });
             });
         });

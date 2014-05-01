@@ -228,6 +228,22 @@ describe('Client', function () {
                 done();
             });
         });
+
+        it('errors on empty key', function (done) {
+
+            var client = new Catbox.Client('../test/import');
+            client.start(function (err) {
+
+                expect(err).to.not.exist;
+
+                client.get({}, function (err) {
+
+                    expect(err).to.exist;
+                    expect(err.message).to.equal('Invalid key');
+                    done();
+                });
+            });
+        });
     });
 
     describe('#set', function () {
