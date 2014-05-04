@@ -2,7 +2,7 @@
 
 var Lab = require('lab');
 var Catbox = require('..');
-
+var Domain = require('domain');
 
 // Declare internals
 
@@ -1102,6 +1102,43 @@ describe('Policy', function () {
                             }, 10);
                         });
                     }, 10);
+                });
+            });
+        });
+
+        it('freshens stale objects independent of current domain', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            var domain = Domain.create();
+
+            domain.enter();
+            setup(rule, 6, false, 100, function (get) {
+
+                get('test', function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);        // Fresh
+                    setTimeout(function () {
+
+                        get('test', function (err, value2, cached) {
+
+                            expect(value2.gen).to.equal(1);        // Stale
+                            domain.dispose();
+
+                            setTimeout(function () {
+
+                                get('test', function (err, value3, cached) {
+
+                                    expect(value3.gen).to.equal(2);        // Fresh
+                                    done();
+                                });
+                            }, 3);
+                        });
+                    }, 21);
                 });
             });
         });
