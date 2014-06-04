@@ -77,20 +77,6 @@ describe('Catbox', function () {
         });
     });
 
-    it('fails setting an item with very long ttl', function (done) {
-
-        var client = new Catbox.Client('../test/import');
-        client.start(function (err) {
-
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, '123', Math.pow(2, 31), function (err) {
-
-                expect(err.message).to.equal('Invalid ttl (greater than 2147483647)');
-                done();
-            });
-        });
-    });
-
     it('ignored starting a connection twice on same event', function (done) {
 
         var client = new Catbox.Client('../test/import');
