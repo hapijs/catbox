@@ -20,28 +20,6 @@ var it = Lab.test;
 
 describe('Client', function () {
 
-    it('uses string engine', function (done) {
-
-        var client = new Catbox.Client('../test/import');
-        client.start(function (err) {
-
-            expect(err).to.not.exist;
-
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, '123', 1000, function (err) {
-
-                expect(err).to.not.exist;
-
-                client.get(key, function (err, result) {
-
-                    expect(err).to.not.exist;
-                    expect(result.item).to.equal('123');
-                    done();
-                });
-            });
-        });
-    });
-
     it('uses prototype engine', function (done) {
 
         var Obj = require('./import');
@@ -86,17 +64,6 @@ describe('Client', function () {
                 });
             });
         });
-    });
-
-    it('throws an error if using an unknown engine type', function (done) {
-
-        var fn = function () {
-
-            var client = new Catbox.Client('bob');
-        };
-
-        expect(fn).to.throw(Error);
-        done();
     });
 
     it('errors when calling get on a bad connection', function (done) {
@@ -312,7 +279,7 @@ describe('Client', function () {
 
         it('errors on empty key', function (done) {
 
-            var client = new Catbox.Client('../test/import');
+            var client = new Catbox.Client(require('../test/import'));
             client.start(function (err) {
 
                 expect(err).to.not.exist;

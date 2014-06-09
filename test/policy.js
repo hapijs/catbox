@@ -2,6 +2,7 @@
 
 var Lab = require('lab');
 var Catbox = require('..');
+var Import = require('./import');
 
 
 // Declare internals
@@ -22,7 +23,7 @@ describe('Policy', function () {
 
     it('returns cached item', function (done) {
 
-        var client = new Catbox.Client('../test/import');
+        var client = new Catbox.Client(Import);
         var cache = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
         client.start(function (err) {
@@ -45,7 +46,7 @@ describe('Policy', function () {
 
     it('finds nothing when using empty policy rules', function (done) {
 
-        var client = new Catbox.Client('../test/import');
+        var client = new Catbox.Client(Import);
         var cache = new Catbox.Policy({}, client, 'test');
 
         client.start(function (err) {
@@ -67,7 +68,7 @@ describe('Policy', function () {
 
     it('returns cached item with no global rules and manual ttl', function (done) {
 
-        var client = new Catbox.Client('../test/import');
+        var client = new Catbox.Client(Import);
         var cache = new Catbox.Policy({}, client, 'test');
 
         client.start(function (err) {
@@ -126,7 +127,7 @@ describe('Policy', function () {
 
     it('returns null on get when item expired', function (done) {
 
-        var client = new Catbox.Client('../test/import');
+        var client = new Catbox.Client(Import);
         client.start(function () {
 
             var key = { id: 'x', segment: 'test' };
@@ -366,7 +367,7 @@ describe('Policy', function () {
             };
             var fn = function () {
 
-                var client = new Catbox.Client('../test/import');
+                var client = new Catbox.Client(Import);
                 var cache = new Catbox.Policy(config, client);
             };
 
@@ -852,7 +853,7 @@ describe('Policy', function () {
 
         var setup = function (rule, genTimeout, simError, ttl, run, broken) {
 
-            var client = new Catbox.Client('../test/import', { partition: 'test-partition' });
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
             if (broken) {
                 client.get = function (key, callback) { callback(new Error('bad client')); };
             }

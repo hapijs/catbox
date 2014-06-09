@@ -2,7 +2,7 @@
 ![catbox Logo](https://raw.github.com/spumko/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
-Version: **2.x**
+Version: **3.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
@@ -25,11 +25,9 @@ each service must be manually installed via npm or package dependencies manually
 
 ### `Client`
 
-The `Client` object provides a low-level cache abstraction. The object is constructed using `new Client(engine, options, loader)` where:
+The `Client` object provides a low-level cache abstraction. The object is constructed using `new Client(engine, options)` where:
 
-- `engine` - is a string, object, or function detailing the cache strategy implementation details:
-    - string - the node module name used via `require()`. The required module must export a prototype function with the signature
-      `function(options)`. **catbox** will call `new require(name)(options)` with the provided `name` string.
+- `engine` - is an object or a prototype function implementing the cache strategy:
     - function - a prototype function with the signature `function(options)`. **catbox** will call `new func(options)`.
     - object - a pre instantiated client implementation object. Does not support passing `options`.
 - `options` - the strategy configuration object. Each strategy defines its own configuration options with the following common options:
