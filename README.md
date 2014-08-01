@@ -6,6 +6,8 @@ Version: **3.x**
 
 [![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
 
+Lead Maintainer: [Van Nguyen](https://github.com/thegoleffect)
+
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory cache,
 [Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), and [Riak](http://basho.com/riak/).
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
