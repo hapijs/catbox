@@ -1156,9 +1156,54 @@ describe('Policy', function () {
                                     expect(value3.gen).to.equal(2);        // Fresh
                                     done();
                                 });
-                            }, 10);
+                            }, 11);
                         });
                     }, 10);
+                });
+            });
+        });
+
+        it('invalidates cache on error without stale', function (done) {
+
+            var rule = {
+                expiresIn: 20,
+                staleIn: 5,
+                staleTimeout: 5
+            };
+
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                ++gen;
+
+                if (gen === 2) {
+                    return callback(new Error());
+                }
+
+                return callback(null, { gen: gen });
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
+
+                    expect(value1.gen).to.equal(1);     // Fresh
+                    setTimeout(function () {
+
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
+
+                            expect(err).to.exist;
+
+                            policy.get('test', function (err, value3) {
+
+                                expect(value3).to.equal(null);
+                                done();
+                            });
+                        });
+                    }, 8);
                 });
             });
         });
