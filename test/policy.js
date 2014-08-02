@@ -851,43 +851,6 @@ describe('Policy', function () {
             });
         });
 
-        var setup = function (rule, genTimeout, simError, ttl, run, broken) {
-
-            var client = new Catbox.Client(Import, { partition: 'test-partition' });
-            if (broken) {
-                client.get = function (key, callback) { callback(new Error('bad client')); };
-            }
-
-            var policy = new Catbox.Policy(rule, client, 'test-segment');
-
-            var gen = 0;
-            var generateFunc = function (callback) {
-
-                ++gen;
-
-                setTimeout(function () {
-
-                    if (!simError || gen !== 2) {
-                        var item = {
-                            gen: gen
-                        };
-
-                        return callback(null, item, ttl);
-                    }
-
-                    return callback(new Error());
-                }, genTimeout);
-            };
-
-            client.start(function () {
-
-                run(function (key, callback) {
-
-                    policy.getOrGenerate(key, generateFunc, callback);
-                });
-            });
-        };
-
         it('returns the processed cached item', function (done) {
 
             var rule = {
@@ -896,9 +859,18 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 0, false, null, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                return callback(null, { gen: ++gen });
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value, cached) {
 
                     expect(value.gen).to.equal(1);
                     done();
@@ -914,14 +886,24 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 0, false, null, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            client.get = function (key, callback) { callback(new Error('bad client')); };
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                return callback(null, { gen: ++gen });
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value, cached) {
 
                     expect(value.gen).to.equal(1);
                     done();
                 });
-            }, true);
+            });
         });
 
         it('returns the processed cached item using manual ttl', function (done) {
@@ -932,14 +914,26 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 6, false, 100, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value1, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                setTimeout(function () {
+
+                    return callback(null, { gen: ++gen }, 100);
+                }, 6);
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
 
                     expect(value1.gen).to.equal(1);        // Fresh
                     setTimeout(function () {
 
-                        get('test', function (err, value2, cached) {
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
 
                             expect(value2.gen).to.equal(1);        // Stale
                             done();
@@ -949,7 +943,7 @@ describe('Policy', function () {
             });
         });
 
-        it('returns stale object then fresh object based on timing when calling a helper using the cache with stale config', function (done) {
+        it('returns stale object then fresh object based on timing', function (done) {
 
             var rule = {
                 expiresIn: 100,
@@ -957,19 +951,31 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 6, false, 100, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value1, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                setTimeout(function () {
+
+                    return callback(null, { gen: ++gen }, 100);
+                }, 6);
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
 
                     expect(value1.gen).to.equal(1);        // Fresh
                     setTimeout(function () {
 
-                        get('test', function (err, value2, cached) {
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
 
                             expect(value2.gen).to.equal(1);        // Stale
                             setTimeout(function () {
 
-                                get('test', function (err, value3, cached) {
+                                policy.getOrGenerate('test', generateFunc, function (err, value3, cached) {
 
                                     expect(value3.gen).to.equal(2);        // Fresh
                                     done();
@@ -981,7 +987,7 @@ describe('Policy', function () {
             });
         });
 
-        it('returns stale object then invalidate cache on error when calling a helper using the cache with stale config', function (done) {
+        it('returns stale object then invalidate cache on error', function (done) {
 
             var rule = {
                 expiresIn: 100,
@@ -989,21 +995,39 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 6, true, null, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value1, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                ++gen;
+
+                setTimeout(function () {
+
+                    if (gen !== 2) {
+                        return callback(null, { gen: gen });
+                    }
+
+                    return callback(new Error());
+                }, 6);
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
 
                     expect(value1.gen).to.equal(1);     // Fresh
                     setTimeout(function () {
 
-                        get('test', function (err, value2, cached) {
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
 
                             // Generates a new one in background which will produce Error and clear the cache
 
                             expect(value2.gen).to.equal(1);     // Stale
                             setTimeout(function () {
 
-                                get('test', function (err, value3, cached) {
+                                policy.getOrGenerate('test', generateFunc, function (err, value3, cached) {
 
                                     expect(value3.gen).to.equal(3);     // Fresh
                                     done();
@@ -1015,7 +1039,7 @@ describe('Policy', function () {
             });
         });
 
-        it('returns fresh object calling a helper using the cache with stale config', function (done) {
+        it('returns fresh objects', function (done) {
 
             var rule = {
                 expiresIn: 100,
@@ -1023,20 +1047,29 @@ describe('Policy', function () {
                 staleTimeout: 10
             };
 
-            setup(rule, 0, false, null, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value1, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                return callback(null, { gen: ++gen });
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
 
                     expect(value1.gen).to.equal(1);     // Fresh
                     setTimeout(function () {
 
-                        get('test', function (err, value2, cached) {
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
 
                             expect(value2.gen).to.equal(2);     // Fresh
 
                             setTimeout(function () {
 
-                                get('test', function (err, value3, cached) {
+                                policy.getOrGenerate('test', generateFunc, function (err, value3, cached) {
 
                                     expect(value3.gen).to.equal(2);     // Fresh
                                     done();
@@ -1048,7 +1081,7 @@ describe('Policy', function () {
             });
         });
 
-        it('returns error when calling a helper using the cache with stale config when arrives within stale timeout', function (done) {
+        it('returns error when generated within stale timeout', function (done) {
 
             var rule = {
                 expiresIn: 30,
@@ -1056,14 +1089,28 @@ describe('Policy', function () {
                 staleTimeout: 5
             };
 
-            setup(rule, 0, true, null, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value1, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                ++gen;
+                if (gen !== 2) {
+                    return callback(null, { gen: gen });
+                }
+
+                return callback(new Error());
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
 
                     expect(value1.gen).to.equal(1);     // Fresh
                     setTimeout(function () {
 
-                        get('test', function (err, value2, cached) {
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
 
                             // Generates a new one which will produce Error
 
@@ -1078,24 +1125,33 @@ describe('Policy', function () {
         it('returns new object when stale has less than staleTimeout time left', function (done) {
 
             var rule = {
-                expiresIn: 23,
+                expiresIn: 25,
                 staleIn: 15,
-                staleTimeout: 4
+                staleTimeout: 5
             };
 
-            setup(rule, 0, false, null, function (get) {
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                get('test', function (err, value1, cached) {
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                return callback(null, { gen: ++gen });
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
 
                     expect(value1.gen).to.equal(1);        // Fresh
                     setTimeout(function () {
 
-                        get('test', function (err, value2, cached) {
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
 
                             expect(value2.gen).to.equal(1);        // Fresh
                             setTimeout(function () {
 
-                                get('test', function (err, value3, cached) {
+                                policy.getOrGenerate('test', generateFunc, function (err, value3, cached) {
 
                                     expect(value3.gen).to.equal(2);        // Fresh
                                     done();

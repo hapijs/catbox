@@ -1,10 +1,9 @@
-<a href="https://github.com/spumko"><img src="https://raw.github.com/spumko/spumko/master/images/from.png" align="right" /></a>
-![catbox Logo](https://raw.github.com/spumko/catbox/master/images/catbox.png)
+![catbox Logo](https://raw.github.com/hapijs/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
 Version: **3.x**
 
-[![Build Status](https://secure.travis-ci.org/spumko/catbox.png)](http://travis-ci.org/spumko/catbox)
+[![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
 
 Lead Maintainer: [Van Nguyen](https://github.com/thegoleffect)
 
@@ -18,10 +17,10 @@ Lead Maintainer: [Van Nguyen](https://github.com/thegoleffect)
 In order to reduce module dependencies, **catbox** does not includes the external caching strategies. To use other strategies,
 each service must be manually installed via npm or package dependencies manually. The available strategies are:
 
-- [Memory](https://github.com/spumko/catbox-memory)
-- [Redis](https://github.com/spumko/catbox-redis)
-- [MongoDB](https://github.com/spumko/catbox-mongodb)
-- [Memcached](https://github.com/spumko/catbox-memcached)
+- [Memory](https://github.com/hapijs/catbox-memory)
+- [Redis](https://github.com/hapijs/catbox-redis)
+- [MongoDB](https://github.com/hapijs/catbox-mongodb)
+- [Memcached](https://github.com/hapijs/catbox-memcached)
 - [Riak](https://github.com/DanielBarnes/catbox-riak)
 
 

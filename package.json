@@ -1,18 +1,18 @@
 {
   "name": "catbox",
   "description": "Multi-strategy object caching service",
-  "version": "3.0.0",
-  "author": "Eran Hammer <eran@hueniverse.com> (http://hueniverse.com)",
+  "version": "3.1.0",
+  "author": "Eran Hammer <eran@hammer.io> (http://hueniverse.com)",
   "contributors": [
     "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
   ],
-  "repository": "git://github.com/spumko/catbox",
+  "repository": "git://github.com/hapijs/catbox",
   "main": "index",
   "keywords": [
     "cache"
   ],
   "engines": {
-    "node": ">=0.10.22"
+    "node": ">=0.10.30"
   },
   "dependencies": {
     "hoek": "2.x.x"
@@ -26,7 +26,7 @@
   "licenses": [
     {
       "type": "BSD",
-      "url": "http://github.com/spumko/catbox/raw/master/LICENSE"
+      "url": "http://github.com/hapijs/catbox/raw/master/LICENSE"
     }
   ]
 }
