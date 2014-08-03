@@ -1207,6 +1207,49 @@ describe('Policy', function () {
                 });
             });
         });
+
+        it('returns timeout error when generate takes too long', function (done) {
+
+            var rule = {
+                expiresIn: 10,
+                generateTimeout: 5
+            };
+
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            var gen = 0;
+            var generateFunc = function (callback) {
+
+                setTimeout(function () {
+
+                    return callback(null, { gen: ++gen });
+                }, 6);
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('test', generateFunc, function (err, value1, cached) {
+
+                    expect(err.output.statusCode).to.equal(503);
+                    setTimeout(function () {
+
+                        policy.getOrGenerate('test', generateFunc, function (err, value2, cached) {
+
+                            expect(value2.gen).to.equal(1);
+                            setTimeout(function () {
+
+                                policy.getOrGenerate('test', generateFunc, function (err, value3, cached) {
+
+                                    expect(err.output.statusCode).to.equal(503);
+                                    done();
+                                });
+                            }, 10);
+                        });
+                    }, 2);
+                });
+            });
+        });
     });
 });
 

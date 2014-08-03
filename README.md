@@ -80,6 +80,8 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       expire. Uses local time. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `getOrGenerate()` `generateFunc` function
+      takes too long to return a value. When the value is eventually returned, it is stored in the cache for future requests.
 - `cache` - a `Client` instance (which has already been started).
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
 
