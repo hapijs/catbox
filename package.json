@@ -4,7 +4,8 @@
   "version": "3.1.0",
   "author": "Eran Hammer <eran@hammer.io> (http://hueniverse.com)",
   "contributors": [
-    "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)"
+    "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)",
+    "Ben Acker <benacker@gmail.com>"
   ],
   "repository": "git://github.com/hapijs/catbox",
   "main": "index",
@@ -19,7 +20,7 @@
     "boom":  "2.x.x"
   },
   "devDependencies": {
-    "lab": "3.x.x"
+    "lab": "4.x.x"
   },
   "scripts": {
     "test": "make test-cov"
