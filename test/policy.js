@@ -167,6 +167,30 @@ describe('Policy', function () {
             });
         });
 
+        it('returns error on null id', function (done) {
+
+            var client = new Catbox.Client(Import);
+            var policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+
+            client.start(function (err) {
+
+                expect(err).to.not.exist;
+
+                policy.set(null, '123', null, function (err) {
+
+                    expect(err).to.exist;
+                    expect(err.message).to.equal('Invalid key');
+
+                    policy.get(null, function (err, result) {
+
+                        expect(err).to.exist;
+                        expect(err.message).to.equal('Invalid key');
+                        done();
+                    });
+                });
+            });
+        });
+
         it('passes an error to the callback when an error occurs getting the item', function (done) {
 
             var engine = {
@@ -782,8 +806,8 @@ describe('Policy', function () {
 
             var rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 13:00:00 GMT-0700 (PDT)').getTime();
-            var now = new Date('Sat Sep 06 2014 12:00:00 GMT-0700 (PDT)').getTime();
+            var created = new Date('Sat Sep 06 2014 13:00:00').getTime();
+            var now = new Date('Sat Sep 06 2014 12:00:00').getTime();
 
             var ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(0);
@@ -798,8 +822,8 @@ describe('Policy', function () {
 
             var rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 9:00:00 GMT-0700 (PDT)').getTime();
-            var now = new Date('Sat Sep 06 2014 11:00:00 GMT-0700 (PDT)').getTime();
+            var created = new Date('Sat Sep 06 2014 9:00:00').getTime();
+            var now = new Date('Sat Sep 06 2014 11:00:00').getTime();
 
             var ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(0);
@@ -814,8 +838,8 @@ describe('Policy', function () {
 
             var rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 11:00:00 GMT-0700 (PDT)').getTime();
-            var now = new Date('Sat Sep 07 2014 10:00:01 GMT-0700 (PDT)').getTime();
+            var created = new Date('Sat Sep 06 2014 11:00:00').getTime();
+            var now = new Date('Sat Sep 07 2014 10:00:01').getTime();
 
             var ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(0);
@@ -830,8 +854,8 @@ describe('Policy', function () {
 
             var rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 9:00:00 GMT-0700 (PDT)').getTime();
-            var now = new Date('Sat Sep 06 2014 9:30:00 GMT-0700 (PDT)').getTime();
+            var created = new Date('Sat Sep 06 2014 9:00:00').getTime();
+            var now = new Date('Sat Sep 06 2014 9:30:00').getTime();
 
             var ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(30 * 60 * 1000);
@@ -846,8 +870,8 @@ describe('Policy', function () {
 
             var rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 11:00:00 GMT-0700 (PDT)').getTime();
-            var now = new Date('Sat Sep 07 2014 9:00:00 GMT-0700 (PDT)').getTime();
+            var created = new Date('Sat Sep 06 2014 11:00:00').getTime();
+            var now = new Date('Sat Sep 07 2014 9:00:00').getTime();
 
             var ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(60 * 60 * 1000);
