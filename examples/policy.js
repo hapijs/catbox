@@ -24,17 +24,7 @@ internals.handler = function (req, res) {
 
 internals.getResponse = function (callback) {
 
-    var logFunc = function (item) {
-
-        console.log(item);
-    };
-
-    var generateFunc = function (next) {
-
-        next(null, 'my example');
-    };
-
-    internals.policy.getOrGenerate('myExample', logFunc, generateFunc, callback);
+    internals.policy.get('myExample', callback);
 };
 
 
@@ -45,7 +35,13 @@ internals.startCache = function (callback) {
     };
 
     var policyOptions = {
-        expiresIn: 5000
+        expiresIn: 5000,
+        generateFunc: function (id, next) {
+
+            var item = 'example';
+            console.log(item);
+            return next(null, item);
+        }
     };
 
     var client = new Catbox.Client(require('../test/import'), clientOptions);

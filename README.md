@@ -80,7 +80,14 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       expire. Uses local time. Cannot be used together with `expiresIn`.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than `expiresIn`.
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
-    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `getOrGenerate()` `generateFunc` function
+    - `generateFunc` - a function used to generate a new cache item if one is not found in the cache when calling `get()`. The method's
+      signature is `function(id, next)` where:
+          - `id` - the `id` string or object provided to the `get()` method.
+          - `next` - the method called when the new item is returned with the signature `function(err, value, ttl)` where:
+              - `err` - an error condition.
+              - `value` - the new value generated.
+              - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
+    - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `generateFunc` function
       takes too long to return a value. When the value is eventually returned, it is stored in the cache for future requests.
 - `cache` - a `Client` instance (which has already been started).
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
@@ -90,10 +97,24 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
 
 The `Policy` object provides the following methods:
 
-- `get(id, callback)` - retrieve an item from the cache where:
-    - `id` - the unique item identifier (within the policy segment).
-    - `callback` - a function with the signature `function(err, cached)` where `cached` is the object returned by the `client.get()` with
-      the additional `isStale` boolean key.
+- `get(id, callback)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
+  is generated, stored in the cache, and returned. the method arguments are:
+    - `id` - the unique item identifier (within the policy segment). Can be a string or an object with the required 'id' key.
+    - `callback` - the return function. The function signature is based on the `generateFunc` settings. If the `generateFunc` is not set,
+      the signature is `function(err, cached)`. Otherwise, the signature is `function(err, value, cached, report)` where:
+        - `err` - any errors encountered.
+        - `value` - the fetched or generated value.
+        - `cached` - `null` if a valid item was not found in the cache, or an object with the following keys:
+            - `item` - the cached `value`.
+            - `stored` - the timestamp when the item was stored in the cache.
+            - `ttl` - the cache ttl value for the record.
+            - `isStale` - `true` if the item is stale.
+        - `report` - an object with logging information about the generation operation containing the following keys (as relevant):
+            - `msec` - the cache lookup time in milliseconds.
+            - `stored` - the timestamp when the item was stored in the cache.
+            - `isStale` - `true` if the item is stale.
+            - `ttl` - the cache ttl value for the record.
+            - `error` - lookup error.
 - `set(id, value, ttl, callback)` - store an item in the cache where:
     - `id` - the unique item identifier (within the policy segment).
     - `value` - the string or object value to be stored.
@@ -104,16 +125,4 @@ The `Policy` object provides the following methods:
     - `id` - the unique item identifier (within the policy segment).
     - `callback` - a function with the signature `function(err)`.
 - `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
-- `getOrGenerate(id, generateFunc, callback)` - get an item from the cache if found, otherwise calls the `generateFunc` to produce a new value
-  and stores it in the cache. This method applies the staleness rules. Its arguments are:
-    - `id` - the unique item identifier (within the policy segment).
-    - `generateFunc` - the function used to generate a new cache item if one is not found in the cache. The method's signature is
-      `function(err, value, ttl)` where:
-        - `err` - an error condition.
-        - `value` - the new value generated.
-        - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
-    - `callback` - a function with the signature `function(err, value, cached, report)` where:
-        - `err` - any errors encountered.
-        - `value` - the fetched or generated value.
-        - `cached` - the `cached` object returned by `policy.get()` is the item was found in the cache.
-        - `report` - an object with logging information about the operation.
+
