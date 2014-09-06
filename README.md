@@ -98,7 +98,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
 The `Policy` object provides the following methods:
 
 - `get(id, callback)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
-  is generated, stored in the cache, and returned. the method arguments are:
+  is generated, stored in the cache, and returned. Multiple concurrent requests are queued and processed once. The method arguments are:
     - `id` - the unique item identifier (within the policy segment). Can be a string or an object with the required 'id' key.
     - `callback` - the return function. The function signature is based on the `generateFunc` settings. If the `generateFunc` is not set,
       the signature is `function(err, cached)`. Otherwise, the signature is `function(err, value, cached, report)` where:
