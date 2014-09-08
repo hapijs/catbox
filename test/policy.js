@@ -979,14 +979,26 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error when parsing a rule with niether expiresAt or expiresIn', function (done) {
+        it('throws an error when parsing a rule with neither expiresAt or expiresIn (server)', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ a: 1 }, true);
+            };
+
+            expect(fn).to.throw(Error);
+
+            done();
+        });
+
+        it('throws an error when parsing a rule with neither expiresAt or expiresIn (no server)', function (done) {
 
             var fn = function () {
 
                 Catbox.policy.compile({ a: 1 }, false);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.not.throw();
 
             done();
         });
