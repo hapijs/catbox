@@ -726,6 +726,39 @@ describe('Policy', function () {
                     });
                 });
             });
+
+            it('queues requests while pending', function (done) {
+
+                var gen = 0;
+                var rule = {
+                    expiresIn: 100,
+                    generateFunc: function (id, next) {
+
+                        return next(null, { gen: ++gen });
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(function () {
+
+                    var result = null;
+                    var compare = function (err, value, cached) {
+
+                        if (!result) {
+                            result = value;
+                            return;
+                        }
+
+                        expect(result).to.equal(value);
+                        done();
+                    };
+
+                    policy.get('test', compare);
+                    policy.get('test', compare);
+                });
+            });
         });
     });
 

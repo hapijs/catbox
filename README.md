@@ -78,8 +78,6 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records for the route
       expire. Uses local time. Cannot be used together with `expiresIn`.
-    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and reload it.  Must be less than `expiresIn`.
-    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the cache when calling `get()`. The method's
       signature is `function(id, next)` where:
           - `id` - the `id` string or object provided to the `get()` method.
@@ -87,6 +85,9 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
               - `err` - an error condition.
               - `value` - the new value generated.
               - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
+    - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to regenerate it when `generateFunc` is
+      provided. Must be less than `expiresIn`.
+    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
     - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `generateFunc` function
       takes too long to return a value. When the value is eventually returned, it is stored in the cache for future requests.
 - `cache` - a `Client` instance (which has already been started).
@@ -98,7 +99,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
 The `Policy` object provides the following methods:
 
 - `get(id, callback)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
-  is generated, stored in the cache, and returned. the method arguments are:
+  is generated, stored in the cache, and returned. Multiple concurrent requests are queued and processed once. The method arguments are:
     - `id` - the unique item identifier (within the policy segment). Can be a string or an object with the required 'id' key.
     - `callback` - the return function. The function signature is based on the `generateFunc` settings. If the `generateFunc` is not set,
       the signature is `function(err, cached)`. Otherwise, the signature is `function(err, value, cached, report)` where:
