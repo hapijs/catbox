@@ -1000,15 +1000,76 @@ describe('Policy', function () {
         it('throws an error when parsing a rule with both expiresAt and expiresIn', function (done) {
 
             var config = {
-                expiresAt: 50,
-                expiresIn: '02:00'
+                expiresAt: '02:00',
+                expiresIn: 50
             };
             var fn = function () {
 
                 Catbox.policy.compile(config, false);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw('Rule cannot include both expiresIn and expiresAt {"expiresAt":"02:00","expiresIn":50}');
+
+            done();
+        });
+
+        it('throws an error when expiresAt is invalid type', function (done) {
+
+            var config = {
+                expiresAt: 0
+            };
+            var fn = function () {
+
+                Catbox.policy.compile(config, false);
+            };
+
+            expect(fn).to.throw('expiresAt must be a string {"expiresAt":0}');
+
+            done();
+        });
+
+        it('throws an error when expiresAt is invalid string', function (done) {
+
+            var config = {
+                expiresAt: '4'
+            };
+            var fn = function () {
+
+                Catbox.policy.compile(config, false);
+            };
+
+            expect(fn).to.throw('Invalid time string for expiresAt: 4');
+
+            done();
+        });
+
+        it('throws an error when expiresIn is invalid', function (done) {
+
+            var config = {
+                expiresIn: '50'
+            };
+            var fn = function () {
+
+                Catbox.policy.compile(config, false);
+            };
+
+            expect(fn).to.throw('expiresIn must be an integer {"expiresIn":"50"}');
+
+            done();
+        });
+
+        it('throws an error when parsing a rule with both expiresAt and expiresIn (0)', function (done) {
+
+            var config = {
+                expiresAt: '02:00',
+                expiresIn: 0
+            };
+            var fn = function () {
+
+                Catbox.policy.compile(config, false);
+            };
+
+            expect(fn).to.throw('Rule cannot include both expiresIn and expiresAt {"expiresAt":"02:00","expiresIn":0}');
 
             done();
         });
@@ -1025,17 +1086,14 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error when parsing a bad expiresAt value', function (done) {
+        it('allows a rule with expiresAt and undefined expiresIn', function (done) {
 
-            var config = {
-                expiresAt: function () { }
-            };
             var fn = function () {
 
-                Catbox.policy.compile(config, false);
+                Catbox.policy.compile({ expiresIn: undefined, expiresAt: '09:00' }, true);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.not.throw();
 
             done();
         });
@@ -1202,7 +1260,7 @@ describe('Policy', function () {
             done();
         });
 
-        it('doesn\'t throw an error if has both staleTimeout and staleIn', function (done) {
+        it('does not throw an error if has both staleTimeout and staleIn', function (done) {
 
             var config = {
                 staleIn: 30000,
@@ -1341,7 +1399,7 @@ describe('Policy', function () {
         it('returns 0 when created in the future', function (done) {
 
             var config = {
-                expiresIn: '100'
+                expiresIn: 100
             };
             var created = Date.now() + 1000;
             var rule = Catbox.policy.compile(config, false);
