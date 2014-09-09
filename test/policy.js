@@ -759,6 +759,40 @@ describe('Policy', function () {
                     policy.get('test', compare);
                 });
             });
+
+            it('catches errors thrown in generateFunc and passes to all pending requests', function (done) {
+
+                var gen = 0;
+                var rule = {
+                    expiresIn: 100,
+                    generateFunc: function (id, next) {
+
+                        throw new Error('generate failed');
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(function () {
+
+                    var result = null;
+                    var compare = function (err, value, cached) {
+
+                        if (!result) {
+                            result = err;
+                            return;
+                        }
+
+                        expect(result).to.equal(err);
+                        expect(err.message).to.equal('generate failed');
+                        done();
+                    };
+
+                    policy.get('test', compare);
+                    policy.get('test', compare);
+                });
+            });
         });
     });
 
