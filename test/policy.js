@@ -1545,6 +1545,40 @@ describe('Policy', function () {
             });
         });
 
+        it('handles concurrent requests for different keys', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            var generate = function (gen) {
+
+                return function (callback) {
+
+                    return callback(null, { gen: gen });
+                };
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('1', generate(1), function (err, value, cached) {
+
+                    expect(value.gen).to.equal(1);
+                });
+
+                policy.getOrGenerate('2', generate(2), function (err, value, cached) {
+
+                    expect(value.gen).to.equal(2);
+                    done();
+                });
+            });
+        });
+
         it('returns the processed cached item after cache error', function (done) {
 
             var rule = {
