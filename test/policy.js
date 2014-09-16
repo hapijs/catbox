@@ -1,6 +1,7 @@
 // Load modules
 
 var Lab = require('lab');
+var Hoek = require('hoek');
 var Catbox = require('..');
 var Import = require('./import');
 
@@ -1542,6 +1543,45 @@ describe('Policy', function () {
                     expect(value.gen).to.equal(1);
                     done();
                 });
+            });
+        });
+
+        it('supports concurrent invocations', function (done) {
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            var callbacks = {};
+            client.get = function(key, callback) {
+                callbacks[key.id] = callback;
+            };
+
+            var generateFunc = function(value) {
+                return function (callback) {
+                    return callback(null, { gen: value });
+                };
+            };
+
+            client.start(function () {
+                // The sequence of events: (1) key1 gets called,
+                policy.getOrGenerate('key1', generateFunc('one'), function (err, value, cached) {
+                    // (5) and we can verify the value for key1
+                    expect(value.gen).to.equal('one');
+                    done();
+                });
+                // (2) before key1 cache comes back, we call for key2,
+                policy.getOrGenerate('key2', generateFunc('two'), function (err, value, cached) {
+                    expect(value.gen).to.equal('two');
+                    // (4) finally key1 cache responds
+                    Hoek.nextTick(callbacks.key1)(null, null);
+                });
+                // (3) but key2 cache responds before key1 cache
+                Hoek.nextTick(callbacks.key2)(null, null);
             });
         });
 
