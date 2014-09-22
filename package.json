@@ -2,11 +2,6 @@
   "name": "catbox",
   "description": "Multi-strategy object caching service",
   "version": "3.4.2",
-  "author": "Eran Hammer <eran@hammer.io> (http://hueniverse.com)",
-  "contributors": [
-    "Wyatt Preul <wpreul@gmail.com> (http://jsgeek.com)",
-    "Ben Acker <benacker@gmail.com>"
-  ],
   "repository": "git://github.com/hapijs/catbox",
   "main": "index",
   "keywords": [
