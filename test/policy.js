@@ -142,7 +142,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#get', function () {
+    describe('get()', function () {
 
         it('returns cached item using object id', function (done) {
 
@@ -796,7 +796,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#drop', function () {
+    describe('drop()', function () {
 
         it('calls the extension clients drop function', function (done) {
 
@@ -834,7 +834,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#ttl', function () {
+    describe('ttl()', function () {
 
         it('returns the ttl factoring in the created time', function (done) {
 
@@ -946,7 +946,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#compile', function () {
+    describe('compile()', function () {
 
         it('does not try to compile a null config', function (done) {
 
@@ -1342,7 +1342,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#ttl', function () {
+    describe('ttl()', function () {
 
         it('returns zero when a rule is expired', function (done) {
 
@@ -1498,7 +1498,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#getOrGenerate', function () {
+    describe('getOrGenerate()', function () {
 
         it('bypasses cache when not configured', function (done) {
 

@@ -13,8 +13,6 @@ var internals = {};
 
 var lab = exports.lab = Lab.script();
 var expect = Lab.expect;
-var before = lab.before;
-var after = lab.after;
 var describe = lab.experiment;
 var it = lab.test;
 
@@ -89,7 +87,7 @@ describe('Client', function () {
         });
     });
 
-    describe('#start', function () {
+    describe('start()', function () {
 
         it('passes an error in the callback when one occurs', function (done) {
 
@@ -109,7 +107,7 @@ describe('Client', function () {
         });
     });
 
-    describe('#get', function () {
+    describe('start()', function () {
 
         it('returns an error when the connection is not ready', function (done) {
 
@@ -295,7 +293,7 @@ describe('Client', function () {
         });
     });
 
-    describe('#set', function () {
+    describe('start()', function () {
 
         it('returns an error when the connection is not ready', function (done) {
 
@@ -320,7 +318,7 @@ describe('Client', function () {
         });
     });
 
-    describe('#drop', function () {
+    describe('start()', function () {
 
         it('calls the extension clients drop function', function (done) {
 
