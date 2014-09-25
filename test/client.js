@@ -107,7 +107,7 @@ describe('Client', function () {
         });
     });
 
-    describe('start()', function () {
+    describe('get()', function () {
 
         it('returns an error when the connection is not ready', function (done) {
 
@@ -293,7 +293,7 @@ describe('Client', function () {
         });
     });
 
-    describe('start()', function () {
+    describe('set()', function () {
 
         it('returns an error when the connection is not ready', function (done) {
 
@@ -318,7 +318,7 @@ describe('Client', function () {
         });
     });
 
-    describe('start()', function () {
+    describe('drop()', function () {
 
         it('calls the extension clients drop function', function (done) {
 
