@@ -557,7 +557,7 @@ describe('Policy', function () {
                 });
             });
 
-            it('does not return stale value that was already replaced with fresh one', function (done) {
+            it('does not return stale value when new value is already generated and Client.connection.get is delayed', function (done) {
 
                 var rule = {
                     expiresIn: 100,
