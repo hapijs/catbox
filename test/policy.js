@@ -557,6 +557,55 @@ describe('Policy', function () {
                 });
             });
 
+            it('does not return stale value when new value is already generated and Client.connection.get is delayed', function (done) {
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 10,
+                    generateFunc: function (id, next) {
+                        setTimeout(function(){
+                            next(null, { gen: ++gen });
+                        }, 5)
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+
+                client.connection.getOriginal = client.connection.get;
+                client.connection.get = function (key, callback) {      // Delayed get
+
+                    setTimeout(function () {
+
+                        client.connection.getOriginal(key, callback)
+                    }, 10)
+                };
+
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                var gen = 0;
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value1, cached) {
+
+                        expect(value1.gen).to.equal(1);     // Fresh
+                        setTimeout(function (){             // Wait for stale
+
+                            policy.get('test', function (err, value2, cached){
+
+                                expect(value2.gen).to.equal(2);     // Fresh
+                                policy.get('test', function (err, value3, cached){
+
+                                    expect(value3.gen).to.equal(2);  // Cached
+                                    done()
+                                })
+                            });
+                        }, 21);
+                    });
+                });
+            });
+
             it('returns error when generated within stale timeout', function (done) {
 
                 var rule = {
