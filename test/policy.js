@@ -142,7 +142,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#get', function () {
+    describe('get()', function () {
 
         it('returns cached item using object id', function (done) {
 
@@ -793,10 +793,63 @@ describe('Policy', function () {
                     policy.get('test', compare);
                 });
             });
+
+            it('does not return stale value from previous request timeout left behind', { parallel: false }, function (done) {
+
+                var gen = 0;
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 10,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            next(null, { gen: ++gen });
+                        }, 5)
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+
+                var orig = client.connection.get;
+                client.connection.get = function (key, callback) {      // Delayed get
+
+                    setTimeout(function () {
+
+                        orig.call(client.connection, key, callback)
+                    }, 10)
+                };
+
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value1, cached) {                 // Cache lookup takes 10 + generate 5
+
+                        expect(value1.gen).to.equal(1);                                 // Fresh
+                        setTimeout(function () {                                        // Wait for stale
+
+                            policy.get('test', function (err, value2, cached) {         // Cache lookup takes 10, generate comes back after 5
+
+                                expect(value2.gen).to.equal(2);                         // Fresh
+                                policy.get('test', function (err, value3, cached) {     // Cache lookup takes 10
+
+                                    expect(value3.gen).to.equal(2);                     // Cached (10 left to stale)
+
+                                    client.connection.get = orig;
+                                    done()
+                                })
+                            });
+                        }, 21);
+                    });
+                });
+            });
         });
     });
 
-    describe('#drop', function () {
+    describe('drop()', function () {
 
         it('calls the extension clients drop function', function (done) {
 
@@ -834,7 +887,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#ttl', function () {
+    describe('ttl()', function () {
 
         it('returns the ttl factoring in the created time', function (done) {
 
@@ -946,7 +999,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#compile', function () {
+    describe('compile()', function () {
 
         it('does not try to compile a null config', function (done) {
 
@@ -1342,7 +1395,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#ttl', function () {
+    describe('ttl()', function () {
 
         it('returns zero when a rule is expired', function (done) {
 
@@ -1498,7 +1551,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('#getOrGenerate', function () {
+    describe('getOrGenerate()', function () {
 
         it('bypasses cache when not configured', function (done) {
 
@@ -1540,6 +1593,40 @@ describe('Policy', function () {
                 policy.getOrGenerate('test', generateFunc, function (err, value, cached) {
 
                     expect(value.gen).to.equal(1);
+                    done();
+                });
+            });
+        });
+
+        it('handles concurrent requests for different keys', function (done) {
+
+            var rule = {
+                expiresIn: 100,
+                staleIn: 20,
+                staleTimeout: 5
+            };
+
+            var client = new Catbox.Client(Import, { partition: 'test-partition' });
+            var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            var generate = function (gen) {
+
+                return function (callback) {
+
+                    return callback(null, { gen: gen });
+                };
+            };
+
+            client.start(function () {
+
+                policy.getOrGenerate('1', generate(1), function (err, value, cached) {
+
+                    expect(value.gen).to.equal(1);
+                });
+
+                policy.getOrGenerate('2', generate(2), function (err, value, cached) {
+
+                    expect(value.gen).to.equal(2);
                     done();
                 });
             });
