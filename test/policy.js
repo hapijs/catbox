@@ -1193,11 +1193,11 @@ describe('Policy', function () {
             done();
         });
 
-        it('ignores unknown options', function (done) {
+        it('ignores external options', function (done) {
 
             var config = {
                 expiresIn: 50000,
-                somethingElse: true
+                cache: true
             };
 
             var rule = Catbox.policy.compile(config, false);
@@ -1220,7 +1220,7 @@ describe('Policy', function () {
 
             var fn = function () {
 
-                Catbox.policy.compile({ a: 1 }, true);
+                Catbox.policy.compile({ cache: 1 }, true);
             };
 
             expect(fn).to.not.throw();
