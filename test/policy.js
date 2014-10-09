@@ -1162,9 +1162,7 @@ describe('Policy', function () {
         it('does not try to compile a null config', function (done) {
 
             var rule = Catbox.policy.compile(null);
-
             expect(rule).to.deep.equal({});
-
             done();
         });
 
@@ -1173,10 +1171,9 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 50000
             };
+
             var rule = Catbox.policy.compile(config, false);
-
             expect(rule.expiresIn).to.equal(config.expiresIn);
-
             done();
         });
 
@@ -1185,14 +1182,14 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 50000
             };
+
             var fn = function () {
 
                 var client = new Catbox.Client(Import);
                 var policy = new Catbox.Policy(config, client);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('Invalid segment name: undefined (Empty string)');
             done();
         });
 
@@ -1201,10 +1198,9 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 50000
             };
+
             var rule = Catbox.policy.compile(config, false);
-
             expect(rule.expiresIn).to.equal(config.expiresIn);
-
             done();
         });
 
@@ -1214,13 +1210,13 @@ describe('Policy', function () {
                 expiresAt: '02:00',
                 expiresIn: 50
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, false);
             };
 
             expect(fn).to.throw('Rule cannot include both expiresIn and expiresAt {"expiresAt":"02:00","expiresIn":50}');
-
             done();
         });
 
@@ -1229,13 +1225,13 @@ describe('Policy', function () {
             var config = {
                 expiresAt: 0
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, false);
             };
 
             expect(fn).to.throw('expiresAt must be a string {"expiresAt":0}');
-
             done();
         });
 
@@ -1250,7 +1246,6 @@ describe('Policy', function () {
             };
 
             expect(fn).to.throw('Invalid time string for expiresAt: 4');
-
             done();
         });
 
@@ -1265,7 +1260,6 @@ describe('Policy', function () {
             };
 
             expect(fn).to.throw('expiresIn must be an integer {"expiresIn":"50"}');
-
             done();
         });
 
@@ -1281,7 +1275,6 @@ describe('Policy', function () {
             };
 
             expect(fn).to.throw('Rule cannot include both expiresIn and expiresAt {"expiresAt":"02:00","expiresIn":0}');
-
             done();
         });
 
@@ -1293,7 +1286,6 @@ describe('Policy', function () {
             };
 
             expect(fn).to.not.throw();
-
             done();
         });
 
@@ -1305,7 +1297,6 @@ describe('Policy', function () {
             };
 
             expect(fn).to.not.throw();
-
             done();
         });
 
@@ -1313,15 +1304,16 @@ describe('Policy', function () {
 
             var config = {
                 expiresAt: '03:00',
-                staleIn: 1000000
+                staleIn: 1000000,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('Rule must include both of staleIn and staleTimeout or none');
             done();
         });
 
@@ -1329,15 +1321,16 @@ describe('Policy', function () {
 
             var config = {
                 expiresAt: '03:00',
-                staleTimeout: 100
+                staleTimeout: 100,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('Rule must include both of staleIn and staleTimeout or none');
             done();
         });
 
@@ -1346,15 +1339,16 @@ describe('Policy', function () {
             var config = {
                 expiresAt: '03:00',
                 staleIn: 100000000,
-                staleTimeout: 500
+                staleTimeout: 500,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('staleIn must be less than 86400000 milliseconds (one day) when using expiresAt');
             done();
         });
 
@@ -1363,15 +1357,16 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 500000,
                 staleIn: 1000000,
-                staleTimeout: 500
+                staleTimeout: 500,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('staleIn must be less than expiresIn');
             done();
         });
 
@@ -1380,15 +1375,16 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 500000,
                 staleIn: 100000,
-                staleTimeout: 500000
+                staleTimeout: 500000,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('staleTimeout must be less than expiresIn');
             done();
         });
 
@@ -1397,15 +1393,16 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 30000,
                 staleIn: 20000,
-                staleTimeout: 10000
+                staleTimeout: 10000,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('staleTimeout must be less than the delta between expiresIn and staleIn');
             done();
         });
 
@@ -1414,15 +1411,16 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 1000000,
                 staleIn: 500000,
-                staleTimeout: 500
+                staleTimeout: 500,
+                generateFunc: function () { }
             };
+
             var fn = function () {
 
                 var policy = new Catbox.Policy(config);
             };
 
-            expect(fn).to.throw(Error);
-
+            expect(fn).to.throw('Cannot use stale options without server-side caching');
             done();
         });
 
@@ -1431,13 +1429,13 @@ describe('Policy', function () {
             var config = {
                 expiresIn: 1000000,
                 staleIn: 500000,
-                staleTimeout: 500
+                staleTimeout: 500,
+                generateFunc: function () { }
             };
-            var rule = Catbox.policy.compile(config, true);
 
+            var rule = Catbox.policy.compile(config, true);
             expect(rule.staleIn).to.equal(500 * 1000);
             expect(rule.expiresIn).to.equal(1000 * 1000);
-
             done();
         });
 
@@ -1446,28 +1444,12 @@ describe('Policy', function () {
             var config = {
                 expiresAt: '03:00',
                 staleIn: 5000000,
-                staleTimeout: 500
+                staleTimeout: 500,
+                generateFunc: function () { }
             };
+
             var rule = Catbox.policy.compile(config, true);
-
             expect(rule.staleIn).to.equal(5000 * 1000);
-
-            done();
-        });
-
-        it('throws an error if has only staleTimeout or staleIn', function (done) {
-
-            var config = {
-                staleIn: 30000,
-                expiresIn: 60000
-            };
-
-            var fn = function () {
-
-                Catbox.policy.compile(config, true);
-            };
-
-            expect(fn).to.throw(Error);
             done();
         });
 
@@ -1476,14 +1458,15 @@ describe('Policy', function () {
             var config = {
                 staleIn: 30000,
                 staleTimeout: 300,
-                expiresIn: 60000
+                expiresIn: 60000,
+                generateFunc: function () { }
             };
 
             var fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
-            expect(fn).to.not.throw(Error);
+            expect(fn).to.not.throw();
             done();
         });
 
@@ -1500,7 +1483,7 @@ describe('Policy', function () {
                 Catbox.policy.compile(config, false);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw('Cannot use stale options without server-side caching');
             done();
         });
 
@@ -1509,7 +1492,8 @@ describe('Policy', function () {
             var config = {
                 staleIn: 30000,
                 expiresIn: 60000,
-                staleTimeout: 300
+                staleTimeout: 300,
+                generateFunc: function () { }
             };
 
             var rule = Catbox.policy.compile(config, true);
@@ -1522,16 +1506,17 @@ describe('Policy', function () {
 
             var config = {
                 staleIn: 2000,
-                expiresIn: 1000,
-                staleTimeout: 3000
+                expiresIn: 10000,
+                staleTimeout: 30000,
+                generateFunc: function () { }
             };
 
             var fn = function () {
 
-                Catbox.policy.compile(config, false);
+                Catbox.policy.compile(config, true);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw('staleTimeout must be less than expiresIn');
             done();
         });
 
@@ -1548,7 +1533,7 @@ describe('Policy', function () {
                 Catbox.policy.compile(config, false);
             };
 
-            expect(fn).to.throw(Error);
+            expect(fn).to.throw('staleIn must be less than expiresIn');
             done();
         });
     });
