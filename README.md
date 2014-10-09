@@ -1,7 +1,7 @@
 ![catbox Logo](https://raw.github.com/hapijs/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
-Version: **3.x**
+Version: **4.x**
 
 [![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
 
@@ -102,8 +102,7 @@ The `Policy` object provides the following methods:
 - `get(id, callback)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
   is generated, stored in the cache, and returned. Multiple concurrent requests are queued and processed once. The method arguments are:
     - `id` - the unique item identifier (within the policy segment). Can be a string or an object with the required 'id' key.
-    - `callback` - the return function. The function signature is based on the `generateFunc` settings. If the `generateFunc` is not set,
-      the signature is `function(err, cached)`. Otherwise, the signature is `function(err, value, cached, report)` where:
+    - `callback` - the return function. The function signature is `function(err, value, cached, report)` where:
         - `err` - any errors encountered.
         - `value` - the fetched or generated value.
         - `cached` - `null` if a valid item was not found in the cache, or an object with the following keys:

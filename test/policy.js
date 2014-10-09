@@ -33,10 +33,10 @@ describe('Policy', function () {
 
                 expect(err).to.not.exist;
 
-                policy.get('x', function (err, result) {
+                policy.get('x', function (err, value, cached, report) {
 
                     expect(err).to.not.exist;
-                    expect(result.item).to.equal('123');
+                    expect(value).to.equal('123');
                     done();
                 });
             });
@@ -55,10 +55,10 @@ describe('Policy', function () {
             policy.set('x', '123', null, function (err) {
                 expect(err).to.not.exist;
 
-                policy.get('x', function (err, result) {
+                policy.get('x', function (err, value, cached, report) {
 
                     expect(err).to.not.exist;
-                    expect(result).to.not.exist;
+                    expect(value).to.not.exist;
                     done();
                 });
             });
@@ -77,10 +77,10 @@ describe('Policy', function () {
             policy.set('x', '123', 1000, function (err) {
                 expect(err).to.not.exist;
 
-                policy.get('x', function (err, result) {
+                policy.get('x', function (err, value, cached, report) {
 
                     expect(err).to.not.exist;
-                    expect(result.item).to.equal('123');
+                    expect(value).to.equal('123');
                     done();
                 });
             });
@@ -91,10 +91,10 @@ describe('Policy', function () {
 
         var policy = new Catbox.Policy({ expiresIn: 1 });
 
-        policy.get('x', function (err, result) {
+        policy.get('x', function (err, value, cached, report) {
 
             expect(err).to.not.exist;
-            expect(result).to.not.exist;
+            expect(value).to.not.exist;
             done();
         });
     });
@@ -131,10 +131,10 @@ describe('Policy', function () {
 
                 setTimeout(function () {
 
-                    client.get(key, function (err, result) {
+                    client.get(key, function (err, value, cached, report) {
 
                         expect(err).to.not.exist;
-                        expect(result).to.not.exist;
+                        expect(value).to.not.exist;
                         done();
                     });
                 }, 2);
@@ -157,10 +157,10 @@ describe('Policy', function () {
 
                     expect(err).to.not.exist;
 
-                    policy.get({ id: 'x' }, function (err, result) {
+                    policy.get({ id: 'x' }, function (err, value, cached, report) {
 
                         expect(err).to.not.exist;
-                        expect(result.item).to.equal('123');
+                        expect(value).to.equal('123');
                         done();
                     });
                 });
@@ -181,7 +181,7 @@ describe('Policy', function () {
                     expect(err).to.exist;
                     expect(err.message).to.equal('Invalid key');
 
-                    policy.get(null, function (err, result) {
+                    policy.get(null, function (err, value, cached, report) {
 
                         expect(err).to.exist;
                         expect(err.message).to.equal('Invalid key');
@@ -218,10 +218,10 @@ describe('Policy', function () {
             var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.get('test1', function (err, result) {
+            policy.get('test1', function (err, value, cached, report) {
 
                 expect(err).to.be.instanceOf(Error);
-                expect(result).to.not.exist;
+                expect(value).to.not.exist;
                 done();
             });
         });
@@ -256,10 +256,10 @@ describe('Policy', function () {
             var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.get('test1', function (err, result) {
+            policy.get('test1', function (err, value, cached, report) {
 
-                expect(result.item).to.equal('item');
-                expect(result.isStale).to.be.false;
+                expect(value).to.equal('item');
+                expect(cached.isStale).to.be.false;
                 done();
             });
         });
@@ -300,10 +300,10 @@ describe('Policy', function () {
                 var client = new Catbox.Client(engine);
                 var policy = new Catbox.Policy(policyConfig, client, 'test');
 
-                policy.get('test1', function (err, item) {
+                policy.get('test1', function (err, value, cached, report) {
 
                     expect(err).to.equal(null);
-                    expect(item).to.equal(false);
+                    expect(value).to.equal(false);
                     done();
                 });
             });
@@ -318,7 +318,7 @@ describe('Policy', function () {
                     }
                 });
 
-                policy.get('test', function (err, value, cached) {
+                policy.get('test', function (err, value, cached, report) {
 
                     expect(err).to.not.exist;
                     expect(value).to.equal('new result');
@@ -346,7 +346,7 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value, cached) {
+                    policy.get('test', function (err, value, cached, report) {
 
                         expect(value.gen).to.equal(1);
                         done();
@@ -374,7 +374,7 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value, cached) {
+                    policy.get('test', function (err, value, cached, report) {
 
                         expect(value.gen).to.equal(1);
                         done();
@@ -404,12 +404,12 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 expect(value2.gen).to.equal(1);        // Stale
                                 done();
@@ -441,17 +441,17 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 expect(value2.gen).to.equal(1);        // Stale
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         done();
@@ -491,19 +491,19 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(value3.gen).to.equal(3);     // Fresh
                                         done();
@@ -544,19 +544,19 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(err).to.be.instanceof(Error);     // Stale
                                         done();
@@ -596,19 +596,19 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(err).to.be.instanceof(Error);     // Stale
                                         done();
@@ -649,19 +649,19 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(value3.gen).to.equal(1);     // Stale
                                         done();
@@ -692,18 +692,18 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 expect(value2.gen).to.equal(2);     // Fresh
 
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(value3.gen).to.equal(2);     // Fresh
                                         done();
@@ -739,12 +739,12 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 // Generates a new one which will produce Error
 
@@ -775,17 +775,17 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 expect(value2.gen).to.equal(1);        // Fresh
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         done();
@@ -822,12 +822,12 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 expect(err).to.exist;
 
@@ -863,17 +863,17 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {
+                    policy.get('test', function (err, value1, cached, report) {
 
                         expect(err.output.statusCode).to.equal(503);
                         setTimeout(function () {
 
-                            policy.get('test', function (err, value2, cached) {
+                            policy.get('test', function (err, value2, cached, report) {
 
                                 expect(value2.gen).to.equal(1);
                                 setTimeout(function () {
 
-                                    policy.get('test', function (err, value3, cached) {
+                                    policy.get('test', function (err, value3, cached, report) {
 
                                         expect(err.output.statusCode).to.equal(503);
                                         done();
@@ -902,7 +902,7 @@ describe('Policy', function () {
                 client.start(function () {
 
                     var result = null;
-                    var compare = function (err, value, cached) {
+                    var compare = function (err, value, cached, report) {
 
                         if (!result) {
                             result = value;
@@ -935,7 +935,7 @@ describe('Policy', function () {
                 client.start(function () {
 
                     var result = null;
-                    var compare = function (err, value, cached) {
+                    var compare = function (err, value, cached, report) {
 
                         if (!result) {
                             result = err;
@@ -984,17 +984,17 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached) {                 // Cache lookup takes 10 + generate 5
+                    policy.get('test', function (err, value1, cached, report) {                 // Cache lookup takes 10 + generate 5
 
-                        expect(value1.gen).to.equal(1);                                 // Fresh
-                        setTimeout(function () {                                        // Wait for stale
+                        expect(value1.gen).to.equal(1);                                         // Fresh
+                        setTimeout(function () {                                                // Wait for stale
 
-                            policy.get('test', function (err, value2, cached) {         // Cache lookup takes 10, generate comes back after 5
+                            policy.get('test', function (err, value2, cached, report) {         // Cache lookup takes 10, generate comes back after 5
 
-                                expect(value2.gen).to.equal(2);                         // Fresh
-                                policy.get('test', function (err, value3, cached) {     // Cache lookup takes 10
+                                expect(value2.gen).to.equal(2);                                 // Fresh
+                                policy.get('test', function (err, value3, cached, report) {     // Cache lookup takes 10
 
-                                    expect(value3.gen).to.equal(2);                     // Cached (10 left to stale)
+                                    expect(value3.gen).to.equal(2);                             // Cached (10 left to stale)
 
                                     client.connection.get = orig;
                                     done()
