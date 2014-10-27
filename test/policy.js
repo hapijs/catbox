@@ -636,7 +636,7 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then does not invalidate cache on error if dropOnError is false', function (done) {
+            it('returns stale object then does not invalidate cache on timeout if dropOnError is false', function (done) {
 
                 var rule = {
                     expiresIn: 100,
@@ -688,6 +688,148 @@ describe('Policy', function () {
                     });
                 });
             });
+
+            it('returns stale object then does not invalidate cache on error if dropOnError is false', function (done) {
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    dropOnError: false,
+                    generateFunc: function (id, next) {
+
+                        ++gen;
+
+                        if (gen === 1) {
+                            return next(null, { gen: gen });
+                        }
+
+                        return next(new Error());
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                var gen = 0;
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value1, cached) {
+
+                        expect(value1.gen).to.equal(1);     // Fresh
+                        setTimeout(function () {
+                            policy.get('test', function (err, value2, cached) {
+
+                                // Generates a new one in background which will produce Error, but not clear the cache
+
+                                expect(value2.gen).to.equal(1);     // Stale
+
+                                policy.get('test', function (err, value3, cached) {
+
+                                    expect(value3.gen).to.equal(1);     // Stale
+                                    done();
+                                });
+                            });
+                        }, 21);
+                    });
+                });
+            });
+
+            it('returns stale object then invalidates cache on error if dropOnError is true', function (done) {
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    dropOnError: true,
+                    generateFunc: function (id, next) {
+
+                        ++gen;
+
+                        if (gen === 1) {
+                            return next(null, { gen: gen });
+                        }
+
+                        return next(new Error());
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                var gen = 0;
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value1, cached) {
+
+                        expect(value1.gen).to.equal(1);     // Fresh
+                        setTimeout(function () {
+                            policy.get('test', function (err, value2, cached) {
+
+                                // Generates a new one in background which will produce Error, but not clear the cache
+
+                                expect(value2).to.be.undefined;     // Stale
+
+                                policy.get('test', function (err, value3, cached) {
+
+                                    expect(value3).to.be.undefined;      // Stale
+                                    done();
+                                });
+                            });
+                        }, 21);
+                    });
+                });
+            });
+
+
+            it('returns stale object then invalidates cache on error if dropOnError is not defined', function (done) {
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateFunc: function (id, next) {
+
+                        ++gen;
+
+                        if (gen === 1) {
+                            return next(null, { gen: gen });
+                        }
+
+                        return next(new Error());
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                var gen = 0;
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value1, cached) {
+
+                        expect(value1.gen).to.equal(1);     // Fresh
+                        setTimeout(function () {
+                            policy.get('test', function (err, value2, cached) {
+
+                                // Generates a new one in background which will produce Error, but not clear the cache
+
+                                expect(value2).to.be.undefined;     // Stale
+
+                                policy.get('test', function (err, value3, cached) {
+
+                                    expect(value3).to.be.undefined;      // Stale
+                                    done();
+                                });
+                            });
+                        }, 21);
+                    });
+                });
+            });
+
 
             it('returns fresh objects', function (done) {
 
