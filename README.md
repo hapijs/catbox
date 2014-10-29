@@ -52,9 +52,9 @@ The `Client` object provides the following methods:
     - `key` - a cache key object (see below).
     - `callback` - a function with the signature `function(err, cached)`. If the item is not found, both `err` and `cached` are `null`.
       If found, the `cached` object contains the following:
-        - `item` - the value stored in the cache using `set()`.
-        - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
-        - `ttl` - the remaining time-to-live (not the original value used when storing the object).
+          - `item` - the value stored in the cache using `set()`.
+          - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
+          - `ttl` - the remaining time-to-live (not the original value used when storing the object).
 - `set(key, value, ttl, callback)` - store an item in the cache for a specified length of time, where:
     - `key` - a cache key object (see below).
     - `value` - the string or object value to be stored.
