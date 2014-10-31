@@ -91,6 +91,9 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
     - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `generateFunc` function
       takes too long to return a value. When the value is eventually returned, it is stored in the cache for future requests.
+    - `dropOnError` - defaults to true. If true an error or timeout in the `generateFunc` causes the stale value to be evicted from the cache,
+      and an error and no value returned to the caller if the stale value was not already returned.
+      If false, an error or timeout in the `generateFunc` causes the stale value to be retained, and returned to the caller, along with the error.
 - `cache` - a `Client` instance (which has already been started).
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
 
