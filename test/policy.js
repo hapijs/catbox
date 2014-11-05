@@ -809,9 +809,9 @@ describe('Policy', function () {
             it('returns new object when stale has less than staleTimeout time left', function (done) {
 
                 var rule = {
-                    expiresIn: 25,
+                    expiresIn: 31,
                     staleIn: 15,
-                    staleTimeout: 5,
+                    staleTimeout: 15,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
