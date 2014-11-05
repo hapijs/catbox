@@ -1,7 +1,8 @@
 // Load modules
 
-var Lab = require('lab');
 var Catbox = require('..');
+var Code = require('code');
+var Lab = require('lab');
 var Import = require('./import');
 
 
@@ -13,9 +14,9 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var expect = Lab.expect;
 var describe = lab.experiment;
 var it = lab.test;
+var expect = Code.expect;
 
 
 describe('Catbox', function () {
@@ -50,7 +51,7 @@ describe('Catbox', function () {
             var key = { id: 'x', segment: 'test' };
             client.set(key, '123', 500, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 client.get(key, function (err, result) {
 
                     expect(err).to.equal(null);
@@ -102,12 +103,12 @@ describe('Catbox', function () {
         var client = new Catbox.Client(Import);
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
 
             client.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
                 done();
             });
@@ -136,7 +137,7 @@ describe('Catbox', function () {
             var key = { id: 'x', segment: 'test' };
             client.set(key, 'x', 1, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 setTimeout(function () {
 
                     client.get(key, function (err, result) {
@@ -210,7 +211,7 @@ describe('Catbox', function () {
             var key = { id: 'x', segment: 'test' };
             client.set(key, 'y', 0, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
                 done();
             });
         });
@@ -236,8 +237,8 @@ describe('Catbox', function () {
         var key = { id: 'x', segment: 'test' };
         client.connection.get(key, function (err, result) {
 
-            expect(err).to.exist;
-            expect(result).to.not.exist;
+            expect(err).to.exist();
+            expect(result).to.not.exist();
             done();
         });
     });
@@ -249,7 +250,7 @@ describe('Catbox', function () {
         var key = { id: 'x', segment: 'test' };
         client.connection.set(key, 'y', 1, function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });
@@ -261,7 +262,7 @@ describe('Catbox', function () {
         var key = { id: 'x', segment: 'test' };
         client.connection.drop(key, function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });
@@ -300,7 +301,7 @@ describe('Catbox', function () {
         client.stop();
         client.drop('a', function (err) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             done();
         });
     });

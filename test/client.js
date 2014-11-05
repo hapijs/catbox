@@ -1,7 +1,8 @@
 // Load modules
 
-var Lab = require('lab');
 var Catbox = require('..');
+var Code = require('code');
+var Lab = require('lab');
 
 
 // Declare internals
@@ -12,9 +13,9 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var expect = Lab.expect;
 var describe = lab.experiment;
 var it = lab.test;
+var expect = Code.expect;
 
 
 describe('Client', function () {
@@ -25,16 +26,16 @@ describe('Client', function () {
         var client = new Catbox.Client(Obj);
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             var key = { id: 'x', segment: 'test' };
             client.set(key, '123', 1000, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 client.get(key, function (err, result) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(result.item).to.equal('123');
                     done();
                 });
@@ -48,16 +49,16 @@ describe('Client', function () {
         var client = new Catbox.Client(new Obj());
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             var key = { id: 'x', segment: 'test' };
             client.set(key, '123', 1000, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 client.get(key, function (err, result) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(result.item).to.equal('123');
                     done();
                 });
@@ -81,7 +82,7 @@ describe('Client', function () {
         var key = { id: 'x', segment: 'test' };
         client.get(key, function (err, result) {
 
-            expect(err).to.exist;
+            expect(err).to.exist();
             expect(err.message).to.equal('fail');
             done();
         });
@@ -101,7 +102,7 @@ describe('Client', function () {
             var client = new Catbox.Client(engine);
             client.start(function (err) {
 
-                expect(err).to.exist;
+                expect(err).to.exist();
                 done();
             });
         });
@@ -158,7 +159,7 @@ describe('Client', function () {
 
                 expect(cached.item).to.equal('test1');
                 expect(cached.stored).to.equal('test2');
-                expect(cached.ttl).to.exist;
+                expect(cached.ttl).to.exist();
                 done();
             });
         });
@@ -281,11 +282,11 @@ describe('Client', function () {
             var client = new Catbox.Client(require('../test/import'));
             client.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 client.get({}, function (err) {
 
-                    expect(err).to.exist;
+                    expect(err).to.exist();
                     expect(err.message).to.equal('Invalid key');
                     done();
                 });

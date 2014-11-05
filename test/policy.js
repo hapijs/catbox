@@ -1,7 +1,8 @@
 // Load modules
 
-var Lab = require('lab');
 var Catbox = require('..');
+var Code = require('code');
+var Lab = require('lab');
 var Import = require('./import');
 
 
@@ -13,9 +14,9 @@ var internals = {};
 // Test shortcuts
 
 var lab = exports.lab = Lab.script();
-var expect = Lab.expect;
 var describe = lab.experiment;
 var it = lab.test;
+var expect = Code.expect;
 
 
 describe('Policy', function () {
@@ -27,15 +28,15 @@ describe('Policy', function () {
 
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             policy.set('x', '123', null, function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 policy.get('x', function (err, value, cached, report) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(value).to.equal('123');
                     done();
                 });
@@ -50,15 +51,15 @@ describe('Policy', function () {
 
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             policy.set('x', '123', null, function (err) {
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 policy.get('x', function (err, value, cached, report) {
 
-                    expect(err).to.not.exist;
-                    expect(value).to.not.exist;
+                    expect(err).to.not.exist();
+                    expect(value).to.not.exist();
                     done();
                 });
             });
@@ -72,14 +73,14 @@ describe('Policy', function () {
 
         client.start(function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
 
             policy.set('x', '123', 1000, function (err) {
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 policy.get('x', function (err, value, cached, report) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(value).to.equal('123');
                     done();
                 });
@@ -93,8 +94,8 @@ describe('Policy', function () {
 
         policy.get('x', function (err, value, cached, report) {
 
-            expect(err).to.not.exist;
-            expect(value).to.not.exist;
+            expect(err).to.not.exist();
+            expect(value).to.not.exist();
             done();
         });
     });
@@ -105,7 +106,7 @@ describe('Policy', function () {
 
         policy.set('x', 'y', 100, function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -116,7 +117,7 @@ describe('Policy', function () {
 
         policy.drop('x', function (err) {
 
-            expect(err).to.not.exist;
+            expect(err).to.not.exist();
             done();
         });
     });
@@ -133,8 +134,8 @@ describe('Policy', function () {
 
                     client.get(key, function (err, value, cached, report) {
 
-                        expect(err).to.not.exist;
-                        expect(value).to.not.exist;
+                        expect(err).to.not.exist();
+                        expect(value).to.not.exist();
                         done();
                     });
                 }, 2);
@@ -167,15 +168,15 @@ describe('Policy', function () {
 
             client.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 policy.set({ id: 'x' }, '123', null, function (err) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
 
                     policy.get({ id: 'x' }, function (err, value, cached, report) {
 
-                        expect(err).to.not.exist;
+                        expect(err).to.not.exist();
                         expect(value).to.equal('123');
                         done();
                     });
@@ -190,16 +191,16 @@ describe('Policy', function () {
 
             client.start(function (err) {
 
-                expect(err).to.not.exist;
+                expect(err).to.not.exist();
 
                 policy.set(null, '123', null, function (err) {
 
-                    expect(err).to.exist;
+                    expect(err).to.exist();
                     expect(err.message).to.equal('Invalid key');
 
                     policy.get(null, function (err, value, cached, report) {
 
-                        expect(err).to.exist;
+                        expect(err).to.exist();
                         expect(err.message).to.equal('Invalid key');
                         done();
                     });
@@ -237,7 +238,7 @@ describe('Policy', function () {
             policy.get('test1', function (err, value, cached, report) {
 
                 expect(err).to.be.instanceOf(Error);
-                expect(value).to.not.exist;
+                expect(value).to.not.exist();
                 done();
             });
         });
@@ -336,9 +337,9 @@ describe('Policy', function () {
 
                 policy.get('test', function (err, value, cached, report) {
 
-                    expect(err).to.not.exist;
+                    expect(err).to.not.exist();
                     expect(value).to.equal('new result');
-                    expect(cached).to.not.exist;
+                    expect(cached).to.not.exist();
                     done();
                 });
             });
@@ -366,6 +367,39 @@ describe('Policy', function () {
 
                         expect(value.gen).to.equal(1);
                         done();
+                    });
+                });
+            });
+
+            it('switches rules after construction', function (done) {
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateFunc: function (id, next) {
+
+                        return next(null, { gen: ++gen });
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy({ expiresIn: 100 }, client, 'test-segment');
+
+                var gen = 0;
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value, cached, report) {
+
+                        expect(value).to.not.exist();
+                        policy.rules(rule);
+
+                        policy.get('test', function (err, value, cached, report) {
+
+                            expect(value.gen).to.equal(1);
+                            done();
+                        });
                     });
                 });
             });
@@ -845,7 +879,7 @@ describe('Policy', function () {
 
                             policy.get('test', function (err, value2, cached, report) {
 
-                                expect(err).to.exist;
+                                expect(err).to.exist();
 
                                 policy._get('test', function (err, value3) {
 
@@ -1545,7 +1579,7 @@ describe('Policy', function () {
             var rule = Catbox.policy.compile(config, false);
             var ttl = Catbox.policy.ttl(rule, created);
 
-            expect(ttl).to.be.closeTo(22 * 60 * 60 * 1000, 60 * 1000);
+            expect(ttl).to.be.about(22 * 60 * 60 * 1000, 60 * 1000);
             done();
         });
 
@@ -1560,7 +1594,7 @@ describe('Policy', function () {
             var rule = Catbox.policy.compile(config, false);
 
             var ttl = Catbox.policy.ttl(rule);
-            expect(ttl).to.be.closeTo(23 * 60 * 60 * 1000, 60 * 60 * 1000);
+            expect(ttl).to.be.about(23 * 60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
 
@@ -1577,7 +1611,7 @@ describe('Policy', function () {
             var rule = Catbox.policy.compile(config, false);
 
             var ttl = Catbox.policy.ttl(rule, created);
-            expect(ttl).to.be.closeTo(60 * 60 * 1000, 60 * 60 * 1000);
+            expect(ttl).to.be.about(60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
     });

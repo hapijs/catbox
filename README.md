@@ -126,4 +126,5 @@ The `Policy` object provides the following methods:
     - `id` - the unique item identifier (within the policy segment).
     - `callback` - a function with the signature `function(err)`.
 - `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
-
+- `rules(options) - changes the policy rules after construction (note that items already stored will not be affected) where:
+    - `options` - the same `options` as the `Policy` constructor.
