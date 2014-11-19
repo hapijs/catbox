@@ -43,6 +43,29 @@ describe('Client', function () {
         });
     });
 
+    it('supports empty keys', function (done) {
+
+        var Obj = require('./import');
+        var client = new Catbox.Client(Obj);
+        client.start(function (err) {
+
+            expect(err).to.not.exist();
+
+            var key = { id: '', segment: 'test' };
+            client.set(key, '123', 1000, function (err) {
+
+                expect(err).to.not.exist();
+
+                client.get(key, function (err, result) {
+
+                    expect(err).to.not.exist();
+                    expect(result.item).to.equal('123');
+                    done();
+                });
+            });
+        });
+    });
+
     it('uses object instance engine', function (done) {
 
         var Obj = require('./import');
@@ -343,6 +366,27 @@ describe('Client', function () {
 
                 expect(result).to.equal('success');
                 done();
+            });
+        });
+    });
+
+    describe('validateKey()', function () {
+
+        it('errors on missing segment', function (done) {
+
+            var Obj = require('./import');
+            var client = new Catbox.Client(Obj);
+            client.start(function (err) {
+
+                expect(err).to.not.exist();
+
+                var key = { id: 'x' };
+                client.set(key, '123', 1000, function (err) {
+
+                    expect(err).to.exist();
+                    expect(err.message).to.equal('Invalid key');
+                    done();
+                });
             });
         });
     });
