@@ -87,7 +87,9 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
               - `value` - the new value generated.
               - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to regenerate it when `generateFunc` is
-      provided. Must be less than `expiresIn`.
+      provided. Must be less than `expiresIn`. Alternatively function that returns staleIn value in miliseconds. The function signature is `function(stored, ttl)` where:
+        - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
+        - `ttl` - the remaining time-to-live (not the original value used when storing the object).
     - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
     - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `generateFunc` function
       takes too long to return a value. When the value is eventually returned, it is stored in the cache for future requests.

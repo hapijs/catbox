@@ -513,6 +513,57 @@ describe('Policy', function () {
                 });
             });
 
+            it('returns stale object then fresh object based on timing using staleIn function', function (done) {
+
+                var staleIn = function (stored, ttl) {
+
+                    var expiresIn = (Date.now() - stored) + ttl;
+                    expect(expiresIn).to.be.about(100, 5);
+                    return expiresIn - 80;
+                };
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: staleIn,
+                    staleTimeout: 5,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            return next(null, { gen: ++gen }, 100);
+                        }, 6);
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                var gen = 0;
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value1, cached, report) {
+
+                        expect(value1.gen).to.equal(1);        // Fresh
+                        setTimeout(function () {
+
+                            policy.get('test', function (err, value2, cached, report) {
+
+                                expect(value2.gen).to.equal(1);        // Stale
+                                setTimeout(function () {
+
+                                    policy.get('test', function (err, value3, cached, report) {
+
+                                        expect(value3.gen).to.equal(2);        // Fresh
+                                        done();
+                                    });
+                                }, 3);
+                            });
+                        }, 21);
+                    });
+                });
+            });
+
             it('returns stale object then invalidate cache on error', function (done) {
 
                 var rule = {
@@ -1266,6 +1317,29 @@ describe('Policy', function () {
             var fn = function () {
 
                 Catbox.policy.compile({ expiresIn: undefined, expiresAt: '09:00' }, true);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('allows combination of expiresIn, staleTimeout and staleIn function', function (done) {
+
+            var staleIn = function (stored, ttl) {
+
+                return 1000;
+            };
+
+            var config = {
+                expiresIn: 500000,
+                staleIn: staleIn,
+                staleTimeout: 500,
+                generateFunc: function () { }
+            };
+
+            var fn = function () {
+
+                Catbox.policy.compile(config, true);
             };
 
             expect(fn).to.not.throw();
