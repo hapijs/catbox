@@ -133,4 +133,4 @@ The `Policy` object provides the following methods:
 - `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
 - `rules(options)` - changes the policy rules after construction (note that items already stored will not be affected) where:
     - `options` - the same `options` as the `Policy` constructor.
-- `isReady()` - returns whether the cache engine determines itself as ready.
+- `isReady()` - `true` if cache engine determines itself as ready, `false`if it is not ready or if there is no cache engine set.
