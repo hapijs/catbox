@@ -1866,6 +1866,14 @@ describe('Policy', function () {
                 done();
             });
         });
+
+        it('returns false when no cache client provided', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            expect(policy.isReady()).to.equal(false);
+            done();
+        });
     });
 
 });
