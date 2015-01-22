@@ -44,6 +44,29 @@ describe('Policy', function () {
         });
     });
 
+    it('works with special property names', function (done) {
+
+        var client = new Catbox.Client(Import);
+        var policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+
+        client.start(function (err) {
+
+            expect(err).to.not.exist();
+
+            policy.set('__proto__', '123', null, function (err) {
+
+                expect(err).to.not.exist();
+
+                policy.get('__proto__', function (err, value, cached, report) {
+
+                    expect(err).to.not.exist();
+                    expect(value).to.equal('123');
+                    done();
+                });
+            });
+        });
+    });
+
     it('finds nothing when using empty policy rules', function (done) {
 
         var client = new Catbox.Client(Import);
