@@ -8,7 +8,7 @@ Version: **4.x**
 Lead Maintainer: [Ben Acker](https://github.com/nvcexploder)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory cache,
-[Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), [Riak](http://basho.com/riak/) and [Amazon S3](http://aws.amazon.com/s3/).
+[Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), [Riak](http://basho.com/riak/), [Amazon S3](http://aws.amazon.com/s3/), and [RethinkDB](http://rethinkdb.com).
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
 
 
@@ -23,6 +23,7 @@ each service must be manually installed via npm or package dependencies manually
 - [Memcached](https://github.com/hapijs/catbox-memcached)
 - [Riak](https://github.com/DanielBarnes/catbox-riak)
 - [Amazon S3](https://github.com/fhemberger/catbox-s3)
+- [RethinkDB](https://github.com/codedmart/catbox-rethinkdb)
 
 
 ### `Client`
