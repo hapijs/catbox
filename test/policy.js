@@ -1875,7 +1875,6 @@ describe('Policy', function () {
             done();
         });
     });
-
 });
 
 
