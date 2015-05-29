@@ -5,7 +5,7 @@ Version: **4.x**
 
 [![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
 
-Lead Maintainer: [Ben Acker](https://github.com/nvcexploder)
+Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory cache,
 [Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), [Riak](http://basho.com/riak/), [Amazon S3](http://aws.amazon.com/s3/), and [RethinkDB](http://rethinkdb.com).
