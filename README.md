@@ -53,9 +53,9 @@ The `Client` object provides the following methods:
     - `key` - a cache key object (see below).
     - `callback` - a function with the signature `function(err, cached)`. If the item is not found, both `err` and `cached` are `null`.
       If found, the `cached` object contains the following:
-          - `item` - the value stored in the cache using `set()`.
-          - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
-          - `ttl` - the remaining time-to-live (not the original value used when storing the object).
+        - `item` - the value stored in the cache using `set()`.
+        - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
+        - `ttl` - the remaining time-to-live (not the original value used when storing the object).
 - `set(key, value, ttl, callback)` - store an item in the cache for a specified length of time, where:
     - `key` - a cache key object (see below).
     - `value` - the string or object value to be stored.
@@ -82,11 +82,11 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       expire. Uses local time. Cannot be used together with `expiresIn`.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the cache when calling `get()`. The method's
       signature is `function(id, next)` where:
-          - `id` - the `id` string or object provided to the `get()` method.
-          - `next` - the method called when the new item is returned with the signature `function(err, value, ttl)` where:
-              - `err` - an error condition.
-              - `value` - the new value generated.
-              - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
+        - `id` - the `id` string or object provided to the `get()` method.
+        - `next` - the method called when the new item is returned with the signature `function(err, value, ttl)` where:
+            - `err` - an error condition.
+            - `value` - the new value generated.
+            - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to regenerate it when `generateFunc` is
       provided. Must be less than `expiresIn`. Alternatively function that returns staleIn value in miliseconds. The function signature is
       `function(stored, ttl)` where:
@@ -132,5 +132,5 @@ The `Policy` object provides the following methods:
     - `id` - the unique item identifier (within the policy segment).
     - `callback` - a function with the signature `function(err)`.
 - `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
-- `rules(options) - changes the policy rules after construction (note that items already stored will not be affected) where:
+- `rules(options)` - changes the policy rules after construction (note that items already stored will not be affected) where:
     - `options` - the same `options` as the `Policy` constructor.
