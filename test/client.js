@@ -92,13 +92,31 @@ describe('Client', function () {
     it('errors when calling get on a bad connection', function (done) {
 
         var errorEngine = {
-            start: function (callback) { callback(null); },
+            start: function (callback) {
+
+                callback(null);
+            },
             stop: function () { },
-            isReady: function () { return true; },
-            validateSegmentName: function () { return null; },
-            get: function (key, callback) { return callback(new Error('fail')); },
-            set: function (key, value, ttl, callback) { return callback(new Error('fail')); },
-            drop: function (key, callback) { return callback(new Error('fail')); }
+            isReady: function () {
+
+                return true;
+            },
+            validateSegmentName: function () {
+
+                return null;
+            },
+            get: function (key, callback) {
+
+                return callback(new Error('fail'));
+            },
+            set: function (key, value, ttl, callback) {
+
+                return callback(new Error('fail'));
+            },
+            drop: function (key, callback) {
+
+                return callback(new Error('fail'));
+            }
         };
 
         var client = new Catbox.Client(errorEngine);
