@@ -3,7 +3,7 @@
   "description": "Multi-strategy object caching service",
   "version": "4.2.2",
   "repository": "git://github.com/hapijs/catbox",
-  "main": "index",
+  "main": "lib/index.js",
   "keywords": [
     "cache"
   ],
