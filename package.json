@@ -1,7 +1,7 @@
 {
   "name": "catbox",
   "description": "Multi-strategy object caching service",
-  "version": "4.2.2",
+  "version": "4.3.0",
   "repository": "git://github.com/hapijs/catbox",
   "main": "lib/index.js",
   "keywords": [
@@ -23,10 +23,5 @@
       "test": "lab -a code -t 100 -L",
       "test-cov-html": "lab -a code -r html -o coverage.html"
   },
-  "licenses": [
-    {
-      "type": "BSD",
-      "url": "http://github.com/hapijs/catbox/raw/master/LICENSE"
-    }
-  ]
+  "license": "BSD-3-Clause"
 }

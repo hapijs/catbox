@@ -1868,6 +1868,7 @@ describe('Policy', function () {
     describe('isReady()', function () {
 
         it('returns cache engine readiness', function (done) {
+
             var expected = true;
             var engine = {
                 start: function (callback) {
