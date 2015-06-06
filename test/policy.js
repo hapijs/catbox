@@ -1864,4 +1864,46 @@ describe('Policy', function () {
             done();
         });
     });
+
+    describe('isReady()', function () {
+
+        it('returns cache engine readiness', function (done) {
+            var expected = true;
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return expected;
+                },
+                get: function (key, callback) {
+
+                    callback(new Error());
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy({}, client, 'test');
+
+
+            client.start(function () {
+
+                expect(policy.isReady()).to.equal(expected);
+                done();
+            });
+        });
+
+        it('returns false when no cache client provided', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            expect(policy.isReady()).to.equal(false);
+            done();
+        });
+    });
 });
