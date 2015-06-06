@@ -77,6 +77,7 @@ describe('Policy', function () {
             expect(err).to.not.exist();
 
             policy.set('x', '123', null, function (err) {
+
                 expect(err).to.not.exist();
 
                 policy.get('x', function (err, value, cached, report) {
@@ -99,6 +100,7 @@ describe('Policy', function () {
             expect(err).to.not.exist();
 
             policy.set('x', '123', 1000, function (err) {
+
                 expect(err).to.not.exist();
 
                 policy.get('x', function (err, value, cached, report) {
@@ -299,7 +301,7 @@ describe('Policy', function () {
             policy.get('test1', function (err, value, cached, report) {
 
                 expect(value).to.equal('item');
-                expect(cached.isStale).to.be.false;
+                expect(cached.isStale).to.be.false();
                 done();
             });
         });
@@ -440,7 +442,10 @@ describe('Policy', function () {
                 };
 
                 var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                client.get = function (key, callback) { callback(new Error('bad client')); };
+                client.get = function (key, callback) {
+
+                    callback(new Error('bad client'));
+                };
                 var policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 var gen = 0;
@@ -827,6 +832,7 @@ describe('Policy', function () {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
+
                             policy.get('test', function (err, value2, cached) {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
@@ -874,16 +880,17 @@ describe('Policy', function () {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
+
                             policy.get('test', function (err, value2, cached) {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
                                 expect(err).to.be.instanceOf(Error);
-                                expect(value2).to.be.undefined;     // Stale
+                                expect(value2).to.be.undefined();     // Stale
 
                                 policy.get('test', function (err, value3, cached) {
 
                                     expect(err).to.be.instanceOf(Error);
-                                    expect(value3).to.be.undefined;      // Stale
+                                    expect(value3).to.be.undefined();      // Stale
                                     done();
                                 });
                             });
@@ -922,16 +929,17 @@ describe('Policy', function () {
 
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(function () {
+
                             policy.get('test', function (err, value2, cached) {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
                                 expect(err).to.be.instanceOf(Error);
-                                expect(value2).to.be.undefined;     // Stale
+                                expect(value2).to.be.undefined();     // Stale
 
                                 policy.get('test', function (err, value3, cached) {
 
                                     expect(err).to.be.instanceOf(Error);
-                                    expect(value3).to.be.undefined;      // Stale
+                                    expect(value3).to.be.undefined();      // Stale
                                     done();
                                 });
                             });
@@ -1233,7 +1241,7 @@ describe('Policy', function () {
                         setTimeout(function () {
 
                             next(null, { gen: ++gen });
-                        }, 5)
+                        }, 5);
                     }
                 };
 
@@ -1244,8 +1252,8 @@ describe('Policy', function () {
 
                     setTimeout(function () {
 
-                        orig.call(client.connection, key, callback)
-                    }, 10)
+                        orig.call(client.connection, key, callback);
+                    }, 10);
                 };
 
                 var policy = new Catbox.Policy(rule, client, 'test-segment');
@@ -1265,8 +1273,8 @@ describe('Policy', function () {
                                     expect(value3.gen).to.equal(2);                             // Cached (10 left to stale)
 
                                     client.connection.get = orig;
-                                    done()
-                                })
+                                    done();
+                                });
                             });
                         }, 21);
                     });
@@ -1857,5 +1865,3 @@ describe('Policy', function () {
         });
     });
 });
-
-
