@@ -16,7 +16,7 @@ internals.handler = function (req, res) {
 
     internals.getResponse(function (item) {
 
-        res.writeHead(200, {'Content-Type': 'text/plain'});
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(item);
     });
 };
