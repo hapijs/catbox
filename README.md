@@ -14,7 +14,7 @@ Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 ### Installation
 
-In order to reduce module dependencies, **catbox** does not includes the external caching strategies. To use other strategies,
+In order to reduce module dependencies, **catbox** does not include the external caching strategies. To use other strategies,
 each service must be manually installed via npm or package dependencies manually. The available strategies are:
 
 - [Memory](https://github.com/hapijs/catbox-memory)
@@ -88,7 +88,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
             - `value` - the new value generated.
             - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to regenerate it when `generateFunc` is
-      provided. Must be less than `expiresIn`. Alternatively function that returns staleIn value in miliseconds. The function signature is
+      provided. Must be less than `expiresIn`. Alternatively function that returns staleIn value in milliseconds. The function signature is
       `function(stored, ttl)` where:
         - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
         - `ttl` - the remaining time-to-live (not the original value used when storing the object).
