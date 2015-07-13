@@ -24,6 +24,7 @@ each service must be manually installed via npm or package dependencies manually
 - [Riak](https://github.com/DanielBarnes/catbox-riak)
 - [Amazon S3](https://github.com/fhemberger/catbox-s3)
 - [RethinkDB](https://github.com/codedmart/catbox-rethinkdb)
+- [Couchbase](https://github.com/cmfatih/catbox-couchbase)
 
 
 ### `Client`
