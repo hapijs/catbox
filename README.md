@@ -136,3 +136,32 @@ The `Policy` object provides the following methods:
 - `rules(options)` - changes the policy rules after construction (note that items already stored will not be affected) where:
     - `options` - the same `options` as the `Policy` constructor.
 - `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready or if there is no cache engine set.
+
+##### Events
+
+`Policy` objects emit several events for the purposes of monitoring error rates, performance, etc. of cache operations. All events are of the same
+form and have a `report` argument with the following attributes:
+
+- `error` - the error object if the operation failed.
+- `id` - the id of the entry being operated on.
+- `msec` - the time that elapsed before the operation called back.
+
+The following events are emitted:
+
+- `get` - records the time it took to fetch an item from the cache (before any `generateFunc` processing).
+- `set` - records the time it took to write an item to the cache (whether explicit or as a result of generating a new entry).
+- `generate` - records the time it took to generate the entry (regardless of `staleTimeout` and `generateTimeout` settings).
+- `drop` - records the time it took to invalidate an entry in the cache.
+
+```js
+var client = new Catbox.Client(. . .);
+var policy = new Catbox.Policy(policyOptions, client, 'segment');
+
+policy.on('set', function (report) {
+
+    console.log('It took ' + report.msec + 'ms to write "' + report.id + '" to the cache.');
+    if (report.error) {
+        console.log('Writing failed with: ' + report.error.message);
+    }
+});
+```

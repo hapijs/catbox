@@ -306,6 +306,105 @@ describe('Policy', function () {
             });
         });
 
+        it('reports how much time elapsed fetching the result when no error occurs', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    setTimeout(function () {
+
+                        callback(null, 'foo');
+                    }, 5);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            var getReport;
+            policy.once('get', function (report) {
+
+                getReport = report;
+            });
+
+            var id = 'test1';
+            policy.get(id, function (err, value, cached, report) {
+
+                expect(err).to.not.exist();
+                expect(getReport).to.exist();
+                expect(getReport.error).to.not.exist();
+                expect(getReport.id).to.equal(id);
+                expect(getReport.msec).to.equal(report.msec);
+                done();
+            });
+        });
+
+        it('reports how much time elapsed fetching the result when an error occurs', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    setTimeout(function () {
+
+                        callback(new Error('failed'));
+                    }, 5);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            var getReport;
+            policy.once('get', function (report) {
+
+                getReport = report;
+            });
+
+            var id = 'test1';
+            policy.get(id, function (err, value, cached, report) {
+
+                expect(err).to.exist();
+                expect(getReport).to.exist();
+                expect(getReport.error).to.be.an.instanceOf(Error);
+                expect(getReport.error.message).to.equal('failed');
+                expect(getReport.id).to.equal(id);
+                expect(getReport.msec).to.equal(report.msec);
+                done();
+            });
+        });
+
         describe('generate', function () {
 
             it('returns falsey items', function (done) {
@@ -1280,6 +1379,386 @@ describe('Policy', function () {
                     });
                 });
             });
+
+            it('reports how much time it took to generate a value when no error occured', function (done) {
+
+                var delay = 5;
+                var item = { foo: 'bar' };
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            next(null, item);
+                        }, delay);
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(policyConfig, client, 'test-segment');
+
+                client.start(function () {
+
+                    var generateReport;
+                    policy.once('generate', function (report) {
+
+                        generateReport = report;
+                    });
+
+                    var id = 'test';
+                    policy.get(id, function (err, value, cached, report) {
+
+                        expect(err).to.not.exist();
+                        expect(generateReport).to.exist();
+                        expect(generateReport.error).to.not.exist();
+                        expect(generateReport.id).to.equal(id);
+                        expect(generateReport.msec).to.be.about(delay, 1);
+                        done();
+                    });
+                });
+            });
+
+            it('reports how much time it took to generate a fresh value when stale', function (done) {
+
+                var delay = 10;
+                var gen = 0;
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            next(null, { gen: ++gen });
+                        }, delay);
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(policyConfig, client, 'test-segment');
+
+                client.start(function () {
+
+                    var id = 'test';
+                    policy.get(id, function (err, value, cached, report) {                          // Generate takes 10
+
+                        expect(value.gen).to.equal(1);
+                        setTimeout(function () {                                                    // Wait for stale
+
+                            var generateReport;
+                            policy.once('generate', function (report) {
+
+                                generateReport = report;
+                            });
+
+                            policy.get(id, function (err, staleValue, staleCached, staleReport) {   // Returns in 5 with stale
+
+                                expect(value.gen).to.equal(1);                                      // Stale
+                                expect(generateReport).to.not.exist();                              // Generating takes 10
+                                setTimeout(function () {                                            // Wait for generate
+
+                                    expect(generateReport).to.exist();
+                                    expect(generateReport.error).to.not.exist();
+                                    expect(generateReport.id).to.equal(id);
+                                    expect(generateReport.msec).to.be.about(delay, 1);
+                                    done();
+                                }, delay - policyConfig.staleTimeout + 1);
+                            });
+                        }, policyConfig.staleIn + 1);
+                    });
+                });
+            });
+
+            it('reports how much time it took to generate a fresh value when stale and an error occurs', function (done) {
+
+                var delay = 10;
+                var gen = 0;
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            ++gen;
+
+                            if (gen === 2) {
+                                return next(new Error('failed'));
+                            }
+
+                            next(null, { gen: gen });
+                        }, delay);
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(policyConfig, client, 'test-segment');
+
+                client.start(function () {
+
+                    var id = 'test';
+                    policy.get(id, function (err, value, cached, report) {                          // Generate takes 10
+
+                        expect(value.gen).to.equal(1);
+                        setTimeout(function () {                                                    // Wait for stale
+
+                            var generateReport;
+                            policy.once('generate', function (report) {
+
+                                generateReport = report;
+                            });
+
+                            policy.get(id, function (err, staleValue, staleCached, staleReport) {   // Returns in 5 with stale
+
+                                expect(err).to.not.exist();
+                                expect(value.gen).to.equal(1);                                      // Stale
+                                expect(generateReport).to.not.exist();                              // Generating takes 10
+                                setTimeout(function () {                                            // Wait for generate
+
+                                    expect(generateReport).to.exist();
+                                    expect(generateReport.error).to.be.an.instanceOf(Error);
+                                    expect(generateReport.error.message).to.equal('failed');        // Error from generate
+                                    expect(generateReport.id).to.equal(id);
+                                    expect(generateReport.msec).to.be.about(delay, 1);
+                                    done();
+                                }, delay - policyConfig.staleTimeout + 1);
+                            });
+                        }, policyConfig.staleIn + 1);
+                    });
+                });
+            });
+
+            it('reports how much time it took to generate a value when timed out', function (done) {
+
+                var delay = 10;
+                var item = { foo: 'bar' };
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    generateTimeout: 5,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            next(null, item);
+                        }, delay);
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(policyConfig, client, 'test-segment');
+
+                client.start(function () {
+
+                    var generateReport;
+                    policy.once('generate', function (report) {
+
+                        generateReport = report;
+                    });
+
+                    var id = 'test';
+                    policy.get(id, function (err, value, cached, report) {          // Waits 5 for timeout
+
+                        expect(err).to.exist();                                     // Timeout
+                        expect(generateReport).to.not.exist();                      // No value generated yet
+                        setTimeout(function () {                                    // Wait for generate
+
+                            expect(generateReport).to.exist();
+                            expect(generateReport.error).to.not.exist();
+                            expect(generateReport.id).to.equal(id);
+                            expect(generateReport.msec).to.be.about(delay, 1);
+                            done();
+                        }, delay - policyConfig.generateTimeout + 1);
+                    });
+                });
+            });
+
+            it('reports how much time it took to generate a value when an error occured', function (done) {
+
+                var delay = 5;
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(function () {
+
+                            next(new Error('failed'));
+                        }, delay);
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(policyConfig, client, 'test-segment');
+
+                client.start(function () {
+
+                    var generateReport;
+                    policy.once('generate', function (report) {
+
+                        generateReport = report;
+                    });
+
+                    var id = 'test';
+                    policy.get(id, function (err, value, cached, report) {
+
+                        expect(err).to.exist();
+                        expect(generateReport).to.exist();
+                        expect(generateReport.error).to.be.an.instanceOf(Error);
+                        expect(generateReport.error.message).to.equal('failed');
+                        expect(generateReport.id).to.equal(id);
+                        expect(generateReport.msec).to.be.about(delay, 1);
+                        done();
+                    });
+                });
+            });
+
+            it('reports how much time it took to generate a value when an error is thrown', function (done) {
+
+                var policyConfig = {
+                    expiresIn: 50000,
+                    generateFunc: function (id, next) {
+
+                        throw new Error('failed');
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(policyConfig, client, 'test-segment');
+
+                client.start(function () {
+
+                    var generateReport;
+                    policy.once('generate', function (report) {
+
+                        generateReport = report;
+                    });
+
+                    var id = 'test';
+                    policy.get(id, function (err, value, cached, report) {
+
+                        expect(err).to.exist();
+                        expect(generateReport).to.exist();
+                        expect(generateReport.error).to.be.an.instanceOf(Error);
+                        expect(generateReport.error.message).to.equal('failed');
+                        expect(generateReport.id).to.equal(id);
+                        expect(generateReport.msec).to.be.within(0, 1);
+                        done();
+                    });
+                });
+            });
+        });
+    });
+
+    describe('set()', function () {
+
+        it('reports how much time elapsed setting the value when no error occurs', function (done) {
+
+            var delay = 5;
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                set: function (key, value, ttl, callback) {
+
+                    setTimeout(function () {
+
+                        callback(null);
+                    }, delay);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            var setReport;
+            policy.once('set', function (report) {
+
+                setReport = report;
+            });
+
+            var id = 'test';
+            policy.set(id, 'foo', 0, function (err) {
+
+                expect(err).to.not.exist();
+                expect(setReport).to.exist();
+                expect(setReport.id).to.equal(id);
+                expect(setReport.error).to.not.exist();
+                expect(setReport.msec).to.be.about(delay, 1);
+                done();
+            });
+        });
+
+        it('reports how much time elapsed setting the value when an error occurs', function (done) {
+
+            var delay = 5;
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                set: function (key, value, ttl, callback) {
+
+                    setTimeout(function () {
+
+                        callback(new Error('failed'));
+                    }, delay);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            var setReport;
+            policy.once('set', function (report) {
+
+                setReport = report;
+            });
+
+            var id = 'test';
+            policy.set(id, 'foo', 0, function (err) {
+
+                expect(err).to.exist();
+                expect(setReport).to.exist();
+                expect(setReport.id).to.equal(id);
+                expect(setReport.error).to.be.an.instanceOf(Error);
+                expect(setReport.error.message).to.equal('failed');
+                expect(setReport.msec).to.be.about(delay, 1);
+                done();
+            });
         });
     });
 
@@ -1316,6 +1795,109 @@ describe('Policy', function () {
             policy.drop('test', function (err, result) {
 
                 expect(result).to.equal('success');
+                done();
+            });
+        });
+
+        it('reports how much time the drop took when no error occured', function (done) {
+
+            var delay = 5;
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                drop: function (key, callback) {
+
+                    setTimeout(function () {
+
+                        callback();
+                    }, delay);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            var dropReport;
+            policy.once('drop', function (report) {
+
+                dropReport = report;
+            });
+
+            var id = 'test';
+            policy.drop(id, function (err, result) {
+
+                expect(err).to.not.exist();
+                expect(dropReport).to.exist();
+                expect(dropReport.error).to.not.exist();
+                expect(dropReport.id).to.equal(id);
+                expect(dropReport.msec).to.be.about(delay, 1);
+                done();
+            });
+        });
+
+        it('reports how much time the drop took when an error occured', function (done) {
+
+            var delay = 5;
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                drop: function (key, callback) {
+
+                    setTimeout(function () {
+
+                        callback(new Error('failed'));
+                    }, delay);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            var dropReport;
+            policy.once('drop', function (report) {
+
+                dropReport = report;
+            });
+
+            var id = 'test';
+            policy.drop(id, function (err, result) {
+
+                expect(err).to.exist();
+                expect(dropReport).to.exist();
+                expect(dropReport.error).to.be.an.instanceOf(Error);
+                expect(dropReport.error.message).to.equal('failed');
+                expect(dropReport.id).to.equal(id);
+                expect(dropReport.msec).to.be.about(delay, 1);
                 done();
             });
         });
