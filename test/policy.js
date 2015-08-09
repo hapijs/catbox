@@ -112,61 +112,6 @@ describe('Policy', function () {
         });
     });
 
-    it('returns null on get when no cache client provided', function (done) {
-
-        var policy = new Catbox.Policy({ expiresIn: 1 });
-
-        policy.get('x', function (err, value, cached, report) {
-
-            expect(err).to.not.exist();
-            expect(value).to.not.exist();
-            done();
-        });
-    });
-
-    it('returns null on set when no cache client provided', function (done) {
-
-        var policy = new Catbox.Policy({ expiresIn: 1 });
-
-        policy.set('x', 'y', 100, function (err) {
-
-            expect(err).to.not.exist();
-            done();
-        });
-    });
-
-    it('returns null on drop when no cache client provided', function (done) {
-
-        var policy = new Catbox.Policy({ expiresIn: 1 });
-
-        policy.drop('x', function (err) {
-
-            expect(err).to.not.exist();
-            done();
-        });
-    });
-
-    it('returns null on get when item expired', function (done) {
-
-        var client = new Catbox.Client(Import);
-        client.start(function () {
-
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, 'y', 1, function (err) {
-
-                setTimeout(function () {
-
-                    client.get(key, function (err, value, cached, report) {
-
-                        expect(err).to.not.exist();
-                        expect(value).to.not.exist();
-                        done();
-                    });
-                }, 2);
-            });
-        });
-    });
-
     it('throws an error when segment is missing', function (done) {
 
         var config = {
@@ -303,6 +248,136 @@ describe('Policy', function () {
                 expect(cached.isStale).to.be.false();
                 done();
             });
+        });
+
+        it('returns null on get when no cache client provided', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            policy.get('x', function (err, value, cached, report) {
+
+                expect(err).to.not.exist();
+                expect(value).to.not.exist();
+                done();
+            });
+        });
+
+        it('returns null on get when item expired', function (done) {
+
+            var client = new Catbox.Client(Import);
+            client.start(function () {
+
+                var key = { id: 'x', segment: 'test' };
+                client.set(key, 'y', 1, function (err) {
+
+                    setTimeout(function () {
+
+                        client.get(key, function (err, value, cached, report) {
+
+                            expect(err).to.not.exist();
+                            expect(value).to.not.exist();
+                            done();
+                        });
+                    }, 2);
+                });
+            });
+        });
+
+        it('it only binds if domain exists', function (done) {
+
+            var policy = new Catbox.Policy({
+                expiresIn: 1000,
+                staleIn: 100,
+                generateFunc: function (id, next) {
+
+                    setTimeout(function () {
+
+                        return next(null, true);
+                    }, 20);
+                },
+                staleTimeout: 50
+            }, new Catbox.Client(Import), 'test');
+
+            var tests = 0;
+            var completed = 0;
+
+            var checkAndDone = process.domain.bind(function (expected, actual) {    // Bind back to the lab domain
+
+                expect(actual).to.not.exist();
+                expect(expected).to.not.exist();
+                expect(actual).to.not.equal(expected, process.domain);      // This should be the lab domain
+
+                if (tests === completed) {
+                    done();
+                }
+            });
+
+            var test = function (domain) {
+
+                tests++;
+
+                Domain.create().run(function () {
+
+                    process.domain = domain;
+
+                    policy.get('', function (err, result) {
+
+                        completed++;
+                        checkAndDone(domain, process.domain);
+                    });
+                });
+            };
+
+            test(null);
+            test(null);
+        });
+
+        it('it returns with the correct process domain', function (done) {
+
+            var policy = new Catbox.Policy({
+                expiresIn: 1000,
+                staleIn: 100,
+                generateFunc: function (id, next) {
+
+                    setTimeout(function () {
+
+                        return next(null, true);
+                    }, 20);
+                },
+                staleTimeout: 50
+            }, new Catbox.Client(Import), 'test');
+
+            var tests = 0;
+            var completed = 0;
+
+            var checkAndDone = process.domain.bind(function (expected, actual) {
+
+                expect(actual).to.equal(expected);
+
+                if (tests === completed) {
+                    done();
+                }
+            });
+
+            var test = function (id) {
+
+                tests++;
+
+                Domain.create().run(function () {
+
+                    process.domain.name = id;
+
+                    policy.get('', function (err, result) {
+
+                        completed++;
+                        checkAndDone(id, process.domain.name);
+                    });
+                });
+            };
+
+            for (var i = 0; i < 10; ++i) {
+                test(i);
+            }
         });
 
         describe('generate', function () {
@@ -1259,17 +1334,17 @@ describe('Policy', function () {
 
                 client.start(function () {
 
-                    policy.get('test', function (err, value1, cached1, report1) {                                           // Cache lookup takes 10 + generate 5
+                    policy.get('test', function (err, value1, cached1, report1) {                   // Cache lookup takes 10 + generate 5
 
-                        expect(value1.gen).to.equal(1);                                                                     // Fresh
-                        setTimeout(function () {                                                                            // Wait for stale
+                        expect(value1.gen).to.equal(1);                                             // Fresh
+                        setTimeout(function () {                                                    // Wait for stale
 
-                            policy.get('test', function (err, value2, cached2, report2) {  // Cache lookup takes 10, generate comes back after 5
+                            policy.get('test', function (err, value2, cached2, report2) {           // Cache lookup takes 10, generate comes back after 5
 
-                                expect(value2.gen).to.equal(2);                                                  // Fresh
-                                policy.get('test', function (err, value3, cached3, report3) {                           // Cache lookup takes 10
+                                expect(value2.gen).to.equal(2);                                     // Fresh
+                                policy.get('test', function (err, value3, cached3, report3) {       // Cache lookup takes 10
 
-                                    expect(value3.gen).to.equal(2);                                                         // Cached (10 left to stale)
+                                    expect(value3.gen).to.equal(2);                                 // Cached (10 left to stale)
 
                                     client.connection.get = orig;
                                     done();
@@ -1279,109 +1354,80 @@ describe('Policy', function () {
                     });
                 });
             });
-        });
 
-        describe('get()', function () {
+            it('passes set error', function (done) {
 
-            it('it only binds if domain exists', function (done) {
-
-                var policy = new Catbox.Policy({
-                    expiresIn: 1000,
-                    staleIn: 100,
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
                     generateFunc: function (id, next) {
 
-                        setTimeout(function () {
-
-                            return next(null, true);
-                        }, 20);
-                    },
-                    staleTimeout: 50
-                }, new Catbox.Client(Import), 'test');
-
-                var tests = 0;
-                var completed = 0;
-
-                var checkAndDone = process.domain.bind(function (expected, actual) {    // Bind back to the lab domain
-
-                    expect(actual).to.not.exist();
-                    expect(expected).to.not.exist();
-                    expect(actual).to.not.equal(expected, process.domain);      // This should be the lab domain
-
-                    if (tests === completed) {
-                        done();
+                        return next(null, { gen: ++gen });
                     }
-                });
-
-                var test = function (domain) {
-
-                    tests++;
-
-                    Domain.create().run(function () {
-
-                        process.domain = domain;
-
-                        policy.get('', function (err, result) {
-
-                            completed++;
-                            checkAndDone(domain, process.domain);
-                        });
-                    });
                 };
 
-                test(null);
-            });
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
 
-            it('it returns with the correct process domain', function (done) {
+                var gen = 0;
 
-                var policy = new Catbox.Policy({
-                    expiresIn: 1000,
-                    staleIn: 100,
-                    generateFunc: function (id, next) {
+                policy.set = function (key, value, ttl, callback) {
 
-                        setTimeout(function () {
-
-                            return next(null, true);
-                        }, 20);
-                    },
-                    staleTimeout: 50
-                }, new Catbox.Client(Import), 'test');
-
-                var tests = 0;
-                var completed = 0;
-
-                var checkAndDone = process.domain.bind(function (expected, actual) {
-
-                    expect(actual).to.equal(expected);
-
-                    if (tests === completed) {
-                        done();
-                    }
-                });
-
-                var test = function (domain) {
-
-                    tests++;
-
-                    Domain.create().run(function () {
-
-                        process.domain.name = domain;
-
-                        policy.get('', function (err, result) {
-
-                            completed++;
-                            checkAndDone(domain, process.domain.name);
-                        });
-                    });
+                    return callback(new Error('bad cache'));
                 };
 
-                for (var i = 0; i < 10; ++i) {
-                    test(i);
-                }
+                client.start(function () {
+
+                    policy.get('test', function (err, value, cached, report) {
+
+                        expect(err.message).to.equal('bad cache');
+                        expect(value.gen).to.equal(1);
+                        done();
+                    });
+                });
             });
         });
     });
 
+    describe('set()', function () {
+
+        it('returns null on set when no cache client provided', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            policy.set('x', 'y', 100, function (err) {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
+        it('ignores missing callback', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            expect(function () {
+
+                policy.set('x', 'y', 100);
+            }).to.not.throw();
+
+            done();
+        });
+    });
+
     describe('drop()', function () {
+
+        it('returns null on drop when no cache client provided', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            policy.drop('x', function (err) {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
 
         it('calls the extension clients drop function', function (done) {
 
@@ -1416,6 +1462,18 @@ describe('Policy', function () {
                 expect(result).to.equal('success');
                 done();
             });
+        });
+
+        it('ignores missing callback', function (done) {
+
+            var policy = new Catbox.Policy({ expiresIn: 1 });
+
+            expect(function () {
+
+                policy.drop('x');
+            }).to.not.throw();
+
+            done();
         });
     });
 
@@ -1807,7 +1865,7 @@ describe('Policy', function () {
         });
     });
 
-    describe('ttl()', function () {
+    describe('Policy.ttl()', function () {
 
         it('returns zero when a rule is expired', function (done) {
 
