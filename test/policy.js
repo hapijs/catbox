@@ -277,6 +277,7 @@ describe('Policy', function () {
             var policy = new Catbox.Policy({
                 expiresIn: 1000,
                 staleIn: 100,
+                generateTimeout: 10,
                 generateFunc: function (id, next) {
 
                     setTimeout(function () {
@@ -326,6 +327,7 @@ describe('Policy', function () {
             var policy = new Catbox.Policy({
                 expiresIn: 1000,
                 staleIn: 100,
+                generateTimeout: 10,
                 generateFunc: function (id, next) {
 
                     setTimeout(function () {
@@ -396,6 +398,7 @@ describe('Policy', function () {
                 };
                 var policyConfig = {
                     expiresIn: 50000,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, false);
@@ -417,6 +420,7 @@ describe('Policy', function () {
 
                 var policy = new Catbox.Policy({
                     expiresIn: 1,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, 'new result');
@@ -438,6 +442,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -465,6 +470,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -499,6 +505,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -531,6 +538,7 @@ describe('Policy', function () {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateOnGetError: false,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -562,6 +570,7 @@ describe('Policy', function () {
                     expiresIn: 26,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         setTimeout(function () {
@@ -599,6 +608,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         setTimeout(function () {
@@ -650,6 +660,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: staleIn,
                     staleTimeout: 5,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         setTimeout(function () {
@@ -694,6 +705,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -747,6 +759,7 @@ describe('Policy', function () {
                     staleIn: 20,
                     staleTimeout: 5,
                     dropOnError: true,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -799,6 +812,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -852,6 +866,7 @@ describe('Policy', function () {
                     staleIn: 20,
                     staleTimeout: 5,
                     dropOnError: false,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -905,6 +920,7 @@ describe('Policy', function () {
                     staleIn: 20,
                     staleTimeout: 5,
                     dropOnError: false,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -953,6 +969,7 @@ describe('Policy', function () {
                     staleIn: 20,
                     staleTimeout: 5,
                     dropOnError: true,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -1002,6 +1019,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -1051,6 +1069,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 10,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -1093,6 +1112,7 @@ describe('Policy', function () {
                     expiresIn: 30,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -1134,6 +1154,7 @@ describe('Policy', function () {
                     expiresIn: 31,
                     staleIn: 15,
                     staleTimeout: 15,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -1176,6 +1197,7 @@ describe('Policy', function () {
                     expiresIn: 20,
                     staleIn: 5,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         ++gen;
@@ -1258,11 +1280,74 @@ describe('Policy', function () {
                 });
             });
 
+            it('does not block the queue when generate fails to call back', function (done) {
+
+                var rule = {
+                    expiresIn: 50000,
+                    generateTimeout: 5,
+                    generateFunc: function () { }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(function () {
+
+                    var id = 'test';
+                    policy.get(id, function (err, value1, cached1, report1) {
+
+                        expect(err).to.be.an.instanceOf(Error);
+                        expect(value1).to.not.exist();
+
+                        policy.get(id, function (err, value2, cached2, report2) {
+
+                            expect(err).to.be.an.instanceOf(Error);
+                            expect(value2).to.not.exist();
+                            done();
+                        });
+                    });
+                });
+            });
+
+            it('blocks the queue when generate fails to call back', function (done) {
+
+                var rule = {
+                    expiresIn: 50000,
+                    generateTimeout: false,
+                    generateFunc: function () { }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(function () {
+
+                    var id = 'test';
+                    var called = 0;
+                    policy.get(id, function (err, value1, cached1, report1) {
+
+                        ++called;
+                    });
+
+                    policy.get(id, function (err, value1, cached1, report1) {
+
+                        ++called;
+                    });
+
+                    setTimeout(function () {
+
+                        expect(called).to.equal(0);
+                        done();
+                    }, 100);
+                });
+            });
+
             it('queues requests while pending', function (done) {
 
                 var gen = 0;
                 var rule = {
                     expiresIn: 100,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -1296,6 +1381,7 @@ describe('Policy', function () {
                 var gen = 0;
                 var rule = {
                     expiresIn: 100,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         throw new Error('generate failed');
@@ -1333,6 +1419,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 10,
+                    generateTimeout: 20,
                     generateFunc: function (id, next) {
 
                         setTimeout(function () {
@@ -1384,6 +1471,7 @@ describe('Policy', function () {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
+                    generateTimeout: 10,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
@@ -1725,6 +1813,7 @@ describe('Policy', function () {
                 expiresIn: 500000,
                 staleIn: staleIn,
                 staleTimeout: 500,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1743,6 +1832,7 @@ describe('Policy', function () {
                 expiresIn: 500000,
                 staleIn: 1000000,
                 staleTimeout: 500,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1761,6 +1851,7 @@ describe('Policy', function () {
                 expiresIn: 500000,
                 staleIn: 100000,
                 staleTimeout: 500000,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1779,6 +1870,7 @@ describe('Policy', function () {
                 expiresIn: 30000,
                 staleIn: 20000,
                 staleTimeout: 10000,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1797,6 +1889,7 @@ describe('Policy', function () {
                 expiresIn: 1000000,
                 staleIn: 500000,
                 staleTimeout: 500,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1815,6 +1908,7 @@ describe('Policy', function () {
                 expiresIn: 1000000,
                 staleIn: 500000,
                 staleTimeout: 500,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1830,6 +1924,7 @@ describe('Policy', function () {
                 expiresAt: '03:00',
                 staleIn: 5000000,
                 staleTimeout: 500,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1844,6 +1939,7 @@ describe('Policy', function () {
                 staleIn: 30000,
                 staleTimeout: 300,
                 expiresIn: 60000,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1861,6 +1957,7 @@ describe('Policy', function () {
                 staleIn: 30000,
                 expiresIn: 60000,
                 staleTimeout: 300,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1879,6 +1976,7 @@ describe('Policy', function () {
                 staleIn: 30000,
                 expiresIn: 60000,
                 staleTimeout: 300,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1894,6 +1992,7 @@ describe('Policy', function () {
                 staleIn: 2000,
                 expiresIn: 10000,
                 staleTimeout: 30000,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1912,6 +2011,7 @@ describe('Policy', function () {
                 staleIn: 1000000,
                 expiresIn: 60000,
                 staleTimeout: 30,
+                generateTimeout: 10,
                 generateFunc: function () { }
             };
 
@@ -1921,6 +2021,55 @@ describe('Policy', function () {
             };
 
             expect(fn).to.throw('staleIn must be less than expiresIn');
+            done();
+        });
+
+        it('allows a rule with generateFunc and generateTimeout', function (done) {
+
+            var config = {
+                expiresIn: 50000,
+                generateTimeout: 10,
+                generateFunc: function () { }
+            };
+
+            var fn = function () {
+
+                Catbox.policy.compile(config, true);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('throws an error with generateFunc but no generateTimeout', function (done) {
+
+            var config = {
+                expiresIn: 50000,
+                generateFunc: function () { }
+            };
+
+            var fn = function () {
+
+                Catbox.policy.compile(config, true);
+            };
+
+            expect(fn).to.throw(/Invalid cache policy configuration/);
+            done();
+        });
+
+        it('throws an error with generateTimeout but no generateFunc', function (done) {
+
+            var config = {
+                expiresIn: 50000,
+                generateTimeout: 10
+            };
+
+            var fn = function () {
+
+                Catbox.policy.compile(config, true);
+            };
+
+            expect(fn).to.throw(/Invalid cache policy configuration/);
             done();
         });
     });
