@@ -18,6 +18,7 @@ var describe = lab.experiment;
 var it = lab.test;
 var expect = Code.expect;
 
+
 describe('Policy', function () {
 
     it('returns cached item', function (done) {
@@ -37,6 +38,7 @@ describe('Policy', function () {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
+                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -60,6 +62,7 @@ describe('Policy', function () {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
+                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -83,6 +86,7 @@ describe('Policy', function () {
 
                     expect(err).to.not.exist();
                     expect(value).to.not.exist();
+                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -106,6 +110,7 @@ describe('Policy', function () {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
+                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -147,6 +152,7 @@ describe('Policy', function () {
 
                         expect(err).to.not.exist();
                         expect(value).to.equal('123');
+                        expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                         done();
                     });
                 });
@@ -171,6 +177,7 @@ describe('Policy', function () {
 
                         expect(err).to.exist();
                         expect(err.message).to.equal('Invalid key');
+                        expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 2 });
                         done();
                     });
                 });
@@ -208,6 +215,7 @@ describe('Policy', function () {
 
                 expect(err).to.be.instanceOf(Error);
                 expect(value).to.not.exist();
+                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 1 });
                 done();
             });
         });
@@ -246,6 +254,7 @@ describe('Policy', function () {
 
                 expect(value).to.equal('item');
                 expect(cached.isStale).to.be.false();
+                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                 done();
             });
         });
@@ -258,28 +267,8 @@ describe('Policy', function () {
 
                 expect(err).to.not.exist();
                 expect(value).to.not.exist();
+                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
                 done();
-            });
-        });
-
-        it('returns null on get when item expired', function (done) {
-
-            var client = new Catbox.Client(Import);
-            client.start(function () {
-
-                var key = { id: 'x', segment: 'test' };
-                client.set(key, 'y', 1, function (err) {
-
-                    setTimeout(function () {
-
-                        client.get(key, function (err, value, cached, report) {
-
-                            expect(err).to.not.exist();
-                            expect(value).to.not.exist();
-                            done();
-                        });
-                    }, 2);
-                });
             });
         });
 
@@ -497,6 +486,7 @@ describe('Policy', function () {
                         policy.get('test', function (err, value2, cached2, report2) {
 
                             expect(value2.gen).to.equal(1);
+                            expect(policy.stats).to.deep.equal({ sets: 1, gets: 2, hits: 0, stales: 0, generates: 1, errors: 0 });
                             done();
                         });
                     });
@@ -529,6 +519,38 @@ describe('Policy', function () {
                     policy.get('test', function (err, value, cached, report) {
 
                         expect(value.gen).to.equal(1);
+                        done();
+                    });
+                });
+            });
+
+            it('returns an error when get fails and generateOnGetError is false', function (done) {
+
+                var rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateOnGetError: false,
+                    generateFunc: function (id, next) {
+
+                        return next(null, { gen: ++gen });
+                    }
+                };
+
+                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                client.get = function (key, callback) {
+
+                    callback(new Error('bad client'));
+                };
+
+                var policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(function () {
+
+                    policy.get('test', function (err, value, cached, report) {
+
+                        expect(err.message).to.equal('bad client');
+                        expect(value).to.not.exist();
                         done();
                     });
                 });
@@ -1138,6 +1160,7 @@ describe('Policy', function () {
                                     policy.get('test', function (err, value3, cached3, report3) {
 
                                         expect(value3.gen).to.equal(2);        // Fresh
+                                        expect(policy.stats).to.deep.equal({ sets: 2, gets: 3, hits: 2, stales: 1, generates: 2, errors: 0 });
                                         done();
                                     });
                                 }, 11);
@@ -1431,6 +1454,7 @@ describe('Policy', function () {
 
         it('calls the extension clients drop function', function (done) {
 
+            var called = false;
             var engine = {
                 start: function (callback) {
 
@@ -1442,7 +1466,8 @@ describe('Policy', function () {
                 },
                 drop: function (key, callback) {
 
-                    callback(null, 'success');
+                    called = true;
+                    callback(null);
                 },
                 validateSegmentName: function () {
 
@@ -1457,9 +1482,9 @@ describe('Policy', function () {
             var client = new Catbox.Client(engine);
             var policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.drop('test', function (err, result) {
+            policy.drop('test', function (err) {
 
-                expect(result).to.equal('success');
+                expect(called).to.be.true();
                 done();
             });
         });
@@ -1474,6 +1499,41 @@ describe('Policy', function () {
             }).to.not.throw();
 
             done();
+        });
+
+        it('counts drop error', function (done) {
+
+            var engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                drop: function (key, callback) {
+
+                    callback(new Error('failed'));
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            var policyConfig = {
+                expiresIn: 50000
+            };
+
+            var client = new Catbox.Client(engine);
+            var policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            policy.drop('test', function (err) {
+
+                expect(policy.stats.errors).to.equal(1);
+                done();
+            });
         });
     });
 
