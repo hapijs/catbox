@@ -80,7 +80,10 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records for the route
-      expire. Uses local time. Cannot be used together with `expiresIn`.
+      expire. Uses local time if `timezone` is not used. Cannot be used together with `expiresIn`.
+    - `timezone` - time zone that the `expiresAt` time should be interpreted relative to. The time zone can be expressed either as a
+      fixed offset using the '+-HH:MM' format (ex. '-08:00') or as an IANA time zone name (ex. 'America/Los_Angeles'). When using a named
+      time zone, daylight savings time will be taken into account automatically if it is recognized by that time zone.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the cache when calling `get()`. The method's
       signature is `function(id, next)` where:
         - `id` - the `id` string or object provided to the `get()` method.

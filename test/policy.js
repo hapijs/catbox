@@ -1450,6 +1450,74 @@ describe('Policy', function () {
             done();
         });
 
+        it('returns the ttl factoring the created time (positive time zone offset)', function (done) {
+
+            var config = {
+                expiresAt: '21:00',
+                timezone: '+0530'
+            };
+
+            var rules = new Catbox.Policy.compile(config);
+
+            var created = Date.UTC(2014, 9, 6, 13, 0, 0);           // Sat Sep 06 2014 13:00:00 UTC time
+            var now = Date.UTC(2014, 9, 6, 15, 0, 0);               // Sat Sep 06 2014 15:00:00 UTC time
+
+            var ttl = Catbox.Policy.ttl(rules, created, now);
+            expect(ttl).to.equal(1800000);                          // 30 minutes left
+            done();
+        });
+
+        it('returns the ttl factoring the created time (negative time zone offset)', function (done) {
+
+            var config = {
+                expiresAt: '10:00',
+                timezone: '-05:30'
+            };
+
+            var rules = new Catbox.Policy.compile(config);
+
+            var created = Date.UTC(2014, 9, 6, 13, 0, 0);           // Sat Sep 06 2014 13:00:00 UTC time
+            var now = Date.UTC(2014, 9, 6, 15, 0, 0);               // Sat Sep 06 2014 15:00:00 UTC time
+
+            var ttl = Catbox.Policy.ttl(rules, created, now);
+            expect(ttl).to.equal(1800000);                          // 30 minutes left
+            done();
+        });
+
+        it('returns the ttl factoring the created time (time zone name)', function (done) {
+
+            var config = {
+                expiresAt: '09:00',
+                timezone: 'America/Los_Angeles'                     // PST -0800
+            };
+
+            var rules = new Catbox.Policy.compile(config);
+
+            var created = Date.UTC(2014, 12, 6, 13, 0, 0);          // Sat Dec 06 2014 13:00:00 UTC time
+            var now = Date.UTC(2014, 12, 6, 15, 0, 0);              // Sat Dec 06 2014 15:00:00 UTC time
+
+            var ttl = Catbox.Policy.ttl(rules, created, now);
+            expect(ttl).to.equal(7200000);                          // 2 hours left
+            done();
+        });
+
+        it('returns the ttl factoring the created time (dst time zone name)', function (done) {
+
+            var config = {
+                expiresAt: '09:00',
+                timezone: 'America/Los_Angeles'                     // PDT -0700
+            };
+
+            var rules = new Catbox.Policy.compile(config);
+
+            var created = Date.UTC(2014, 9, 6, 13, 0, 0);           // Sat Sep 06 2014 13:00:00 UTC time
+            var now = Date.UTC(2014, 9, 6, 15, 0, 0);               // Sat Sep 06 2014 15:00:00 UTC time
+
+            var ttl = Catbox.Policy.ttl(rules, created, now);
+            expect(ttl).to.equal(3600000);                          // 1 hour left
+            done();
+        });
+
         it('returns expired when created in the future', function (done) {
 
             var config = {
@@ -1593,6 +1661,94 @@ describe('Policy', function () {
             };
 
             expect(fn).to.not.throw();
+            done();
+        });
+
+        it('allows a rule with expiresAt and time zone (positive offset)', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: '+05:30' }, true);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('allows a rule with expiresAt and time zone (short offset)', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: '+530' }, true);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('requires a sign on a time zone offset', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: '0530' }, true);
+            };
+
+            expect(fn).to.throw(/fails to match the required pattern/);
+            done();
+        });
+
+        it('allows a rule with expiresAt and time zone (negative offset)', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: '-05:30' }, true);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('allows a rule with expiresAt and time zone (name)', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: 'America/Los_Angeles' }, true);
+            };
+
+            expect(fn).to.not.throw();
+            done();
+        });
+
+        it('throws error with time zone but no expiresAt', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ timezone: '+05:30' }, true);
+            };
+
+            expect(fn).to.throw(/"timezone" missing required peer "expiresAt"/);
+            done();
+        });
+
+        it('throws error with a malformed time zone', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: '#badtimezone' }, true);
+            };
+
+            expect(fn).to.throw(/fails to match the required pattern/);
+            done();
+        });
+
+        it('throws error with non-existant time zone name', function (done) {
+
+            var fn = function () {
+
+                Catbox.policy.compile({ expiresAt: '09:00', timezone: 'foo/bar' }, true);
+            };
+
+            expect(fn).to.throw('Unknown time zone name');
             done();
         });
 
