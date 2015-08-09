@@ -4,7 +4,7 @@ var Catbox = require('..');
 var Code = require('code');
 var Lab = require('lab');
 var Import = require('./import');
-
+var Domain = require('domain');
 
 // Declare internals
 
@@ -17,7 +17,6 @@ var lab = exports.lab = Lab.script();
 var describe = lab.experiment;
 var it = lab.test;
 var expect = Code.expect;
-
 
 describe('Policy', function () {
 
@@ -1279,6 +1278,90 @@ describe('Policy', function () {
                         }, 21);
                     });
                 });
+            });
+        });
+
+        describe('get()', function(){
+            it('it only binds if domain exists', function (done) {
+                var policy = new Catbox.Policy({
+                    expiresIn: 1000,
+                    staleIn: 100,
+                    generateFunc: function (id, next) {
+                        setTimeout(function(){
+                            return next(null, true);
+                        }, 20);
+                    },
+                    staleTimeout: 50
+                }, new Catbox.Client(Import), 'test');
+
+                var tests = 0;
+                var completed = 0;
+
+                var checkAndDone = process.domain.bind(function (expected, actual) {    // Bind back to the lab domain
+                    expect(actual).to.not.exist();
+                    expect(expected).to.not.exist();
+                    expect(actual).to.not.equal(expected, process.domain);      // This should be the lab domain
+
+                    if (tests === completed) {
+                        done();
+                    }
+                });
+
+                var test = function(domain){
+                    tests++;
+
+                    Domain.create().run(function () {
+                        process.domain = domain;
+
+                        policy.get('', function (err, result) {
+                            completed++;
+                            checkAndDone(domain, process.domain);
+                        });
+                    });
+                };
+
+                test(null);
+            });
+
+            it('it returns with the correct process domain', function (done) {
+                var policy = new Catbox.Policy({
+                    expiresIn: 1000,
+                    staleIn: 100,
+                    generateFunc: function (id, next) {
+                        setTimeout(function(){
+                            return next(null, true);
+                        }, 20);
+                    },
+                    staleTimeout: 50
+                }, new Catbox.Client(Import), 'test');
+
+                var tests = 0;
+                var completed = 0;
+
+                var checkAndDone = process.domain.bind(function (expected, actual) {
+                    expect(actual).to.equal(expected);
+
+                    if (tests === completed) {
+                        done();
+                    }
+                });
+
+                var test = function(domain){
+                    tests++;
+
+                    Domain.create().run(function () {
+                        process.domain.name = domain;
+
+                        policy.get('', function (err, result) {
+                            completed++;
+                            checkAndDone(domain, process.domain.name);
+                        });
+                    });
+                };
+
+                for (var i = 0; i < 10; ++i){
+                    test(i);
+                }
             });
         });
     });
