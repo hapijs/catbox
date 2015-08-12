@@ -100,8 +100,10 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       forever.
     - `dropOnError` - if `true`, an error or timeout in the `generateFunc` causes the stale value to be evicted from the cache.
       Defaults  to `true`.
-    - `generateOnGetError` - if `false`, an upstream cache error will stop the `get()` method from calling the generate function
+    - `generateOnReadError` - if `false`, an upstream cache read error will stop the `get()` method from calling the generate function
       and will instead pass back the cache error. Defaults to `true`.
+    - `generateIgnoreWriteError` - if `false`, an upstream cache write error will be passed back with the generated value when calling
+      the `get()` method. Defaults to `true`.
 - `cache` - a `Client` instance (which has already been started).
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
 

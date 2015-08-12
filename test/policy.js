@@ -531,13 +531,13 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns an error when get fails and generateOnGetError is false', function (done) {
+            it('returns an error when get fails and generateOnReadError is false', function (done) {
 
                 var rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
-                    generateOnGetError: false,
+                    generateOnReadError: false,
                     generateTimeout: 10,
                     generateFunc: function (id, next) {
 
@@ -1465,13 +1465,14 @@ describe('Policy', function () {
                 });
             });
 
-            it('passes set error', function (done) {
+            it('passes set error when generateIgnoreWriteError is false', function (done) {
 
                 var rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 10,
+                    generateIgnoreWriteError: false,
                     generateFunc: function (id, next) {
 
                         return next(null, { gen: ++gen });
