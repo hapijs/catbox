@@ -1,20 +1,21 @@
-// After starting this example load http://localhost:8080 and hit refresh, you will notice that it loads the response from cache for the first 5 seconds and then reloads the cache.  Look at the console to see it setting and getting items from cache.
+'use strict';
 
 // Load modules
 
-var Catbox = require('../');
-var Http = require('http');
-
+const Catbox = require('../');
+const Http = require('http');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
+
+// After starting this example load http://localhost:8080 and hit refresh, you will notice that it loads the response from cache for the first 5 seconds and then reloads the cache.  Look at the console to see it setting and getting items from cache.
 
 internals.handler = function (req, res) {
 
-    internals.getResponse(function (item) {
+    internals.getResponse((item) => {
 
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end(item);
@@ -30,22 +31,22 @@ internals.getResponse = function (callback) {
 
 internals.startCache = function (callback) {
 
-    var clientOptions = {
+    const clientOptions = {
         partition: 'examples'               // For redis this will store items under keys that start with examples:
     };
 
-    var policyOptions = {
+    const policyOptions = {
         expiresIn: 5000,
         generateFunc: function (id, next) {
 
-            var item = 'example';
+            const item = 'example';
             console.log(item);
             return next(null, item);
         }
     };
 
-    var client = new Catbox.Client(require('../test/import'), clientOptions);
-    client.start(function () {
+    const client = new Catbox.Client(require('../test/import'), clientOptions);
+    client.start(() => {
 
         internals.policy = new Catbox.Policy(policyOptions, client, 'example');
         callback();
@@ -55,7 +56,7 @@ internals.startCache = function (callback) {
 
 internals.startServer = function () {
 
-    var server = Http.createServer(internals.handler);
+    const server = Http.createServer(internals.handler);
     server.listen(8080);
     console.log('Server started at http://localhost:8080/');
 };

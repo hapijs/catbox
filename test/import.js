@@ -1,11 +1,13 @@
+'use strict';
+
 // Load modules
 
-var Hoek = require('hoek');
+const Hoek = require('hoek');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 exports = module.exports = internals.Connection = function (options) {
@@ -61,17 +63,17 @@ internals.Connection.prototype.get = function (key, callback) {
         return callback(new Error('Connection not started'));
     }
 
-    var segment = this.cache[key.segment];
+    const segment = this.cache[key.segment];
     if (!segment) {
         return callback(null, null);
     }
 
-    var envelope = segment[key.id];
+    const envelope = segment[key.id];
     if (!envelope) {
         return callback(null, null);
     }
 
-    var value = null;
+    let value = null;
     try {
         value = JSON.parse(envelope.item);
     }
@@ -79,7 +81,7 @@ internals.Connection.prototype.get = function (key, callback) {
         return callback(new Error('Bad value content'));
     }
 
-    var result = {
+    const result = {
         item: value,
         stored: envelope.stored,
         ttl: envelope.ttl
@@ -91,15 +93,13 @@ internals.Connection.prototype.get = function (key, callback) {
 
 internals.Connection.prototype.set = function (key, value, ttl, callback) {
 
-    var self = this;
-
     callback = Hoek.nextTick(callback);
 
     if (!this.cache) {
         return callback(new Error('Connection not started'));
     }
 
-    var stringifiedValue = null;
+    let stringifiedValue = null;
     try {
         stringifiedValue = JSON.stringify(value);
     }
@@ -107,23 +107,23 @@ internals.Connection.prototype.set = function (key, value, ttl, callback) {
         return callback(err);
     }
 
-    var envelope = {
+    const envelope = {
         item: stringifiedValue,
         stored: Date.now(),
         ttl: ttl
     };
 
     this.cache[key.segment] = this.cache[key.segment] || {};
-    var segment = this.cache[key.segment];
+    const segment = this.cache[key.segment];
 
-    var cachedItem = segment[key.id];
+    const cachedItem = segment[key.id];
     if (cachedItem && cachedItem.timeoutId) {
         clearTimeout(cachedItem.timeoutId);
     }
 
-    var timeoutId = setTimeout(function () {
+    const timeoutId = setTimeout(() => {
 
-        self.drop(key, function () { });
+        this.drop(key, () => { });
     }, ttl);
 
     envelope.timeoutId = timeoutId;
@@ -141,9 +141,8 @@ internals.Connection.prototype.drop = function (key, callback) {
         return callback(new Error('Connection not started'));
     }
 
-    var segment = this.cache[key.segment];
+    const segment = this.cache[key.segment];
     if (segment) {
-        var item = segment[key.id];
         delete segment[key.id];
     }
 

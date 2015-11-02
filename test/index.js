@@ -1,40 +1,42 @@
+'use strict';
+
 // Load modules
 
-var Catbox = require('..');
-var Code = require('code');
-var Lab = require('lab');
-var Import = require('./import');
+const Catbox = require('..');
+const Code = require('code');
+const Lab = require('lab');
+const Import = require('./import');
 
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.experiment;
-var it = lab.test;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.experiment;
+const it = lab.test;
+const expect = Code.expect;
 
 
-describe('Catbox', function () {
+describe('Catbox', () => {
 
-    it('creates a new connection', function (done) {
+    it('creates a new connection', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
             expect(client.isReady()).to.equal(true);
             done();
         });
     });
 
-    it('closes the connection', function (done) {
+    it('closes the connection', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
             expect(client.isReady()).to.equal(true);
             client.stop();
@@ -43,16 +45,16 @@ describe('Catbox', function () {
         });
     });
 
-    it('gets an item after setting it', function (done) {
+    it('gets an item after setting it', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, '123', 500, function (err) {
+            const key = { id: 'x', segment: 'test' };
+            client.set(key, '123', 500, (err) => {
 
                 expect(err).to.not.exist();
-                client.get(key, function (err, result) {
+                client.get(key, (err, result) => {
 
                     expect(err).to.equal(null);
                     expect(result.item).to.equal('123');
@@ -62,15 +64,15 @@ describe('Catbox', function () {
         });
     });
 
-    it('fails setting an item circular references', function (done) {
+    it('fails setting an item circular references', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            var key = { id: 'x', segment: 'test' };
-            var value = { a: 1 };
+            const key = { id: 'x', segment: 'test' };
+            const value = { a: 1 };
             value.b = value;
-            client.set(key, value, 10, function (err) {
+            client.set(key, value, 10, (err) => {
 
                 expect(err.message).to.equal('Converting circular structure to JSON');
                 done();
@@ -78,13 +80,13 @@ describe('Catbox', function () {
         });
     });
 
-    it('ignored starting a connection twice on same event', function (done) {
+    it('ignored starting a connection twice on same event', (done) => {
 
-        var client = new Catbox.Client(Import);
-        var x = 2;
-        var start = function () {
+        const client = new Catbox.Client(Import);
+        let x = 2;
+        const start = function () {
 
-            client.start(function (err) {
+            client.start((err) => {
 
                 expect(client.isReady()).to.equal(true);
                 --x;
@@ -98,15 +100,15 @@ describe('Catbox', function () {
         start();
     });
 
-    it('ignored starting a connection twice chained', function (done) {
+    it('ignored starting a connection twice chained', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
             expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
 
-            client.start(function (err) {
+            client.start((err) => {
 
                 expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
@@ -115,12 +117,12 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns not found on get when using null key', function (done) {
+    it('returns not found on get when using null key', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            client.get(null, function (err, result) {
+            client.get(null, (err, result) => {
 
                 expect(err).to.equal(null);
                 expect(result).to.equal(null);
@@ -129,18 +131,18 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns not found on get when item expired', function (done) {
+    it('returns not found on get when item expired', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, 'x', 1, function (err) {
+            const key = { id: 'x', segment: 'test' };
+            client.set(key, 'x', 1, (err) => {
 
                 expect(err).to.not.exist();
-                setTimeout(function () {
+                setTimeout(() => {
 
-                    client.get(key, function (err, result) {
+                    client.get(key, (err, result) => {
 
                         expect(err).to.equal(null);
                         expect(result).to.equal(null);
@@ -151,25 +153,12 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns error on set when using null key', function (done) {
+    it('returns error on set when using null key', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            client.set(null, {}, 1000, function (err) {
-
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
-    });
-
-    it('returns error on get when using invalid key', function (done) {
-
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
-
-            client.get({}, function (err) {
+            client.set(null, {}, 1000, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -177,25 +166,12 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns error on drop when using invalid key', function (done) {
+    it('returns error on get when using invalid key', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            client.drop({}, function (err) {
-
-                expect(err instanceof Error).to.equal(true);
-                done();
-            });
-        });
-    });
-
-    it('returns error on set when using invalid key', function (done) {
-
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
-
-            client.set({}, {}, 1000, function (err) {
+            client.get({}, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -203,13 +179,39 @@ describe('Catbox', function () {
         });
     });
 
-    it('ignores set when using non-positive ttl value', function (done) {
+    it('returns error on drop when using invalid key', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            var key = { id: 'x', segment: 'test' };
-            client.set(key, 'y', 0, function (err) {
+            client.drop({}, (err) => {
+
+                expect(err instanceof Error).to.equal(true);
+                done();
+            });
+        });
+    });
+
+    it('returns error on set when using invalid key', (done) => {
+
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
+
+            client.set({}, {}, 1000, (err) => {
+
+                expect(err instanceof Error).to.equal(true);
+                done();
+            });
+        });
+    });
+
+    it('ignores set when using non-positive ttl value', (done) => {
+
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
+
+            const key = { id: 'x', segment: 'test' };
+            client.set(key, 'y', 0, (err) => {
 
                 expect(err).to.not.exist();
                 done();
@@ -217,12 +219,12 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns error on drop when using null key', function (done) {
+    it('returns error on drop when using null key', (done) => {
 
-        var client = new Catbox.Client(Import);
-        client.start(function (err) {
+        const client = new Catbox.Client(Import);
+        client.start((err) => {
 
-            client.drop(null, function (err) {
+            client.drop(null, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
                 done();
@@ -230,12 +232,12 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns error on get when stopped', function (done) {
+    it('returns error on get when stopped', (done) => {
 
-        var client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Import);
         client.stop();
-        var key = { id: 'x', segment: 'test' };
-        client.connection.get(key, function (err, result) {
+        const key = { id: 'x', segment: 'test' };
+        client.connection.get(key, (err, result) => {
 
             expect(err).to.exist();
             expect(result).to.not.exist();
@@ -243,63 +245,63 @@ describe('Catbox', function () {
         });
     });
 
-    it('returns error on set when stopped', function (done) {
+    it('returns error on set when stopped', (done) => {
 
-        var client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Import);
         client.stop();
-        var key = { id: 'x', segment: 'test' };
-        client.connection.set(key, 'y', 1, function (err) {
+        const key = { id: 'x', segment: 'test' };
+        client.connection.set(key, 'y', 1, (err) => {
 
             expect(err).to.exist();
             done();
         });
     });
 
-    it('returns error on drop when stopped', function (done) {
+    it('returns error on drop when stopped', (done) => {
 
-        var client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Import);
         client.stop();
-        var key = { id: 'x', segment: 'test' };
-        client.connection.drop(key, function (err) {
+        const key = { id: 'x', segment: 'test' };
+        client.connection.drop(key, (err) => {
 
             expect(err).to.exist();
             done();
         });
     });
 
-    it('returns error on missing segment name', function (done) {
+    it('returns error on missing segment name', (done) => {
 
-        var config = {
+        const config = {
             expiresIn: 50000
         };
-        var fn = function () {
+        const fn = function () {
 
-            var client = new Catbox.Client(Import);
-            var cache = new Catbox.Policy(config, client, '');
+            const client = new Catbox.Client(Import);
+            new Catbox.Policy(config, client, '');
         };
         expect(fn).to.throw(Error);
         done();
     });
 
-    it('returns error on bad segment name', function (done) {
+    it('returns error on bad segment name', (done) => {
 
-        var config = {
+        const config = {
             expiresIn: 50000
         };
-        var fn = function () {
+        const fn = function () {
 
-            var client = new Catbox.Client(Import);
-            var cache = new Catbox.Policy(config, client, 'a\0b');
+            const client = new Catbox.Client(Import);
+            new Catbox.Policy(config, client, 'a\0b');
         };
         expect(fn).to.throw(Error);
         done();
     });
 
-    it('returns error when cache item dropped while stopped', function (done) {
+    it('returns error when cache item dropped while stopped', (done) => {
 
-        var client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Import);
         client.stop();
-        client.drop('a', function (err) {
+        client.drop('a', (err) => {
 
             expect(err).to.exist();
             done();

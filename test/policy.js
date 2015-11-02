@@ -1,40 +1,42 @@
+'use strict';
+
 // Load modules
 
-var Catbox = require('..');
-var Code = require('code');
-var Lab = require('lab');
-var Import = require('./import');
-var Domain = require('domain');
+const Catbox = require('..');
+const Code = require('code');
+const Lab = require('lab');
+const Import = require('./import');
+const Domain = require('domain');
 
 // Declare internals
 
-var internals = {};
+const internals = {};
 
 
 // Test shortcuts
 
-var lab = exports.lab = Lab.script();
-var describe = lab.experiment;
-var it = lab.test;
-var expect = Code.expect;
+const lab = exports.lab = Lab.script();
+const describe = lab.experiment;
+const it = lab.test;
+const expect = Code.expect;
 
 
-describe('Policy', function () {
+describe('Policy', () => {
 
-    it('returns cached item', function (done) {
+    it('returns cached item', (done) => {
 
-        var client = new Catbox.Client(Import);
-        var policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+        const client = new Catbox.Client(Import);
+        const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
-        client.start(function (err) {
+        client.start((err) => {
 
             expect(err).to.not.exist();
 
-            policy.set('x', '123', null, function (err) {
+            policy.set('x', '123', null, (err) => {
 
                 expect(err).to.not.exist();
 
-                policy.get('x', function (err, value, cached, report) {
+                policy.get('x', (err, value, cached, report) => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
@@ -45,20 +47,20 @@ describe('Policy', function () {
         });
     });
 
-    it('works with special property names', function (done) {
+    it('works with special property names', (done) => {
 
-        var client = new Catbox.Client(Import);
-        var policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+        const client = new Catbox.Client(Import);
+        const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
-        client.start(function (err) {
+        client.start((err) => {
 
             expect(err).to.not.exist();
 
-            policy.set('__proto__', '123', null, function (err) {
+            policy.set('__proto__', '123', null, (err) => {
 
                 expect(err).to.not.exist();
 
-                policy.get('__proto__', function (err, value, cached, report) {
+                policy.get('__proto__', (err, value, cached, report) => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
@@ -69,20 +71,20 @@ describe('Policy', function () {
         });
     });
 
-    it('finds nothing when using empty policy rules', function (done) {
+    it('finds nothing when using empty policy rules', (done) => {
 
-        var client = new Catbox.Client(Import);
-        var policy = new Catbox.Policy({}, client, 'test');
+        const client = new Catbox.Client(Import);
+        const policy = new Catbox.Policy({}, client, 'test');
 
-        client.start(function (err) {
+        client.start((err) => {
 
             expect(err).to.not.exist();
 
-            policy.set('x', '123', null, function (err) {
+            policy.set('x', '123', null, (err) => {
 
                 expect(err).to.not.exist();
 
-                policy.get('x', function (err, value, cached, report) {
+                policy.get('x', (err, value, cached, report) => {
 
                     expect(err).to.not.exist();
                     expect(value).to.not.exist();
@@ -93,20 +95,20 @@ describe('Policy', function () {
         });
     });
 
-    it('returns cached item with no global rules and manual ttl', function (done) {
+    it('returns cached item with no global rules and manual ttl', (done) => {
 
-        var client = new Catbox.Client(Import);
-        var policy = new Catbox.Policy({}, client, 'test');
+        const client = new Catbox.Client(Import);
+        const policy = new Catbox.Policy({}, client, 'test');
 
-        client.start(function (err) {
+        client.start((err) => {
 
             expect(err).to.not.exist();
 
-            policy.set('x', '123', 1000, function (err) {
+            policy.set('x', '123', 1000, (err) => {
 
                 expect(err).to.not.exist();
 
-                policy.get('x', function (err, value, cached, report) {
+                policy.get('x', (err, value, cached, report) => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
@@ -117,38 +119,36 @@ describe('Policy', function () {
         });
     });
 
-    it('throws an error when segment is missing', function (done) {
+    it('throws an error when segment is missing', (done) => {
 
-        var config = {
+        const config = {
             expiresIn: 50000
         };
 
-        var fn = function () {
+        expect(() => {
 
-            var client = new Catbox.Client(Import);
-            var policy = new Catbox.Policy(config, client);
-        };
-
-        expect(fn).to.throw('Invalid segment name: undefined (Empty string)');
+            const client = new Catbox.Client(Import);
+            new Catbox.Policy(config, client);
+        }).to.throw('Invalid segment name: undefined (Empty string)');
         done();
     });
 
-    describe('get()', function () {
+    describe('get()', () => {
 
-        it('returns cached item using object id', function (done) {
+        it('returns cached item using object id', (done) => {
 
-            var client = new Catbox.Client(Import);
-            var policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+            const client = new Catbox.Client(Import);
+            const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
-            client.start(function (err) {
+            client.start((err) => {
 
                 expect(err).to.not.exist();
 
-                policy.set({ id: 'x' }, '123', null, function (err) {
+                policy.set({ id: 'x' }, '123', null, (err) => {
 
                     expect(err).to.not.exist();
 
-                    policy.get({ id: 'x' }, function (err, value, cached, report) {
+                    policy.get({ id: 'x' }, (err, value, cached, report) => {
 
                         expect(err).to.not.exist();
                         expect(value).to.equal('123');
@@ -159,21 +159,21 @@ describe('Policy', function () {
             });
         });
 
-        it('returns error on null id', function (done) {
+        it('returns error on null id', (done) => {
 
-            var client = new Catbox.Client(Import);
-            var policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+            const client = new Catbox.Client(Import);
+            const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
-            client.start(function (err) {
+            client.start((err) => {
 
                 expect(err).to.not.exist();
 
-                policy.set(null, '123', null, function (err) {
+                policy.set(null, '123', null, (err) => {
 
                     expect(err).to.exist();
                     expect(err.message).to.equal('Invalid key');
 
-                    policy.get(null, function (err, value, cached, report) {
+                    policy.get(null, (err, value, cached, report) => {
 
                         expect(err).to.exist();
                         expect(err.message).to.equal('Invalid key');
@@ -184,9 +184,9 @@ describe('Policy', function () {
             });
         });
 
-        it('passes an error to the callback when an error occurs getting the item', function (done) {
+        it('passes an error to the callback when an error occurs getting the item', (done) => {
 
-            var engine = {
+            const engine = {
                 start: function (callback) {
 
                     callback();
@@ -204,14 +204,14 @@ describe('Policy', function () {
                     return null;
                 }
             };
-            var policyConfig = {
+            const policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(engine);
-            var policy = new Catbox.Policy(policyConfig, client, 'test');
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.get('test1', function (err, value, cached, report) {
+            policy.get('test1', (err, value, cached, report) => {
 
                 expect(err).to.be.instanceOf(Error);
                 expect(value).to.not.exist();
@@ -220,9 +220,9 @@ describe('Policy', function () {
             });
         });
 
-        it('returns the cached result when no error occurs', function (done) {
+        it('returns the cached result when no error occurs', (done) => {
 
-            var engine = {
+            const engine = {
                 start: function (callback) {
 
                     callback();
@@ -243,14 +243,14 @@ describe('Policy', function () {
                     return null;
                 }
             };
-            var policyConfig = {
+            const policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(engine);
-            var policy = new Catbox.Policy(policyConfig, client, 'test');
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.get('test1', function (err, value, cached, report) {
+            policy.get('test1', (err, value, cached, report) => {
 
                 expect(value).to.equal('item');
                 expect(cached.isStale).to.be.false();
@@ -259,11 +259,11 @@ describe('Policy', function () {
             });
         });
 
-        it('returns null on get when no cache client provided', function (done) {
+        it('returns null on get when no cache client provided', (done) => {
 
-            var policy = new Catbox.Policy({ expiresIn: 1 });
+            const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            policy.get('x', function (err, value, cached, report) {
+            policy.get('x', (err, value, cached, report) => {
 
                 expect(err).to.not.exist();
                 expect(value).to.not.exist();
@@ -272,15 +272,15 @@ describe('Policy', function () {
             });
         });
 
-        it('it only binds if domain exists', function (done) {
+        it('it only binds if domain exists', (done) => {
 
-            var policy = new Catbox.Policy({
+            const policy = new Catbox.Policy({
                 expiresIn: 1000,
                 staleIn: 100,
                 generateTimeout: 10,
                 generateFunc: function (id, next) {
 
-                    setTimeout(function () {
+                    setTimeout(() => {
 
                         return next(null, true);
                     }, 20);
@@ -288,10 +288,10 @@ describe('Policy', function () {
                 staleTimeout: 50
             }, new Catbox.Client(Import), 'test');
 
-            var tests = 0;
-            var completed = 0;
+            let tests = 0;
+            let completed = 0;
 
-            var checkAndDone = process.domain.bind(function (expected, actual) {    // Bind back to the lab domain
+            const checkAndDone = process.domain.bind((expected, actual) => {    // Bind back to the lab domain
 
                 expect(actual).to.not.exist();
                 expect(expected).to.not.exist();
@@ -302,15 +302,15 @@ describe('Policy', function () {
                 }
             });
 
-            var test = function (domain) {
+            const test = function (domain) {
 
                 tests++;
 
-                Domain.create().run(function () {
+                Domain.create().run(() => {
 
                     process.domain = domain;
 
-                    policy.get('', function (err, result) {
+                    policy.get('', (err, result) => {
 
                         completed++;
                         checkAndDone(domain, process.domain);
@@ -322,15 +322,15 @@ describe('Policy', function () {
             test(null);
         });
 
-        it('it returns with the correct process domain', function (done) {
+        it('it returns with the correct process domain', (done) => {
 
-            var policy = new Catbox.Policy({
+            const policy = new Catbox.Policy({
                 expiresIn: 1000,
                 staleIn: 100,
                 generateTimeout: 10,
                 generateFunc: function (id, next) {
 
-                    setTimeout(function () {
+                    setTimeout(() => {
 
                         return next(null, true);
                     }, 20);
@@ -338,10 +338,10 @@ describe('Policy', function () {
                 staleTimeout: 50
             }, new Catbox.Client(Import), 'test');
 
-            var tests = 0;
-            var completed = 0;
+            let tests = 0;
+            let completed = 0;
 
-            var checkAndDone = process.domain.bind(function (expected, actual) {
+            const checkAndDone = process.domain.bind((expected, actual) => {
 
                 expect(actual).to.equal(expected);
 
@@ -350,15 +350,15 @@ describe('Policy', function () {
                 }
             });
 
-            var test = function (id) {
+            const test = function (id) {
 
                 tests++;
 
-                Domain.create().run(function () {
+                Domain.create().run(() => {
 
                     process.domain.name = id;
 
-                    policy.get('', function (err, result) {
+                    policy.get('', (err, result) => {
 
                         completed++;
                         checkAndDone(id, process.domain.name);
@@ -366,16 +366,16 @@ describe('Policy', function () {
                 });
             };
 
-            for (var i = 0; i < 10; ++i) {
+            for (let i = 0; i < 10; ++i) {
                 test(i);
             }
         });
 
-        describe('generate', function () {
+        describe('generate', () => {
 
-            it('returns falsey items', function (done) {
+            it('returns falsey items', (done) => {
 
-                var engine = {
+                const engine = {
                     start: function (callback) {
 
                         callback();
@@ -396,7 +396,7 @@ describe('Policy', function () {
                         return null;
                     }
                 };
-                var policyConfig = {
+                const policyConfig = {
                     expiresIn: 50000,
                     generateTimeout: 10,
                     generateFunc: function (id, next) {
@@ -405,10 +405,10 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(engine);
-                var policy = new Catbox.Policy(policyConfig, client, 'test');
+                const client = new Catbox.Client(engine);
+                const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-                policy.get('test1', function (err, value, cached, report) {
+                policy.get('test1', (err, value, cached, report) => {
 
                     expect(err).to.equal(null);
                     expect(value).to.equal(false);
@@ -416,9 +416,9 @@ describe('Policy', function () {
                 });
             });
 
-            it('bypasses cache when not configured', function (done) {
+            it('bypasses cache when not configured', (done) => {
 
-                var policy = new Catbox.Policy({
+                const policy = new Catbox.Policy({
                     expiresIn: 1,
                     generateTimeout: 10,
                     generateFunc: function (id, next) {
@@ -427,7 +427,7 @@ describe('Policy', function () {
                     }
                 });
 
-                policy.get('test', function (err, value, cached, report) {
+                policy.get('test', (err, value, cached, report) => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('new result');
@@ -436,9 +436,10 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns the processed cached item', function (done) {
+            it('returns the processed cached item', (done) => {
 
-                var rule = {
+                let gen = 0;
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -449,14 +450,12 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value, cached, report) {
+                    policy.get('test', (err, value, cached, report) => {
 
                         expect(value.gen).to.equal(1);
                         done();
@@ -464,9 +463,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('switches rules after construction', function (done) {
+            it('switches rules after construction', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -477,19 +478,17 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy({ expiresIn: 100 }, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy({ expiresIn: 100 }, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1).to.not.exist();
                         policy.rules(rule);
 
-                        policy.get('test', function (err, value2, cached2, report2) {
+                        policy.get('test', (err, value2, cached2, report2) => {
 
                             expect(value2.gen).to.equal(1);
                             expect(policy.stats).to.deep.equal({ sets: 1, gets: 2, hits: 0, stales: 0, generates: 1, errors: 0 });
@@ -499,9 +498,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns the processed cached item after cache error', function (done) {
+            it('returns the processed cached item after cache error', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -512,18 +513,16 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
                 client.get = function (key, callback) {
 
                     callback(new Error('bad client'));
                 };
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value, cached, report) {
+                    policy.get('test', (err, value, cached, report) => {
 
                         expect(value.gen).to.equal(1);
                         done();
@@ -531,9 +530,9 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns an error when get fails and generateOnReadError is false', function (done) {
+            it('returns an error when get fails and generateOnReadError is false', (done) => {
 
-                var rule = {
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -545,17 +544,17 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
                 client.get = function (key, callback) {
 
                     callback(new Error('bad client'));
                 };
 
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                client.start(function () {
+                client.start(() => {
 
-                    policy.get('test', function (err, value, cached, report) {
+                    policy.get('test', (err, value, cached, report) => {
 
                         expect(err.message).to.equal('bad client');
                         expect(value).to.not.exist();
@@ -564,35 +563,35 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns the processed cached item using manual ttl', function (done) {
+            it('returns the processed cached item using manual ttl', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 26,
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 20,
                     generateFunc: function (id, next) {
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             return next(null, { gen: ++gen }, 100);
                         }, 6);
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);        // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(value2.gen).to.equal(1);        // Stale
                                 done();
@@ -602,40 +601,40 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then fresh object based on timing', function (done) {
+            it('returns stale object then fresh object based on timing', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 20,
                     generateFunc: function (id, next) {
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             return next(null, { gen: ++gen }, 100);
                         }, 6);
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);        // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(value2.gen).to.equal(1);        // Stale
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         done();
@@ -647,47 +646,47 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then fresh object based on timing using staleIn function', function (done) {
+            it('returns stale object then fresh object based on timing using staleIn function', (done) => {
 
-                var staleIn = function (stored, ttl) {
+                const staleIn = function (stored, ttl) {
 
-                    var expiresIn = (Date.now() - stored) + ttl;
+                    const expiresIn = (Date.now() - stored) + ttl;
                     expect(expiresIn).to.be.about(100, 5);
                     return expiresIn - 80;
                 };
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: staleIn,
                     staleTimeout: 5,
                     generateTimeout: 20,
                     generateFunc: function (id, next) {
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             return next(null, { gen: ++gen }, 100);
                         }, 6);
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);        // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(value2.gen).to.equal(1);        // Stale
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         done();
@@ -699,9 +698,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then invalidate cache on error', function (done) {
+            it('returns stale object then invalidate cache on error', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -710,7 +711,7 @@ describe('Policy', function () {
 
                         ++gen;
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             if (gen !== 2) {
                                 return next(null, { gen: gen });
@@ -721,26 +722,24 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(value3.gen).to.equal(3);     // Fresh
                                         done();
@@ -752,9 +751,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then invalidate cache on error when dropOnError is true', function (done) {
+            it('returns stale object then invalidate cache on error when dropOnError is true', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -764,7 +765,7 @@ describe('Policy', function () {
 
                         ++gen;
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             if (gen === 1) {
                                 return next(null, { gen: gen });
@@ -775,26 +776,24 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(err).to.be.instanceof(Error);     // Stale
                                         done();
@@ -806,9 +805,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then invalidate cache on error when dropOnError is not set', function (done) {
+            it('returns stale object then invalidate cache on error when dropOnError is not set', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -817,7 +818,7 @@ describe('Policy', function () {
 
                         ++gen;
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             if (gen === 1) {
                                 return next(null, { gen: gen });
@@ -828,26 +829,24 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(err).to.be.instanceof(Error);     // Stale
                                         done();
@@ -859,9 +858,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then does not invalidate cache on timeout if dropOnError is false', function (done) {
+            it('returns stale object then does not invalidate cache on timeout if dropOnError is false', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -871,7 +872,7 @@ describe('Policy', function () {
 
                         ++gen;
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             if (gen === 1) {
                                 return next(null, { gen: gen });
@@ -882,26 +883,24 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(value3.gen).to.equal(1);     // Stale
                                         done();
@@ -913,9 +912,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then does not invalidate cache on error if dropOnError is false', function (done) {
+            it('returns stale object then does not invalidate cache on error if dropOnError is false', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -933,25 +934,23 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1) {
+                    policy.get('test', (err, value1, cached1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2) {
+                            policy.get('test', (err, value2, cached2) => {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
 
                                 expect(value2.gen).to.equal(1);     // Stale
 
-                                policy.get('test', function (err, value3, cached3) {
+                                policy.get('test', (err, value3, cached3) => {
 
                                     expect(value3.gen).to.equal(1);     // Stale
                                     done();
@@ -962,9 +961,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns stale object then invalidates cache on error if dropOnError is true', function (done) {
+            it('returns stale object then invalidates cache on error if dropOnError is true', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -982,25 +983,23 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1) {
+                    policy.get('test', (err, value1, cached1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2) {
+                            policy.get('test', (err, value2, cached2) => {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
                                 expect(err).to.be.instanceOf(Error);
                                 expect(value2).to.be.undefined();     // Stale
 
-                                policy.get('test', function (err, value3, cached3) {
+                                policy.get('test', (err, value3, cached3) => {
 
                                     expect(err).to.be.instanceOf(Error);
                                     expect(value3).to.be.undefined();      // Stale
@@ -1013,9 +1012,11 @@ describe('Policy', function () {
             });
 
 
-            it('returns stale object then invalidates cache on error if dropOnError is not defined', function (done) {
+            it('returns stale object then invalidates cache on error if dropOnError is not defined', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -1032,25 +1033,23 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1) {
+                    policy.get('test', (err, value1, cached1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2) {
+                            policy.get('test', (err, value2, cached2) => {
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
                                 expect(err).to.be.instanceOf(Error);
                                 expect(value2).to.be.undefined();     // Stale
 
-                                policy.get('test', function (err, value3, cached3) {
+                                policy.get('test', (err, value3, cached3) => {
 
                                     expect(err).to.be.instanceOf(Error);
                                     expect(value3).to.be.undefined();      // Stale
@@ -1063,9 +1062,11 @@ describe('Policy', function () {
             });
 
 
-            it('returns fresh objects', function (done) {
+            it('returns fresh objects', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 10,
@@ -1076,25 +1077,23 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(value2.gen).to.equal(2);     // Fresh
 
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(value3.gen).to.equal(2);     // Fresh
                                         done();
@@ -1106,9 +1105,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns error when generated within stale timeout', function (done) {
+            it('returns error when generated within stale timeout', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 30,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -1124,19 +1125,17 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 // Generates a new one which will produce Error
 
@@ -1148,9 +1147,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns new object when stale has less than staleTimeout time left', function (done) {
+            it('returns new object when stale has less than staleTimeout time left', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 31,
                     staleIn: 15,
                     staleTimeout: 15,
@@ -1161,24 +1162,22 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);        // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(value2.gen).to.equal(1);        // Fresh
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         expect(policy.stats).to.deep.equal({ sets: 2, gets: 3, hits: 2, stales: 1, generates: 2, errors: 0 });
@@ -1191,9 +1190,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('invalidates cache on error without stale', function (done) {
+            it('invalidates cache on error without stale', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 20,
                     staleIn: 5,
                     staleTimeout: 5,
@@ -1210,23 +1211,21 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(value1.gen).to.equal(1);     // Fresh
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(err).to.exist();
 
-                                policy._get('test', function (err, value3) {
+                                policy._get('test', (err, value3) => {
 
                                     expect(value3).to.equal(null);
                                     done();
@@ -1237,38 +1236,38 @@ describe('Policy', function () {
                 });
             });
 
-            it('returns timeout error when generate takes too long', function (done) {
+            it('returns timeout error when generate takes too long', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 10,
                     generateTimeout: 5,
                     generateFunc: function (id, next) {
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             return next(null, { gen: ++gen });
                         }, 6);
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                var gen = 0;
+                client.start(() => {
 
-                client.start(function () {
-
-                    policy.get('test', function (err, value1, cached1, report1) {
+                    policy.get('test', (err, value1, cached1, report1) => {
 
                         expect(err.output.statusCode).to.equal(503);
-                        setTimeout(function () {
+                        setTimeout(() => {
 
-                            policy.get('test', function (err, value2, cached2, report2) {
+                            policy.get('test', (err, value2, cached2, report2) => {
 
                                 expect(value2.gen).to.equal(1);
-                                setTimeout(function () {
+                                setTimeout(() => {
 
-                                    policy.get('test', function (err, value3, cached3, report3) {
+                                    policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(err.output.statusCode).to.equal(503);
                                         done();
@@ -1280,26 +1279,26 @@ describe('Policy', function () {
                 });
             });
 
-            it('does not block the queue when generate fails to call back', function (done) {
+            it('does not block the queue when generate fails to call back', (done) => {
 
-                var rule = {
+                const rule = {
                     expiresIn: 50000,
                     generateTimeout: 5,
                     generateFunc: function () { }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                client.start(function () {
+                client.start(() => {
 
-                    var id = 'test';
-                    policy.get(id, function (err, value1, cached1, report1) {
+                    const id = 'test';
+                    policy.get(id, (err, value1, cached1, report1) => {
 
                         expect(err).to.be.an.instanceOf(Error);
                         expect(value1).to.not.exist();
 
-                        policy.get(id, function (err, value2, cached2, report2) {
+                        policy.get(id, (err, value2, cached2, report2) => {
 
                             expect(err).to.be.an.instanceOf(Error);
                             expect(value2).to.not.exist();
@@ -1309,32 +1308,32 @@ describe('Policy', function () {
                 });
             });
 
-            it('blocks the queue when generate fails to call back', function (done) {
+            it('blocks the queue when generate fails to call back', (done) => {
 
-                var rule = {
+                const rule = {
                     expiresIn: 50000,
                     generateTimeout: false,
                     generateFunc: function () { }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                client.start(function () {
+                client.start(() => {
 
-                    var id = 'test';
-                    var called = 0;
-                    policy.get(id, function (err, value1, cached1, report1) {
-
-                        ++called;
-                    });
-
-                    policy.get(id, function (err, value1, cached1, report1) {
+                    const id = 'test';
+                    let called = 0;
+                    policy.get(id, (err, value1, cached1, report1) => {
 
                         ++called;
                     });
 
-                    setTimeout(function () {
+                    policy.get(id, (err, value1, cached1, report1) => {
+
+                        ++called;
+                    });
+
+                    setTimeout(() => {
 
                         expect(called).to.equal(0);
                         done();
@@ -1342,10 +1341,10 @@ describe('Policy', function () {
                 });
             });
 
-            it('queues requests while pending', function (done) {
+            it('queues requests while pending', (done) => {
 
-                var gen = 0;
-                var rule = {
+                let gen = 0;
+                const rule = {
                     expiresIn: 100,
                     generateTimeout: 10,
                     generateFunc: function (id, next) {
@@ -1354,13 +1353,13 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                client.start(function () {
+                client.start(() => {
 
-                    var result = null;
-                    var compare = function (err, value, cached, report) {
+                    let result = null;
+                    const compare = function (err, value, cached, report) {
 
                         if (!result) {
                             result = value;
@@ -1376,10 +1375,9 @@ describe('Policy', function () {
                 });
             });
 
-            it('catches errors thrown in generateFunc and passes to all pending requests', function (done) {
+            it('catches errors thrown in generateFunc and passes to all pending requests', (done) => {
 
-                var gen = 0;
-                var rule = {
+                const rule = {
                     expiresIn: 100,
                     generateTimeout: 10,
                     generateFunc: function (id, next) {
@@ -1388,13 +1386,13 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                client.start(function () {
+                client.start(() => {
 
-                    var result = null;
-                    var compare = function (err, value, cached, report) {
+                    let result = null;
+                    const compare = function (err, value, cached, report) {
 
                         if (!result) {
                             result = err;
@@ -1411,48 +1409,48 @@ describe('Policy', function () {
                 });
             });
 
-            it('does not return stale value from previous request timeout left behind', { parallel: false }, function (done) {
+            it('does not return stale value from previous request timeout left behind', { parallel: false }, (done) => {
 
-                var gen = 0;
+                let gen = 0;
 
-                var rule = {
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 10,
                     generateTimeout: 20,
                     generateFunc: function (id, next) {
 
-                        setTimeout(function () {
+                        setTimeout(() => {
 
                             next(null, { gen: ++gen });
                         }, 5);
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
 
-                var orig = client.connection.get;
+                const orig = client.connection.get;
                 client.connection.get = function (key, callback) {      // Delayed get
 
-                    setTimeout(function () {
+                    setTimeout(() => {
 
                         orig.call(client.connection, key, callback);
                     }, 10);
                 };
 
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                client.start(function () {
+                client.start(() => {
 
-                    policy.get('test', function (err, value1, cached1, report1) {                   // Cache lookup takes 10 + generate 5
+                    policy.get('test', (err, value1, cached1, report1) => {                   // Cache lookup takes 10 + generate 5
 
                         expect(value1.gen).to.equal(1);                                             // Fresh
-                        setTimeout(function () {                                                    // Wait for stale
+                        setTimeout(() => {                                                    // Wait for stale
 
-                            policy.get('test', function (err, value2, cached2, report2) {           // Cache lookup takes 10, generate comes back after 5
+                            policy.get('test', (err, value2, cached2, report2) => {           // Cache lookup takes 10, generate comes back after 5
 
                                 expect(value2.gen).to.equal(2);                                     // Fresh
-                                policy.get('test', function (err, value3, cached3, report3) {       // Cache lookup takes 10
+                                policy.get('test', (err, value3, cached3, report3) => {       // Cache lookup takes 10
 
                                     expect(value3.gen).to.equal(2);                                 // Cached (10 left to stale)
 
@@ -1465,9 +1463,11 @@ describe('Policy', function () {
                 });
             });
 
-            it('passes set error when generateIgnoreWriteError is false', function (done) {
+            it('passes set error when generateIgnoreWriteError is false', (done) => {
 
-                var rule = {
+                let gen = 0;
+
+                const rule = {
                     expiresIn: 100,
                     staleIn: 20,
                     staleTimeout: 5,
@@ -1479,19 +1479,17 @@ describe('Policy', function () {
                     }
                 };
 
-                var client = new Catbox.Client(Import, { partition: 'test-partition' });
-                var policy = new Catbox.Policy(rule, client, 'test-segment');
-
-                var gen = 0;
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 policy.set = function (key, value, ttl, callback) {
 
                     return callback(new Error('bad cache'));
                 };
 
-                client.start(function () {
+                client.start(() => {
 
-                    policy.get('test', function (err, value, cached, report) {
+                    policy.get('test', (err, value, cached, report) => {
 
                         expect(err.message).to.equal('bad cache');
                         expect(value.gen).to.equal(1);
@@ -1502,24 +1500,24 @@ describe('Policy', function () {
         });
     });
 
-    describe('set()', function () {
+    describe('set()', () => {
 
-        it('returns null on set when no cache client provided', function (done) {
+        it('returns null on set when no cache client provided', (done) => {
 
-            var policy = new Catbox.Policy({ expiresIn: 1 });
+            const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            policy.set('x', 'y', 100, function (err) {
+            policy.set('x', 'y', 100, (err) => {
 
                 expect(err).to.not.exist();
                 done();
             });
         });
 
-        it('ignores missing callback', function (done) {
+        it('ignores missing callback', (done) => {
 
-            var policy = new Catbox.Policy({ expiresIn: 1 });
+            const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            expect(function () {
+            expect(() => {
 
                 policy.set('x', 'y', 100);
             }).to.not.throw();
@@ -1528,23 +1526,23 @@ describe('Policy', function () {
         });
     });
 
-    describe('drop()', function () {
+    describe('drop()', () => {
 
-        it('returns null on drop when no cache client provided', function (done) {
+        it('returns null on drop when no cache client provided', (done) => {
 
-            var policy = new Catbox.Policy({ expiresIn: 1 });
+            const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            policy.drop('x', function (err) {
+            policy.drop('x', (err) => {
 
                 expect(err).to.not.exist();
                 done();
             });
         });
 
-        it('calls the extension clients drop function', function (done) {
+        it('calls the extension clients drop function', (done) => {
 
-            var called = false;
-            var engine = {
+            let called = false;
+            const engine = {
                 start: function (callback) {
 
                     callback();
@@ -1564,25 +1562,25 @@ describe('Policy', function () {
                 }
             };
 
-            var policyConfig = {
+            const policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(engine);
-            var policy = new Catbox.Policy(policyConfig, client, 'test');
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.drop('test', function (err) {
+            policy.drop('test', (err) => {
 
                 expect(called).to.be.true();
                 done();
             });
         });
 
-        it('ignores missing callback', function (done) {
+        it('ignores missing callback', (done) => {
 
-            var policy = new Catbox.Policy({ expiresIn: 1 });
+            const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            expect(function () {
+            expect(() => {
 
                 policy.drop('x');
             }).to.not.throw();
@@ -1590,9 +1588,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('counts drop error', function (done) {
+        it('counts drop error', (done) => {
 
-            var engine = {
+            const engine = {
                 start: function (callback) {
 
                     callback();
@@ -1611,14 +1609,14 @@ describe('Policy', function () {
                 }
             };
 
-            var policyConfig = {
+            const policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(engine);
-            var policy = new Catbox.Policy(policyConfig, client, 'test');
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            policy.drop('test', function (err) {
+            policy.drop('test', (err) => {
 
                 expect(policy.stats.errors).to.equal(1);
                 done();
@@ -1626,11 +1624,11 @@ describe('Policy', function () {
         });
     });
 
-    describe('ttl()', function () {
+    describe('ttl()', () => {
 
-        it('returns the ttl factoring in the created time', function (done) {
+        it('returns the ttl factoring in the created time', (done) => {
 
-            var engine = {
+            const engine = {
                 start: function (callback) {
 
                     callback();
@@ -1645,145 +1643,145 @@ describe('Policy', function () {
                 }
             };
 
-            var policyConfig = {
+            const policyConfig = {
                 expiresIn: 50000
             };
 
-            var client = new Catbox.Client(engine);
-            var policy = new Catbox.Policy(policyConfig, client, 'test');
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            var result = policy.ttl(Date.now() - 10000);
+            const result = policy.ttl(Date.now() - 10000);
             expect(result).to.be.within(39999, 40001);                    // There can occasionally be a 1ms difference
             done();
         });
 
-        it('returns expired when created in the future', function (done) {
+        it('returns expired when created in the future', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '10:00'
             };
 
-            var rules = new Catbox.Policy.compile(config);
+            const rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 13:00:00').getTime();
-            var now = new Date('Sat Sep 06 2014 12:00:00').getTime();
+            const created = new Date('Sat Sep 06 2014 13:00:00').getTime();
+            const now = new Date('Sat Sep 06 2014 12:00:00').getTime();
 
-            var ttl = Catbox.Policy.ttl(rules, created, now);
+            const ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns expired on c-e-n same day', function (done) {
+        it('returns expired on c-e-n same day', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '10:00'
             };
 
-            var rules = new Catbox.Policy.compile(config);
+            const rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 9:00:00').getTime();
-            var now = new Date('Sat Sep 06 2014 11:00:00').getTime();
+            const created = new Date('Sat Sep 06 2014 9:00:00').getTime();
+            const now = new Date('Sat Sep 06 2014 11:00:00').getTime();
 
-            var ttl = Catbox.Policy.ttl(rules, created, now);
+            const ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns expired on c-(midnight)-e-n', function (done) {
+        it('returns expired on c-(midnight)-e-n', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '10:00'
             };
 
-            var rules = new Catbox.Policy.compile(config);
+            const rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 11:00:00').getTime();
-            var now = new Date('Sat Sep 07 2014 10:00:01').getTime();
+            const created = new Date('Sat Sep 06 2014 11:00:00').getTime();
+            const now = new Date('Sat Sep 07 2014 10:00:01').getTime();
 
-            var ttl = Catbox.Policy.ttl(rules, created, now);
+            const ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns ttl on c-n-e same day', function (done) {
+        it('returns ttl on c-n-e same day', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '10:00'
             };
 
-            var rules = new Catbox.Policy.compile(config);
+            const rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 9:00:00').getTime();
-            var now = new Date('Sat Sep 06 2014 9:30:00').getTime();
+            const created = new Date('Sat Sep 06 2014 9:00:00').getTime();
+            const now = new Date('Sat Sep 06 2014 9:30:00').getTime();
 
-            var ttl = Catbox.Policy.ttl(rules, created, now);
+            const ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(30 * 60 * 1000);
             done();
         });
 
-        it('returns ttl on c-(midnight)-n-e', function (done) {
+        it('returns ttl on c-(midnight)-n-e', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '10:00'
             };
 
-            var rules = new Catbox.Policy.compile(config);
+            const rules = new Catbox.Policy.compile(config);
 
-            var created = new Date('Sat Sep 06 2014 11:00:00').getTime();
-            var now = new Date('Sat Sep 07 2014 9:00:00').getTime();
+            const created = new Date('Sat Sep 06 2014 11:00:00').getTime();
+            const now = new Date('Sat Sep 07 2014 9:00:00').getTime();
 
-            var ttl = Catbox.Policy.ttl(rules, created, now);
+            const ttl = Catbox.Policy.ttl(rules, created, now);
             expect(ttl).to.equal(60 * 60 * 1000);
             done();
         });
     });
 
-    describe('compile()', function () {
+    describe('compile()', () => {
 
-        it('does not try to compile a null config', function (done) {
+        it('does not try to compile a null config', (done) => {
 
-            var rule = Catbox.policy.compile(null);
+            const rule = Catbox.policy.compile(null);
             expect(rule).to.deep.equal({});
             done();
         });
 
-        it('compiles a single rule', function (done) {
+        it('compiles a single rule', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000
             };
 
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
             expect(rule.expiresIn).to.equal(config.expiresIn);
             done();
         });
 
-        it('ignores external options', function (done) {
+        it('ignores external options', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000,
                 cache: true
             };
 
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
             expect(rule.expiresIn).to.equal(config.expiresIn);
             done();
         });
 
-        it('assigns the expiresIn when the rule is cached', function (done) {
+        it('assigns the expiresIn when the rule is cached', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000
             };
 
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
             expect(rule.expiresIn).to.equal(config.expiresIn);
             done();
         });
 
-        it('allows a rule with neither expiresAt or expiresIn', function (done) {
+        it('allows a rule with neither expiresAt or expiresIn', (done) => {
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile({ cache: 1 }, true);
             };
@@ -1792,9 +1790,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('allows a rule with expiresAt and undefined expiresIn', function (done) {
+        it('allows a rule with expiresAt and undefined expiresIn', (done) => {
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile({ expiresIn: undefined, expiresAt: '09:00' }, true);
             };
@@ -1803,14 +1801,14 @@ describe('Policy', function () {
             done();
         });
 
-        it('allows combination of expiresIn, staleTimeout and staleIn function', function (done) {
+        it('allows combination of expiresIn, staleTimeout and staleIn function', (done) => {
 
-            var staleIn = function (stored, ttl) {
+            const staleIn = function (stored, ttl) {
 
                 return 1000;
             };
 
-            var config = {
+            const config = {
                 expiresIn: 500000,
                 staleIn: staleIn,
                 staleTimeout: 500,
@@ -1818,7 +1816,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -1827,9 +1825,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error when staleIn is greater than expiresIn', function (done) {
+        it('throws an error when staleIn is greater than expiresIn', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 500000,
                 staleIn: 1000000,
                 staleTimeout: 500,
@@ -1837,7 +1835,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -1846,9 +1844,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error when staleTimeout is greater than expiresIn', function (done) {
+        it('throws an error when staleTimeout is greater than expiresIn', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 500000,
                 staleIn: 100000,
                 staleTimeout: 500000,
@@ -1856,7 +1854,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -1865,9 +1863,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error when staleTimeout is greater than expiresIn - staleIn', function (done) {
+        it('throws an error when staleTimeout is greater than expiresIn - staleIn', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 30000,
                 staleIn: 20000,
                 staleTimeout: 10000,
@@ -1875,7 +1873,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -1884,9 +1882,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error when staleTimeout is used without server mode', function (done) {
+        it('throws an error when staleTimeout is used without server mode', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 1000000,
                 staleIn: 500000,
                 staleTimeout: 500,
@@ -1894,18 +1892,18 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
-                var policy = new Catbox.Policy(config);
+                new Catbox.Policy(config);
             };
 
             expect(fn).to.throw('Cannot use stale options without server-side caching');
             done();
         });
 
-        it('returns rule when staleIn is less than expiresIn', function (done) {
+        it('returns rule when staleIn is less than expiresIn', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 1000000,
                 staleIn: 500000,
                 staleTimeout: 500,
@@ -1913,15 +1911,15 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var rule = Catbox.policy.compile(config, true);
+            const rule = Catbox.policy.compile(config, true);
             expect(rule.staleIn).to.equal(500 * 1000);
             expect(rule.expiresIn).to.equal(1000 * 1000);
             done();
         });
 
-        it('returns rule when staleIn is less than 24 hours and using expiresAt', function (done) {
+        it('returns rule when staleIn is less than 24 hours and using expiresAt', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '03:00',
                 staleIn: 5000000,
                 staleTimeout: 500,
@@ -1929,14 +1927,14 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var rule = Catbox.policy.compile(config, true);
+            const rule = Catbox.policy.compile(config, true);
             expect(rule.staleIn).to.equal(5000 * 1000);
             done();
         });
 
-        it('does not throw an error if has both staleTimeout and staleIn', function (done) {
+        it('does not throw an error if has both staleTimeout and staleIn', (done) => {
 
-            var config = {
+            const config = {
                 staleIn: 30000,
                 staleTimeout: 300,
                 expiresIn: 60000,
@@ -1944,7 +1942,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -1952,9 +1950,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error if trying to use stale caching on the client', function (done) {
+        it('throws an error if trying to use stale caching on the client', (done) => {
 
-            var config = {
+            const config = {
                 staleIn: 30000,
                 expiresIn: 60000,
                 staleTimeout: 300,
@@ -1962,7 +1960,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, false);
             };
@@ -1971,9 +1969,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('converts the stale time to ms', function (done) {
+        it('converts the stale time to ms', (done) => {
 
-            var config = {
+            const config = {
                 staleIn: 30000,
                 expiresIn: 60000,
                 staleTimeout: 300,
@@ -1981,15 +1979,15 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var rule = Catbox.policy.compile(config, true);
+            const rule = Catbox.policy.compile(config, true);
 
             expect(rule.staleIn).to.equal(config.staleIn);
             done();
         });
 
-        it('throws an error if staleTimeout is greater than expiresIn', function (done) {
+        it('throws an error if staleTimeout is greater than expiresIn', (done) => {
 
-            var config = {
+            const config = {
                 staleIn: 2000,
                 expiresIn: 10000,
                 staleTimeout: 30000,
@@ -1997,7 +1995,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -2006,9 +2004,9 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error if staleIn is greater than expiresIn', function (done) {
+        it('throws an error if staleIn is greater than expiresIn', (done) => {
 
-            var config = {
+            const config = {
                 staleIn: 1000000,
                 expiresIn: 60000,
                 staleTimeout: 30,
@@ -2016,7 +2014,7 @@ describe('Policy', function () {
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, false);
             };
@@ -2025,15 +2023,15 @@ describe('Policy', function () {
             done();
         });
 
-        it('allows a rule with generateFunc and generateTimeout', function (done) {
+        it('allows a rule with generateFunc and generateTimeout', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000,
                 generateTimeout: 10,
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -2042,14 +2040,14 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error with generateFunc but no generateTimeout', function (done) {
+        it('throws an error with generateFunc but no generateTimeout', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000,
                 generateFunc: function () { }
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -2058,14 +2056,14 @@ describe('Policy', function () {
             done();
         });
 
-        it('throws an error with generateTimeout but no generateFunc', function (done) {
+        it('throws an error with generateTimeout but no generateFunc', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000,
                 generateTimeout: 10
             };
 
-            var fn = function () {
+            const fn = function () {
 
                 Catbox.policy.compile(config, true);
             };
@@ -2075,168 +2073,168 @@ describe('Policy', function () {
         });
     });
 
-    describe('Policy.ttl()', function () {
+    describe('Policy.ttl()', () => {
 
-        it('returns zero when a rule is expired', function (done) {
+        it('returns zero when a rule is expired', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000
             };
-            var rule = Catbox.policy.compile(config, false);
-            var created = new Date(Date.now());
+            const rule = Catbox.policy.compile(config, false);
+            let created = new Date(Date.now());
             created = created.setMinutes(created.getMinutes() - 5);
 
-            var ttl = Catbox.policy.ttl(rule, created);
+            const ttl = Catbox.policy.ttl(rule, created);
             expect(ttl).to.be.equal(0);
             done();
         });
 
-        it('returns a positive number when a rule is not expired', function (done) {
+        it('returns a positive number when a rule is not expired', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000
             };
-            var rule = Catbox.policy.compile(config, false);
-            var created = new Date(Date.now());
+            const rule = Catbox.policy.compile(config, false);
+            const created = new Date(Date.now());
 
-            var ttl = Catbox.policy.ttl(rule, created);
+            const ttl = Catbox.policy.ttl(rule, created);
             expect(ttl).to.be.greaterThan(0);
             done();
         });
 
-        it('returns the correct expires time when no created time is provided', function (done) {
+        it('returns the correct expires time when no created time is provided', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 50000
             };
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule);
+            const ttl = Catbox.policy.ttl(rule);
             expect(ttl).to.equal(50000);
             done();
         });
 
-        it('returns 0 when created several days ago and expiresAt is used', function (done) {
+        it('returns 0 when created several days ago and expiresAt is used', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '13:00'
             };
-            var created = Date.now() - 313200000;                                       // 87 hours (3 days + 15 hours)
-            var rule = Catbox.policy.compile(config, false);
+            const created = Date.now() - 313200000;                                       // 87 hours (3 days + 15 hours)
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule, created);
+            const ttl = Catbox.policy.ttl(rule, created);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns 0 when created in the future', function (done) {
+        it('returns 0 when created in the future', (done) => {
 
-            var config = {
+            const config = {
                 expiresIn: 100
             };
-            var created = Date.now() + 1000;
-            var rule = Catbox.policy.compile(config, false);
+            const created = Date.now() + 1000;
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule, created);
+            const ttl = Catbox.policy.ttl(rule, created);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns 0 for bad rule', function (done) {
+        it('returns 0 for bad rule', (done) => {
 
-            var created = Date.now() - 1000;
-            var ttl = Catbox.policy.ttl({}, created);
+            const created = Date.now() - 1000;
+            const ttl = Catbox.policy.ttl({}, created);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour', function (done) {
+        it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour', (done) => {
 
-            var config = {
+            const config = {
                 expiresAt: '12:00'
             };
-            var created = Date.now() - 342000000;                                       // 95 hours ago (3 days + 23 hours)
-            var rule = Catbox.policy.compile(config, false);
+            const created = Date.now() - 342000000;                                       // 95 hours ago (3 days + 23 hours)
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule, created);
+            const ttl = Catbox.policy.ttl(rule, created);
             expect(ttl).to.equal(0);
             done();
         });
 
-        it('returns a positive number when using a future expiresAt', function (done) {
+        it('returns a positive number when using a future expiresAt', (done) => {
 
-            var hour = new Date(Date.now() + 60 * 60 * 1000).getHours();
+            let hour = new Date(Date.now() + 60 * 60 * 1000).getHours();
             hour = hour === 0 ? 1 : hour;
 
-            var config = {
+            const config = {
                 expiresAt: hour + ':00'
             };
 
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule);
+            const ttl = Catbox.policy.ttl(rule);
             expect(ttl).to.be.greaterThan(0);
             done();
         });
 
-        it('returns the correct number when using a future expiresAt', function (done) {
+        it('returns the correct number when using a future expiresAt', (done) => {
 
-            var twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
-            var hours = twoHoursAgo.getHours();
-            var minutes = '' + twoHoursAgo.getMinutes();
-            var created = twoHoursAgo.getTime() + (60 * 60 * 1000);
+            const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
+            const hours = twoHoursAgo.getHours();
+            let minutes = '' + twoHoursAgo.getMinutes();
+            const created = twoHoursAgo.getTime() + (60 * 60 * 1000);
             minutes = minutes.length === 1 ? '0' + minutes : minutes;
 
-            var config = {
+            const config = {
                 expiresAt: hours + ':' + minutes
             };
 
-            var rule = Catbox.policy.compile(config, false);
-            var ttl = Catbox.policy.ttl(rule, created);
+            const rule = Catbox.policy.compile(config, false);
+            const ttl = Catbox.policy.ttl(rule, created);
 
             expect(ttl).to.be.about(22 * 60 * 60 * 1000, 60 * 1000);
             done();
         });
 
-        it('returns correct number when using an expiresAt time tomorrow', function (done) {
+        it('returns correct number when using an expiresAt time tomorrow', (done) => {
 
-            var hour = new Date(Date.now() - 60 * 60 * 1000).getHours();
+            const hour = new Date(Date.now() - 60 * 60 * 1000).getHours();
 
-            var config = {
+            const config = {
                 expiresAt: hour + ':00'
             };
 
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule);
+            const ttl = Catbox.policy.ttl(rule);
             expect(ttl).to.be.about(23 * 60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
 
-        it('returns correct number when using a created time from yesterday and expires in 2 hours', function (done) {
+        it('returns correct number when using a created time from yesterday and expires in 2 hours', (done) => {
 
-            var hour = new Date(Date.now() + 2 * 60 * 60 * 1000).getHours();
+            const hour = new Date(Date.now() + 2 * 60 * 60 * 1000).getHours();
 
-            var config = {
+            const config = {
                 expiresAt: hour + ':00'
             };
-            var created = new Date(Date.now());
+            const created = new Date(Date.now());
             created.setHours(new Date(Date.now()).getHours() - 22);
 
-            var rule = Catbox.policy.compile(config, false);
+            const rule = Catbox.policy.compile(config, false);
 
-            var ttl = Catbox.policy.ttl(rule, created);
+            const ttl = Catbox.policy.ttl(rule, created);
             expect(ttl).to.be.about(60 * 60 * 1000, 60 * 60 * 1000);
             done();
         });
     });
 
-    describe('isReady()', function () {
+    describe('isReady()', () => {
 
-        it('returns cache engine readiness', function (done) {
+        it('returns cache engine readiness', (done) => {
 
-            var expected = true;
-            var engine = {
+            const expected = true;
+            const engine = {
                 start: function (callback) {
 
                     callback();
@@ -2254,20 +2252,20 @@ describe('Policy', function () {
                     return null;
                 }
             };
-            var client = new Catbox.Client(engine);
-            var policy = new Catbox.Policy({}, client, 'test');
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy({}, client, 'test');
 
 
-            client.start(function () {
+            client.start(() => {
 
                 expect(policy.isReady()).to.equal(expected);
                 done();
             });
         });
 
-        it('returns false when no cache client provided', function (done) {
+        it('returns false when no cache client provided', (done) => {
 
-            var policy = new Catbox.Policy({ expiresIn: 1 });
+            const policy = new Catbox.Policy({ expiresIn: 1 });
 
             expect(policy.isReady()).to.equal(false);
             done();
