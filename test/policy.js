@@ -1622,6 +1622,39 @@ describe('Policy', () => {
                 done();
             });
         });
+        it('errors on invalid keys', (done) => {
+
+            const policyConfig = {
+                expiresIn: 50000
+            };
+
+            const client = new Catbox.Client(Import);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+            policy.drop(null, (err) => {
+
+                expect(err).to.exist();
+                expect(err.message).to.equal('Invalid key');
+                done();
+            });
+        });
+        it('handles objects as keys', (done) => {
+
+            const policyConfig = {
+                expiresIn: 50000
+            };
+
+            const client = new Catbox.Client(Import);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+            client.start((err) => {
+
+                expect(err).to.not.exist();
+                policy.drop({ id: 'id', segment: 'segment' }, (err) => {
+
+                    expect(err).to.not.exist();
+                    done();
+                });
+            });
+        });
     });
 
     describe('ttl()', () => {
