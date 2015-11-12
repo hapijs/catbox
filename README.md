@@ -94,7 +94,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       `function(stored, ttl)` where:
         - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
         - `ttl` - the remaining time-to-live (not the original value used when storing the object).
-    - `staleTimeout` - number of milliseconds to wait before checking if an item is stale.
+    - `staleTimeout` - number of milliseconds to wait before returning a stale value while generateFunc is generating a fresh value.
     - `generateTimeout` - number of milliseconds to wait before returning a timeout error when the `generateFunc` function
       takes too long to return a value. When the value is eventually returned, it is stored in the cache for future requests.
       Required if `generateFunc` is present. Set to `false` to disable timeouts which may cause all `get()` requests to get stuck
