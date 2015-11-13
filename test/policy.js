@@ -646,6 +646,119 @@ describe('Policy', () => {
                 });
             });
 
+            it('returns stale objects then fresh object based on timing, with concurrent generateFunc calls', (done) => {
+
+                let gen = 0;
+
+                let generateCalled = 0;
+
+                const rule = {
+                    expiresIn: 1000,
+                    staleIn: 100,
+                    staleTimeout: 5,
+                    generateTimeout: 100,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(() => {
+
+                            generateCalled++;
+                            return next(null, { gen: ++gen }, 1000);
+                        }, 50);
+                    }
+                };
+
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(() => {
+
+                    policy.get('test', (err, value1, cached1, report1) => {
+
+                        expect(value1.gen).to.equal(1);        // Fresh
+                        setTimeout(() => {
+
+                            policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(value2.gen).to.equal(1);        // Stale
+                                setTimeout(() => {
+
+                                    policy.get('test', (err, value3, cached3, report3) => {
+
+                                        expect(value3.gen).to.equal(1);        // Stale
+                                        setTimeout(() => {
+
+                                            policy.get('test', (err, value4, cached4, report4) => {
+
+                                                expect(value4.gen).to.equal(3);        // Fresh
+                                                expect(generateCalled).to.equal(3); // original generate + 2 calls while stale
+                                                done();
+                                            });
+                                        }, 50);
+                                    });
+                                }, 8);
+                            });
+                        }, 101);
+                    });
+                });
+            });
+
+            it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period ', (done) => {
+
+                let gen = 0;
+
+                let generateCalled = 0;
+
+                const rule = {
+                    expiresIn: 1000,
+                    staleIn: 100,
+                    staleTimeout: 5,
+                    pendingGenerateTimeout: 200,
+                    generateTimeout: 100,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(() => {
+
+                            generateCalled++;
+                            return next(null, { gen: ++gen }, 1000);
+                        }, 50);
+                    }
+                };
+
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(() => {
+
+                    policy.get('test', (err, value1, cached1, report1) => {
+
+                        expect(value1.gen).to.equal(1);        // Fresh
+                        setTimeout(() => {
+
+                            policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(value2.gen).to.equal(1);        // Stale
+                                setTimeout(() => {
+
+                                    policy.get('test', (err, value3, cached3, report3) => {
+
+                                        expect(value3.gen).to.equal(1);        // Stale
+                                        setTimeout(() => {
+
+                                            policy.get('test', (err, value4, cached4, report4) => {
+
+                                                expect(value4.gen).to.equal(2);        // Fresh
+                                                expect(generateCalled).to.equal(2); // original generate + 1 call while stale
+                                                done();
+                                            });
+                                        }, 50);
+                                    });
+                                }, 8);
+                            });
+                        }, 101);
+                    });
+                });
+            });
+
             it('returns stale object then fresh object based on timing using staleIn function', (done) => {
 
                 const staleIn = function (stored, ttl) {
@@ -2069,6 +2182,43 @@ describe('Policy', () => {
             };
 
             expect(fn).to.throw(/Invalid cache policy configuration/);
+            done();
+        });
+
+        it('throws an error if staleTimeout is greater than pendingGenerateTimeout', (done) => {
+
+            const config = {
+                staleIn: 30000,
+                expiresIn: 60000,
+                staleTimeout: 300,
+                pendingGenerateTimeout: 200,
+                generateTimeout: 10,
+                generateFunc: function () { }
+            };
+
+            const fn = function () {
+
+                Catbox.policy.compile(config, true);
+            };
+
+            expect(fn).to.throw('pendingGenerateTimeout must be greater than staleTimeout if specified');
+            done();
+        });
+
+        it('should accept a valid pendingGenerateTimeout', (done) => {
+
+            const config = {
+                staleIn: 30000,
+                expiresIn: 60000,
+                staleTimeout: 300,
+                pendingGenerateTimeout: 5000,
+                generateTimeout: 10,
+                generateFunc: function () { }
+            };
+
+            const rule = Catbox.policy.compile(config, true);
+            expect(rule.pendingGenerateTimeout).to.equal(5000);
+
             done();
         });
     });
