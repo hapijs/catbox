@@ -252,6 +252,7 @@ describe('Policy', () => {
 
             policy.get('test1', (err, value, cached, report) => {
 
+                expect(err).to.not.exist();
                 expect(value).to.equal('item');
                 expect(cached.isStale).to.be.false();
                 expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -312,6 +313,7 @@ describe('Policy', () => {
 
                     policy.get('', (err, result) => {
 
+                        expect(err).to.exist();
                         completed++;
                         checkAndDone(domain, process.domain);
                     });
@@ -360,6 +362,7 @@ describe('Policy', () => {
 
                     policy.get('', (err, result) => {
 
+                        expect(err).to.exist();
                         completed++;
                         checkAndDone(id, process.domain.name);
                     });
@@ -457,6 +460,7 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value, cached, report) => {
 
+                        expect(err).to.not.exist();
                         expect(value.gen).to.equal(1);
                         done();
                     });
@@ -485,11 +489,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1).to.not.exist();
                         policy.rules(rule);
 
                         policy.get('test', (err, value2, cached2, report2) => {
 
+                            expect(err).to.not.exist();
                             expect(value2.gen).to.equal(1);
                             expect(policy.stats).to.deep.equal({ sets: 1, gets: 2, hits: 0, stales: 0, generates: 1, errors: 0 });
                             done();
@@ -524,6 +530,7 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value, cached, report) => {
 
+                        expect(err).to.not.exist();
                         expect(value.gen).to.equal(1);
                         done();
                     });
@@ -588,11 +595,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);        // Stale
                                 done();
                             });
@@ -626,16 +635,19 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);        // Stale
                                 setTimeout(() => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         done();
                                     });
@@ -674,21 +686,25 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);        // Stale
                                 setTimeout(() => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(1);        // Stale
                                         setTimeout(() => {
 
                                             policy.get('test', (err, value4, cached4, report4) => {
 
+                                                expect(err).to.not.exist();
                                                 expect(value4.gen).to.equal(3);        // Fresh
                                                 expect(generateCalled).to.equal(3); // original generate + 2 calls while stale
                                                 done();
@@ -731,21 +747,25 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);        // Stale
                                 setTimeout(() => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(1);        // Stale
                                         setTimeout(() => {
 
                                             policy.get('test', (err, value4, cached4, report4) => {
 
+                                                expect(err).to.not.exist();
                                                 expect(value4.gen).to.equal(2);        // Fresh
                                                 expect(generateCalled).to.equal(2); // original generate + 1 call while stale
                                                 done();
@@ -791,16 +811,19 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);        // Stale
                                 setTimeout(() => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         done();
                                     });
@@ -842,10 +865,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(err).to.not.exist();
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
@@ -854,6 +880,7 @@ describe('Policy', () => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(3);     // Fresh
                                         done();
                                     });
@@ -896,10 +923,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(err).to.not.exist();
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
@@ -949,10 +979,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(err).to.not.exist();
 
                                 // Generates a new one in background which will produce Error and clear the cache
 
@@ -1003,10 +1036,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(err).to.not.exist();
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
 
@@ -1015,6 +1051,7 @@ describe('Policy', () => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(1);     // Stale
                                         done();
                                     });
@@ -1054,10 +1091,13 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2) => {
+
+                                expect(err).to.exist();
 
                                 // Generates a new one in background which will produce Error, but not clear the cache
 
@@ -1065,6 +1105,7 @@ describe('Policy', () => {
 
                                 policy.get('test', (err, value3, cached3) => {
 
+                                    expect(err).to.exist();
                                     expect(value3.gen).to.equal(1);     // Stale
                                     done();
                                 });
@@ -1103,6 +1144,7 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
@@ -1153,6 +1195,7 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
@@ -1197,17 +1240,20 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(2);     // Fresh
 
                                 setTimeout(() => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(2);     // Fresh
                                         done();
                                     });
@@ -1245,6 +1291,7 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
@@ -1282,16 +1329,19 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);        // Fresh
                         setTimeout(() => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);        // Fresh
                                 setTimeout(() => {
 
                                     policy.get('test', (err, value3, cached3, report3) => {
 
+                                        expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(2);        // Fresh
                                         expect(policy.stats).to.deep.equal({ sets: 2, gets: 3, hits: 2, stales: 1, generates: 2, errors: 0 });
                                         done();
@@ -1331,6 +1381,7 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);     // Fresh
                         setTimeout(() => {
 
@@ -1340,6 +1391,7 @@ describe('Policy', () => {
 
                                 policy._get('test', (err, value3) => {
 
+                                    expect(err).to.not.exist();
                                     expect(value3).to.equal(null);
                                     done();
                                 });
@@ -1377,6 +1429,7 @@ describe('Policy', () => {
 
                             policy.get('test', (err, value2, cached2, report2) => {
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(1);
                                 setTimeout(() => {
 
@@ -1438,11 +1491,13 @@ describe('Policy', () => {
                     let called = 0;
                     policy.get(id, (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         ++called;
                     });
 
                     policy.get(id, (err, value1, cached1, report1) => {
 
+                        expect(err).to.not.exist();
                         ++called;
                     });
 
@@ -1474,6 +1529,7 @@ describe('Policy', () => {
                     let result = null;
                     const compare = function (err, value, cached, report) {
 
+                        expect(err).to.not.exist();
                         if (!result) {
                             result = value;
                             return;
@@ -1557,14 +1613,17 @@ describe('Policy', () => {
 
                     policy.get('test', (err, value1, cached1, report1) => {                   // Cache lookup takes 10 + generate 5
 
+                        expect(err).to.not.exist();
                         expect(value1.gen).to.equal(1);                                             // Fresh
                         setTimeout(() => {                                                    // Wait for stale
 
                             policy.get('test', (err, value2, cached2, report2) => {           // Cache lookup takes 10, generate comes back after 5
 
+                                expect(err).to.not.exist();
                                 expect(value2.gen).to.equal(2);                                     // Fresh
                                 policy.get('test', (err, value3, cached3, report3) => {       // Cache lookup takes 10
 
+                                    expect(err).to.not.exist();
                                     expect(value3.gen).to.equal(2);                                 // Cached (10 left to stale)
 
                                     client.connection.get = orig;
@@ -1684,6 +1743,7 @@ describe('Policy', () => {
 
             policy.drop('test', (err) => {
 
+                expect(err).to.not.exist();
                 expect(called).to.be.true();
                 done();
             });
@@ -1731,6 +1791,7 @@ describe('Policy', () => {
 
             policy.drop('test', (err) => {
 
+                expect(err).to.exist();
                 expect(policy.stats.errors).to.equal(1);
                 done();
             });

@@ -28,6 +28,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
             done();
         });
@@ -38,6 +39,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             expect(client.isReady()).to.equal(true);
             client.stop();
             expect(client.isReady()).to.equal(false);
@@ -50,6 +52,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             const key = { id: 'x', segment: 'test' };
             client.set(key, '123', 500, (err) => {
 
@@ -69,6 +72,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             const key = { id: 'x', segment: 'test' };
             const value = { a: 1 };
             value.b = value;
@@ -88,6 +92,7 @@ describe('Catbox', () => {
 
             client.start((err) => {
 
+                expect(err).to.not.exist();
                 expect(client.isReady()).to.equal(true);
                 --x;
                 if (!x) {
@@ -122,6 +127,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             client.get(null, (err, result) => {
 
                 expect(err).to.equal(null);
@@ -136,6 +142,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             const key = { id: 'x', segment: 'test' };
             client.set(key, 'x', 1, (err) => {
 
@@ -158,6 +165,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             client.set(null, {}, 1000, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
@@ -171,6 +179,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             client.get({}, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
@@ -184,6 +193,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             client.drop({}, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
@@ -197,6 +207,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             client.set({}, {}, 1000, (err) => {
 
                 expect(err instanceof Error).to.equal(true);
@@ -210,6 +221,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             const key = { id: 'x', segment: 'test' };
             client.set(key, 'y', 0, (err) => {
 
@@ -224,6 +236,7 @@ describe('Catbox', () => {
         const client = new Catbox.Client(Import);
         client.start((err) => {
 
+            expect(err).to.not.exist();
             client.drop(null, (err) => {
 
                 expect(err instanceof Error).to.equal(true);

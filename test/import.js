@@ -77,7 +77,7 @@ internals.Connection.prototype.get = function (key, callback) {
     try {
         value = JSON.parse(envelope.item);
     }
-    catch (err) {
+    catch (ignoreErr) {
         return callback(new Error('Bad value content'));
     }
 

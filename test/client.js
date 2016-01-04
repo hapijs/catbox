@@ -200,6 +200,7 @@ describe('Client', () => {
             const client = new Catbox.Client(engine);
             client.get({ id: 'id', segment: 'segment' }, (err, cached) => {
 
+                expect(err).to.not.exist();
                 expect(cached.item).to.equal('test1');
                 expect(cached.stored).to.equal('test2');
                 expect(cached.ttl).to.exist();
@@ -384,6 +385,7 @@ describe('Client', () => {
             const client = new Catbox.Client(engine);
             client.drop({ id: 'id', segment: 'segment' }, (err, result) => {
 
+                expect(err).to.not.exist();
                 expect(result).to.equal('success');
                 done();
             });
