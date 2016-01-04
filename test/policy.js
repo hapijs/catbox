@@ -1622,6 +1622,7 @@ describe('Policy', () => {
                 done();
             });
         });
+
         it('errors on invalid keys', (done) => {
 
             const policyConfig = {
@@ -1637,6 +1638,7 @@ describe('Policy', () => {
                 done();
             });
         });
+
         it('handles objects as keys', (done) => {
 
             const policyConfig = {
