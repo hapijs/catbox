@@ -105,6 +105,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
       and will instead pass back the cache error. Defaults to `true`.
     - `generateIgnoreWriteError` - if `false`, an upstream cache write error will be passed back with the generated value when calling
       the `get()` method. Defaults to `true`.
+    - `pendingGenerateTimeout` - number of milliseconds while generateFunc call is in progress for a given id, before a subsequent generateFunc call is allowed. Defaults to 0, no blocking of concurrent generateFunc calls beyond staleTimeout.
 - `cache` - a `Client` instance (which has already been started).
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
 
