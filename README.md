@@ -66,6 +66,8 @@ The `Client` object provides the following methods:
 - `drop(key, callback)` - remove an item from cache where:
     - `key` - a cache key object (see below).
     - `callback` - a function with the signature `function(err)`.
+- `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready.
+
 
 Any method with a `key` argument takes an object with the following required properties:
 - `segment` - a caching segment name string. Enables using a single cache server for storing different sets of items with overlapping ids.
