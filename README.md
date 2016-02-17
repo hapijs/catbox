@@ -1,7 +1,7 @@
 ![catbox Logo](https://raw.github.com/hapijs/catbox/master/images/catbox.png)
 
 Multi-strategy object caching service
-Version: **6.x**
+Version: **7.x**
 
 [![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
 
