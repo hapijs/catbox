@@ -26,6 +26,7 @@ each service must be manually installed via npm or package dependencies manually
 - [RethinkDB](https://github.com/codedmart/catbox-rethinkdb)
 - [Couchbase](https://github.com/cmfatih/catbox-couchbase)
 - [Aerospike](https://github.com/ooogway/catbox-aerospike)
+- [LevelDB](https://github.com/mshick/catbox-multilevel)
 
 
 ### `Client`
