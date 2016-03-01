@@ -374,6 +374,42 @@ describe('Policy', () => {
             }
         });
 
+        it('returns null on get when cache client timesout ', (done) => {
+
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    //Do not make a callback
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+            const policyConfig = {
+                expiresIn: 50000,
+                onReadTimeout: 200
+            };
+
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            policy.get('test1', (err, value, cached, report) => {
+                expect(err).to.not.exist();
+                expect(value).to.not.exist();
+                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
+                done();
+            });
+        });
+
         describe('generate', () => {
 
             it('returns falsey items', (done) => {
