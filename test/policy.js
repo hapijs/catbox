@@ -374,7 +374,7 @@ describe('Policy', () => {
             }
         });
 
-        it('returns null on get when cache client timesout ', (done) => {
+        it('returns null on get when cache client timesout', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -387,7 +387,13 @@ describe('Policy', () => {
                 },
                 get: function (key, callback) {
 
-                    //Do not make a callback
+                    setTimeout(() => {
+
+                        callback(null, {
+                            stored: 'stored',
+                            item: 'item'
+                        });
+                    }, 300);
                 },
                 validateSegmentName: function () {
 
@@ -403,9 +409,51 @@ describe('Policy', () => {
             const policy = new Catbox.Policy(policyConfig, client, 'test');
 
             policy.get('test1', (err, value, cached, report) => {
+
                 expect(err).to.not.exist();
                 expect(value).to.not.exist();
                 expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
+                done();
+            });
+        });
+
+        it('returns the cached result when cache client does not timeout', (done) => {
+
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key, callback) {
+
+                    callback(null, {
+                        stored: 'stored',
+                        item: 'item'
+                    });
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+            const policyConfig = {
+                expiresIn: 50000,
+                onReadTimeout: 200
+            };
+
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            policy.get('test1', (err, value, cached, report) => {
+
+                expect(err).to.not.exist();
+                expect(value).to.equal('item');
+                expect(cached.isStale).to.be.false();
+                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                 done();
             });
         });
