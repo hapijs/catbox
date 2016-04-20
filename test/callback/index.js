@@ -5,7 +5,7 @@
 const Catbox = require('../../');
 const Code = require('code');
 const Lab = require('lab');
-const Import = require('./import');
+const Import = require('../import');
 
 
 // Declare internals

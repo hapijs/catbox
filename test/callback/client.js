@@ -24,7 +24,7 @@ describe('Client', () => {
 
     it('uses prototype engine', (done) => {
 
-        const Obj = require('./import');
+        const Obj = require('../import');
         const client = new Catbox.Client(Obj);
         client.start((err) => {
 
@@ -47,7 +47,7 @@ describe('Client', () => {
 
     it('supports empty keys', (done) => {
 
-        const Obj = require('./import');
+        const Obj = require('../import');
         const client = new Catbox.Client(Obj);
         client.start((err) => {
 
@@ -70,7 +70,7 @@ describe('Client', () => {
 
     it('uses object instance engine', (done) => {
 
-        const Obj = require('./import');
+        const Obj = require('../import');
         const client = new Catbox.Client(new Obj());
         client.start((err) => {
 
@@ -323,7 +323,7 @@ describe('Client', () => {
 
         it('errors on empty key', (done) => {
 
-            const client = new Catbox.Client(require('./import'));
+            const client = new Catbox.Client(require('../import'));
             client.start((err) => {
 
                 expect(err).to.not.exist();
@@ -396,7 +396,7 @@ describe('Client', () => {
 
         it('errors on missing segment', (done) => {
 
-            const Obj = require('./import');
+            const Obj = require('../import');
             const client = new Catbox.Client(Obj);
             client.start((err) => {
 
