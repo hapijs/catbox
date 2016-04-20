@@ -45,7 +45,7 @@ Note that any implementation of client strategies must return deep copies of the
 from a `get()` is owned by the called and can be safely modified without affecting the cache copy.
 
 
-#### API
+#### API (callback)
 
 The `Client` object provides the following methods:
 
@@ -67,6 +67,44 @@ The `Client` object provides the following methods:
 - `drop(key, callback)` - remove an item from cache where:
     - `key` - a cache key object (see below).
     - `callback` - a function with the signature `function(err)`.
+- `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready.
+
+
+Any method with a `key` argument takes an object with the following required properties:
+- `segment` - a caching segment name string. Enables using a single cache server for storing different sets of items with overlapping ids.
+- `id` - a unique item identifier string (per segment). Can be an empty string.
+
+#### API (Promise)
+
+The `Client` object provides the following methods:
+
+- `start()` - creates a connection to the cache server. Must be called before any other method is available.
+  Returns a Promise , you can catch any errors with
+
+```js
+  client.start().then(() => {
+      console.log('catbox client started ok');
+  }).catch((err) => {
+      console.error('catbox client error', err);
+  });
+```
+
+- `stop()` - terminates the connection to the cache server.
+- `get(key)` - retrieve an item from the cache engine if found where:
+    - `key` - a cache key object (see below).
+    - Returns a Promise,  If the item is not found, the `cached` in `client.get(key).then((cached)=>{})` will be  `null`.
+      If found, the `cached` object contains the following:
+        - `item` - the value stored in the cache using `set()`.
+        - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
+        - `ttl` - the remaining time-to-live (not the original value used when storing the object).
+- `set(key, value, ttl)` - store an item in the cache for a specified length of time, where:
+    - `key` - a cache key object (see below).
+    - `value` - the string or object value to be stored.
+    - `ttl` - a time-to-live value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
+    - Returns a Promise , if any error is thrown you can `.catch((err)=>{})` it.
+- `drop(key)` - remove an item from cache where:
+    - `key` - a cache key object (see below).
+    - Returns a Promise, with either `.drop(key).catch((err)=>{}).then((message)=>{})`.
 - `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready.
 
 
@@ -113,7 +151,7 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
 - `segment` - required when `cache` is provided. The segment name used to isolate cached items within the cache partition.
 
 
-#### API
+#### API (callback)
 
 The `Policy` object provides the following methods:
 
@@ -143,6 +181,52 @@ The `Policy` object provides the following methods:
 - `drop(id, callback)` - remove the item from cache where:
     - `id` - the unique item identifier (within the policy segment).
     - `callback` - a function with the signature `function(err)`.
+- `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
+- `rules(options)` - changes the policy rules after construction (note that items already stored will not be affected) where:
+    - `options` - the same `options` as the `Policy` constructor.
+- `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready or if there is no cache engine set.
+- `stats` - an object with cache statistics where:
+    - `sets` - number of cache writes.
+    - `gets` - number of cache `get()` requests.
+    - `hits` - number of cache `get()` requests in which the requested id was found in the cache (can be stale).
+    - `stales` - number of cache reads with stale requests (only counts the first request in a queued `get()` operation).
+    - `generates` - number of calls to the generate function.
+    - `errors` - cache operations errors.
+
+#### API (Promise)
+
+The `Policy` object provides the following methods:
+
+- `get(id, options)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
+  is generated, stored in the cache, and returned. Multiple concurrent requests are queued and processed once. The method arguments are:
+    - `id` - the unique item identifier (within the policy segment). Can be a string or an object with the required 'id' key.
+    - `options` - is an optional object that affects the returned result, has the following keys:
+        - `full` - default is `false`
+    - Returns a Promise when that resolves :
+            - when `options.full` is `false` - returns the fetched or generated value, does not trigger error if a generateFunc throws but a valid stale value still exists.
+            - when `options.full` is `true` - returns/throws an object with the following keys:
+                - `err` - any errors encountered. (if this is present, it will `reject` (you have to use `.catch`) instead of `resolve` (`.then`))
+                - `value` - the fetched or generated value.
+                - `cached` - `null` if a valid item was not found in the cache, or an object with the following keys:
+                    - `item` - the cached `value`.
+                    - `stored` - the timestamp when the item was stored in the cache.
+                    - `ttl` - the cache ttl value for the record.
+                    - `isStale` - `true` if the item is stale.
+                - `report` - an object with logging information about the generation operation containing the following keys (as relevant):
+                    - `msec` - the cache lookup time in milliseconds.
+                    - `stored` - the timestamp when the item was stored in the cache.
+                    - `isStale` - `true` if the item is stale.
+                    - `ttl` - the cache ttl value for the record.
+                    - `error` - lookup error.
+- `set(id, value, ttl)` - store an item in the cache where:
+    - `id` - the unique item identifier (within the policy segment).
+    - `value` - the string or object value to be stored.
+    - `ttl` - a time-to-live **override** value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
+      This should be set to `0` in order to use the caching rules configured when creating the `Policy` object.
+    - Returns a Promise that can resolve or reject with `err` (`.catch((err)=>{})`).
+- `drop(id)` - remove the item from cache where:
+    - `id` - the unique item identifier (within the policy segment).
+    - Returns a Promise that can resolve or reject with `err` (`.catch((err)=>{})`).
 - `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
 - `rules(options)` - changes the policy rules after construction (note that items already stored will not be affected) where:
     - `options` - the same `options` as the `Policy` constructor.

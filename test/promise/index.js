@@ -21,69 +21,67 @@ const it = lab.test;
 const expect = Code.expect;
 
 
-describe('Catbox', () => {
+describe('Catbox (promise)', () => {
 
-    it('creates a new connection', (done) => {
+    it('creates a new connection (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start().then(() => {
+
+        return client.start().then(() => {
 
             expect(client.isReady()).to.equal(true);
-            done();
         });
     });
 
-    it('closes the connection', (done) => {
+    it('closes the connection (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start().then(() => {
+
+        return client.start().then(() => {
 
             expect(client.isReady()).to.equal(true);
             client.stop();
             expect(client.isReady()).to.equal(false);
-            done();
         });
     });
 
-    it('gets an item after setting it', (done) => {
+    it('gets an item after setting it (promise)', () => {
 
         const client = new Catbox.Client(Import);
         const key = { id: 'x', segment: 'test' };
 
-        client.start()
+        return client.start()
         .then(() => client.set(key, '123', 500))
         .then(() => client.get(key))
         .then((result) => {
 
             expect(result.item).to.equal('123');
-            done();
         });
     });
 
-    it('fails setting an item circular references', (done) => {
+    it('fails setting an item circular references (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start().then(() => {
 
-            const key = { id: 'x', segment: 'test' };
-            const value = { a: 1 };
-            value.b = value;
-            client.set(key, value, 10)
-            .catch((err) => {
+        const key = { id: 'x', segment: 'test' };
+        const value = { a: 1 };
+        value.b = value;
 
-                expect(err.message).to.equal('Converting circular structure to JSON');
-                done();
-            });
+        return client.start()
+        .then(() => client.set(key, value, 10))
+        .catch((err) => {
+
+            expect(err.message).to.equal('Converting circular structure to JSON');
         });
     });
 
-    it('ignored starting a connection twice on same event', (done) => {
+    it('ignored starting a connection twice on same event (promise)', (done) => {
 
         const client = new Catbox.Client(Import);
         let x = 2;
         const start = function () {
 
-            client.start().then(() => {
+            return client.start().then(() => {
 
                 expect(client.isReady()).to.equal(true);
                 --x;
@@ -97,34 +95,32 @@ describe('Catbox', () => {
         start();
     });
 
-    it('ignored starting a connection twice chained', (done) => {
+    it('ignored starting a connection twice chained (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start().then(() => {
+        return client.start().then(() => {
 
             expect(client.isReady()).to.equal(true);
 
-            client.start().then(() => {
+            return client.start().then(() => {
 
                 expect(client.isReady()).to.equal(true);
-                done();
             });
         });
     });
 
-    it('returns not found on get when using null key', (done) => {
+    it('returns not found on get when using null key (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start()
+        return client.start()
         .then(() => client.get(null))
         .then((result) => {
 
             expect(result).to.equal(null);
-            done();
         });
     });
 
-    it('returns not found on get when item expired', (done) => {
+    it('returns not found on get when item expired (promise)', (done) => {
 
         const client = new Catbox.Client(Import);
         const key = { id: 'x', segment: 'test' };
@@ -144,117 +140,109 @@ describe('Catbox', () => {
         });
     });
 
-    it('returns error on set when using null key', (done) => {
+    it('returns error on set when using null key (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start()
+        return client.start()
         .then(() => client.set(null, {}, 1000))
         .catch((err) => {
 
             expect(err instanceof Error).to.equal(true);
-            done();
         });
     });
 
-    it('returns error on get when using invalid key', (done) => {
+    it('returns error on get when using invalid key (promise)', () => {
 
         const client = new Catbox.Client(Import);
 
-        client.start()
+        return client.start()
         .then(() => client.get({}))
         .catch((err) => {
 
             expect(err instanceof Error).to.equal(true);
-            done();
         });
     });
 
-    it('returns error on drop when using invalid key', (done) => {
+    it('returns error on drop when using invalid key (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start()
+
+        return client.start()
         .then(() => client.drop({}))
         .catch((err) => {
 
             expect(err instanceof Error).to.equal(true);
-            done();
         });
     });
 
-    it('returns error on set when using invalid key', (done) => {
+    it('returns error on set when using invalid key (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start()
+
+        return client.start()
         .then(() => client.set({}, {}, 1000))
         .catch((err) => {
 
             expect(err instanceof Error).to.equal(true);
-            done();
         });
     });
 
-    it('ignores set when using non-positive ttl value', (done) => {
+    it('ignores set when using non-positive ttl value (promise)', () => {
 
         const client = new Catbox.Client(Import);
         const key = { id: 'x', segment: 'test' };
 
-        client.start()
-        .then(() => client.set(key, 'y', 0))
-        .then(() => {
-
-            done();
-        });
+        return client.start()
+        .then(() => client.set(key, 'y', 0));
     });
 
-    it('returns error on drop when using null key', (done) => {
+    it('returns error on drop when using null key (promise)', () => {
 
         const client = new Catbox.Client(Import);
-        client.start()
+        return client.start()
         .then(() => client.drop(null))
         .catch((err) => {
 
             expect(err instanceof Error).to.equal(true);
-            done();
         });
     });
 
-    it('returns error on get when stopped', (done) => {
+    it('returns error on get when stopped (promise)', () => {
 
         const client = new Catbox.Client(Import);
         client.stop();
         const key = { id: 'x', segment: 'test' };
-        client.get(key).catch((err) => {
+        return client.get(key).catch((err) => {
 
             expect(err).to.exist();
-            done();
         });
     });
 
-    it('returns error on set when stopped', (done) => {
+    it('returns error on set when stopped (promise)', () => {
 
         const client = new Catbox.Client(Import);
         client.stop();
         const key = { id: 'x', segment: 'test' };
-        client.set(key, 'y', 1).catch((err) => {
+
+        return client.set(key, 'y', 1).catch((err) => {
 
             expect(err).to.exist();
-            done();
         });
     });
 
-    it('returns error on drop when stopped', (done) => {
+    it('returns error on drop when stopped (promise)', () => {
 
         const client = new Catbox.Client(Import);
         client.stop();
         const key = { id: 'x', segment: 'test' };
-        client.drop(key).catch((err) => {
+
+        return client.drop(key).catch((err) => {
 
             expect(err).to.exist();
-            done();
         });
     });
 
-    it('returns error on missing segment name', (done) => {
+    it('returns error on missing segment name (promise)', (done) => {
 
         const config = {
             expiresIn: 50000
@@ -268,7 +256,7 @@ describe('Catbox', () => {
         done();
     });
 
-    it('returns error on bad segment name', (done) => {
+    it('returns error on bad segment name (promise)', (done) => {
 
         const config = {
             expiresIn: 50000
@@ -282,14 +270,13 @@ describe('Catbox', () => {
         done();
     });
 
-    it('returns error when cache item dropped while stopped', (done) => {
+    it('returns error when cache item dropped while stopped (promise)', () => {
 
         const client = new Catbox.Client(Import);
         client.stop();
-        client.drop('a').catch((err) => {
+        return client.drop('a').catch((err) => {
 
             expect(err).to.exist();
-            done();
         });
     });
 });

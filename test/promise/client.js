@@ -20,60 +20,57 @@ const it = lab.test;
 const expect = Code.expect;
 
 
-describe('Client', () => {
+describe('Client (promise)', () => {
 
-    it('uses prototype engine', (done) => {
+    it('uses prototype engine (promise)', () => {
 
         const Obj = require('../import');
         const client = new Catbox.Client(Obj);
 
         const key = { id: 'x', segment: 'test' };
 
-        client.start()
+        return client.start()
         .then(() => client.set(key, '123', 1000))
         .then(() => client.get(key))
         .then((result) => {
 
             expect(result.item).to.equal('123');
-            done();
         });
     });
 
-    it('supports empty keys', (done) => {
+    it('supports empty keys (promise)', () => {
 
         const Obj = require('../import');
         const client = new Catbox.Client(Obj);
 
         const key = { id: '', segment: 'test' };
 
-        client.start()
+        return client.start()
         .then(() => client.set(key, '123', 1000))
         .then(() => client.get(key))
         .then((result) => {
 
             expect(result.item).to.equal('123');
-            done();
         });
     });
 
-    it('uses object instance engine', (done) => {
+    it('uses object instance engine (promise)', () => {
 
         const Obj = require('../import');
         const client = new Catbox.Client(new Obj());
 
         const key = { id: 'x', segment: 'test' };
 
-        client.start()
+        return client.start()
         .then(() => client.set(key, '123', 1000))
         .then(() => client.get(key))
         .then((result) => {
 
             expect(result.item).to.equal('123');
-            done();
         });
     });
 
-    it('errors when calling get on a bad connection', (done) => {
+    it('errors when calling get on a bad connection (promise)', () => {
 
         const errorEngine = {
             start: function (callback) {
@@ -107,17 +104,16 @@ describe('Client', () => {
         const client = new Catbox.Client(errorEngine);
         const key = { id: 'x', segment: 'test' };
 
-        client.get(key).catch((err) => {
+        return client.get(key).catch((err) => {
 
             expect(err).to.exist();
             expect(err.message).to.equal('fail');
-            done();
         });
     });
 
-    describe('start()', () => {
+    describe('start() (promise)', () => {
 
-        it('passes an error in the callback when one occurs', (done) => {
+        it('passes an error in the callback when one occurs (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -127,17 +123,16 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.start().catch((err) => {
+            return client.start().catch((err) => {
 
                 expect(err).to.exist();
-                done();
             });
         });
     });
 
-    describe('get()', () => {
+    describe('get() (promise)', () => {
 
-        it('returns an error when the connection is not ready', (done) => {
+        it('returns an error when the connection is not ready (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -151,15 +146,14 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.get('test').catch((err) => {
+            return client.get('test').catch((err) => {
 
                 expect(err).to.be.instanceOf(Error);
                 expect(err.message).to.equal('Disconnected');
-                done();
             });
         });
 
-        it('wraps the result with cached details', (done) => {
+        it('wraps the result with cached details (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -182,17 +176,16 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.get({ id: 'id', segment: 'segment' })
+            return client.get({ id: 'id', segment: 'segment' })
             .then((cached) => {
 
                 expect(cached.item).to.equal('test1');
                 expect(cached.stored).to.equal('test2');
                 expect(cached.ttl).to.exist();
-                done();
             });
         });
 
-        it('returns nothing when item is not found', (done) => {
+        it('returns nothing when item is not found (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -210,15 +203,14 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.get({ id: 'id', segment: 'segment' })
+            return client.get({ id: 'id', segment: 'segment' })
             .then((cached) => {
 
                 expect(cached).to.equal(null);
-                done();
             });
         });
 
-        it('returns nothing when item is not found (undefined item)', (done) => {
+        it('returns nothing when item is not found (undefined item) (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -236,15 +228,14 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.get({ id: 'id', segment: 'segment' })
+            return client.get({ id: 'id', segment: 'segment' })
             .then((cached) => {
 
                 expect(cached).to.equal(null);
-                done();
             });
         });
 
-        it('returns falsey items', (done) => {
+        it('returns falsey items (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -265,15 +256,14 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.get({ id: 'id', segment: 'segment' })
+            return client.get({ id: 'id', segment: 'segment' })
             .then((cached) => {
 
                 expect(cached.item).to.equal(false);
-                done();
             });
         });
 
-        it('expires item', (done) => {
+        it('expires item (promise)', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -297,32 +287,31 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.get({ id: 'id', segment: 'segment' })
+            return client.get({ id: 'id', segment: 'segment' })
             .then((cached) => {
 
                 expect(cached).to.equal(null);
-                done();
             });
         });
 
-        it('errors on empty key', (done) => {
+        it('errors on empty key (promise)', () => {
 
-            const client = new Catbox.Client(require('../test/import'));
-            client.start()
+            const client = new Catbox.Client(require('../import'));
+
+            return client.start()
             .then(() => client.get({}))
             .catch((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Invalid key');
-                done();
             });
         });
 
     });
 
-    describe('set()', () => {
+    describe('set() (promise)', () => {
 
-        it('returns an error when the connection is not ready', (done) => {
+        it('returns an error when the connection is not ready (promise)', () => {
 
             const engine = {
                 start: function (callback) {
@@ -336,19 +325,19 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.set('test', 'test', 'test')
+
+            return client.set('test', 'test', 'test')
             .catch((err) => {
 
                 expect(err).to.be.instanceOf(Error);
                 expect(err.message).to.equal('Disconnected');
-                done();
             });
         });
     });
 
-    describe('drop()', () => {
+    describe('drop() (promise)', () => {
 
-        it('calls the extension clients drop function', (done) => {
+        it('calls the extension clients drop function (promise)', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -366,30 +355,30 @@ describe('Client', () => {
             };
 
             const client = new Catbox.Client(engine);
-            client.drop({ id: 'id', segment: 'segment' })
+
+            return client.drop({ id: 'id', segment: 'segment' })
             .then((result) => {
 
                 expect(result).to.equal('success');
-                done();
             });
         });
     });
 
-    describe('validateKey()', () => {
+    describe('validateKey() (promise)', () => {
 
-        it('errors on missing segment', (done) => {
+        it('errors on missing segment (promise)', (done) => {
 
             const Obj = require('../import');
             const client = new Catbox.Client(Obj);
-            client.start().then(() => {
 
-                const key = { id: 'x' };
-                client.set(key, '123', 1000).catch((err) => {
+            const key = { id: 'x' };
 
-                    expect(err).to.exist();
-                    expect(err.message).to.equal('Invalid key');
-                    done();
-                });
+            return client.start()
+            .then(() => client.set(key, '123', 1000))
+            .catch((err) => {
+
+                expect(err).to.exist();
+                expect(err.message).to.equal('Invalid key');
             });
         });
     });

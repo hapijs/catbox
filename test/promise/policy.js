@@ -11,6 +11,13 @@ const Import = require('../import');
 
 const internals = {};
 
+internals.delay = (time) => {
+
+    return new Promise((fulfill) => {
+
+        setTimeout(fulfill, time);
+    });
+};
 
 // Test shortcuts
 
@@ -20,9 +27,9 @@ const it = lab.test;
 const expect = Code.expect;
 
 
-describe('Policy', () => {
+describe('Policy (promise)', () => {
 
-    it('returns cached item', (done) => {
+    it('returns cached item (promise)', (done) => {
 
         const client = new Catbox.Client(Import);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
@@ -45,7 +52,7 @@ describe('Policy', () => {
         });
     });
 
-    it('works with special property names', (done) => {
+    it('works with special property names (promise)', (done) => {
 
         const client = new Catbox.Client(Import);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
@@ -68,7 +75,7 @@ describe('Policy', () => {
         });
     });
 
-    it('finds nothing when using empty policy rules', (done) => {
+    it('finds nothing when using empty policy rules (promise)', (done) => {
 
         const client = new Catbox.Client(Import);
         const policy = new Catbox.Policy({}, client, 'test');
@@ -91,7 +98,7 @@ describe('Policy', () => {
         });
     });
 
-    it('returns cached item with no global rules and manual ttl', (done) => {
+    it('returns cached item with no global rules and manual ttl (promise)', (done) => {
 
         const client = new Catbox.Client(Import);
         const policy = new Catbox.Policy({}, client, 'test');
@@ -114,7 +121,7 @@ describe('Policy', () => {
         });
     });
 
-    it('throws an error when segment is missing', (done) => {
+    it('throws an error when segment is missing (promise)', (done) => {
 
         const config = {
             expiresIn: 50000
@@ -128,9 +135,9 @@ describe('Policy', () => {
         done();
     });
 
-    describe('get()', () => {
+    describe('get() (promise)', () => {
 
-        it('returns cached item using object id', (done) => {
+        it('returns cached item using object id (promise)', (done) => {
 
             const client = new Catbox.Client(Import);
             const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
@@ -155,7 +162,7 @@ describe('Policy', () => {
         });
 
 
-        it('returns error on null id', (done) => {
+        it('returns error on null id (promise)', (done) => {
 
             const client = new Catbox.Client(Import);
             const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
@@ -185,7 +192,7 @@ describe('Policy', () => {
             });
         });
 
-        it('passes an error to the callback when an error occurs getting the item', (done) => {
+        it('passes an error to the callback when an error occurs getting the item (promise)', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -221,7 +228,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns the cached result when no error occurs', (done) => {
+        it('returns the cached result when no error occurs (promise)', (done) => {
 
             const engine = {
                 start: function () {
@@ -262,7 +269,7 @@ describe('Policy', () => {
         });
 
 
-        it('returns null on get when no cache client provided', (done) => {
+        it('returns null on get when no cache client provided (promise)', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
@@ -277,9 +284,9 @@ describe('Policy', () => {
 
     });
 
-    describe('generate', () => {
+    describe('generate (promise)', () => {
 
-        it('returns falsey items', (done) => {
+        it('returns falsey items (promise)', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -322,7 +329,7 @@ describe('Policy', () => {
             });
         });
 
-        it('bypasses cache when not configured', (done) => {
+        it('bypasses cache when not configured (promise)', (done) => {
 
             const policy = new Catbox.Policy({
                 expiresIn: 1,
@@ -342,7 +349,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns the processed cached item', (done) => {
+        it('returns the processed cached item (promise)', (done) => {
 
             let gen = 0;
             const rule = {
@@ -368,7 +375,7 @@ describe('Policy', () => {
             });
         });
 
-        it('switches rules after construction', (done) => {
+        it('switches rules after construction (promise)', (done) => {
 
             let gen = 0;
 
@@ -409,7 +416,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns the processed cached item after cache error', (done) => {
+        it('returns the processed cached item after cache error (promise)', (done) => {
 
             let gen = 0;
 
@@ -440,7 +447,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns an error when get fails and generateOnReadError is false', (done) => {
+        it('returns an error when get fails and generateOnReadError is false (promise)', () => {
 
             const rule = {
                 expiresIn: 100,
@@ -455,23 +462,22 @@ describe('Policy', () => {
             };
 
             const client = new Catbox.Client(Import, { partition: 'test-partition' });
-            client.get = function () {
+            client.get = function (key, cb) {
 
-                return Promise.reject(new Error('bad client'));
+                cb(new Error('bad client'));
             };
 
             const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-            client.start()
+            return client.start()
             .then(() => policy.get('test'))
             .catch((err) => {
 
                 expect(err.message).to.equal('bad client');
-                done();
             });
         });
 
-        it('returns the processed cached item using manual ttl', (done) => {
+        it('returns the processed cached item using manual ttl (promise)', (done) => {
 
             let gen = 0;
 
@@ -509,7 +515,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then fresh object based on timing', (done) => {
+        it('returns stale object then fresh object based on timing (promise)', (done) => {
 
             let gen = 0;
 
@@ -555,7 +561,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale objects then fresh object based on timing, with concurrent generateFunc calls', (done) => {
+        it('returns stale objects then fresh object based on timing, with concurrent generateFunc calls (promise)', (done) => {
 
             let gen = 0;
 
@@ -613,7 +619,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period ', (done) => {
+        it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period  (promise)', (done) => {
 
             let gen = 0;
 
@@ -672,7 +678,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then fresh object based on timing using staleIn function', (done) => {
+        it('returns stale object then fresh object based on timing using staleIn function (promise)', (done) => {
 
             const staleIn = function (stored, ttl) {
 
@@ -725,7 +731,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then invalidate cache on error', (done) => {
+        it('returns stale object then invalidate cache on error (promise)', (done) => {
 
             let gen = 0;
 
@@ -780,7 +786,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then invalidate cache on error when dropOnError is true', (done) => {
+        it('returns stale object then invalidate cache on error when dropOnError is true (promise)', (done) => {
 
             let gen = 0;
 
@@ -835,7 +841,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then invalidate cache on error when dropOnError is not set', (done) => {
+        it('returns stale object then invalidate cache on error when dropOnError is not set (promise)', (done) => {
 
             let gen = 0;
 
@@ -889,7 +895,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then does not invalidate cache on timeout if dropOnError is false', (done) => {
+        it('returns stale object then does not invalidate cache on timeout if dropOnError is false (promise)', (done) => {
 
             let gen = 0;
 
@@ -944,7 +950,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns stale object then does not invalidate cache on error if dropOnError is false', (done) => {
+        it('returns stale object then does not invalidate cache on error if dropOnError is false (promise)', (done) => {
 
             let gen = 0;
 
@@ -998,7 +1004,7 @@ describe('Policy', () => {
         });
 
 
-        it('returns stale object then does not invalidate cache on error if dropOnError is false and stats is false', (done) => {
+        it('returns stale object then does not invalidate cache on error if dropOnError is false and stats is false (promise)', (done) => {
 
             let gen = 0;
 
@@ -1049,7 +1055,7 @@ describe('Policy', () => {
         });
 
 
-        it('returns stale object then invalidates cache on error if dropOnError is true', (done) => {
+        it('returns stale object then invalidates cache on error if dropOnError is true (promise)', (done) => {
 
             let gen = 0;
 
@@ -1101,7 +1107,7 @@ describe('Policy', () => {
         });
 
 
-        it('returns stale object then invalidates cache on error if dropOnError is not defined', (done) => {
+        it('returns stale object then invalidates cache on error if dropOnError is not defined (promise)', (done) => {
 
             let gen = 0;
 
@@ -1152,7 +1158,7 @@ describe('Policy', () => {
         });
 
 
-        it('returns fresh objects', (done) => {
+        it('returns fresh objects (promise)', (done) => {
 
             let gen = 0;
 
@@ -1196,7 +1202,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns error when generated within stale timeout', (done) => {
+        it('returns error when generated within stale timeout (promise)', (done) => {
 
             let gen = 0;
 
@@ -1238,7 +1244,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns new object when stale has less than staleTimeout time left', (done) => {
+        it('returns new object when stale has less than staleTimeout time left (promise)', (done) => {
 
             let gen = 0;
 
@@ -1289,7 +1295,7 @@ describe('Policy', () => {
             });
         });
 
-        it('invalidates cache on error without stale', (done) => {
+        it('invalidates cache on error without stale (promise)', (done) => {
 
             let gen = 0;
 
@@ -1318,24 +1324,23 @@ describe('Policy', () => {
             .then((value1) => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
-                setTimeout(() => {
 
-                    policy.get('test')
-                    .catch((err) => {
+                return internals.delay(8)
+                .then(() => policy.get('test'))
+                .catch((err) => {
 
-                        expect(err).to.exist();
+                    expect(err).to.exist();
 
-                        policy._get('test').then((value3) => {
+                    policy._get('test', (value3) => {
 
-                            expect(value3).to.equal(null);
-                            done();
-                        });
+                        expect(value3).to.equal(null);
+                        done();
                     });
-                }, 8);
+                });
             });
         });
 
-        it('returns timeout error when generate takes too long', (done) => {
+        it('returns timeout error when generate takes too long (promise)', (done) => {
 
             let gen = 0;
 
@@ -1379,7 +1384,7 @@ describe('Policy', () => {
             });
         });
 
-        it('does not block the queue when generate fails to call back', (done) => {
+        it('does not block the queue when generate fails to call back (promise)', (done) => {
 
             const rule = {
                 expiresIn: 50000,
@@ -1406,7 +1411,7 @@ describe('Policy', () => {
             });
         });
 
-        it('blocks the queue when generate fails to call back', (done) => {
+        it('blocks the queue when generate fails to call back (promise)', (done) => {
 
             const rule = {
                 expiresIn: 50000,
@@ -1434,7 +1439,7 @@ describe('Policy', () => {
             });
         });
 
-        it('queues requests while pending', (done) => {
+        it('queues requests while pending (promise)', (done) => {
 
             let gen = 0;
             const rule = {
@@ -1469,7 +1474,7 @@ describe('Policy', () => {
             });
         });
 
-        it('catches errors thrown in generateFunc and passes to all pending requests', (done) => {
+        it('catches errors thrown in generateFunc and passes to all pending requests (promise)', (done) => {
 
             const rule = {
                 expiresIn: 100,
@@ -1504,7 +1509,7 @@ describe('Policy', () => {
             });
         });
 
-        it('does not return stale value from previous request timeout left behind', { parallel: false }, (done) => {
+        it('does not return stale value from previous request timeout left behind (promise)', { parallel: false }, (done) => {
 
             let gen = 0;
 
@@ -1562,7 +1567,7 @@ describe('Policy', () => {
             });
         });
 
-        it('passes set error when generateIgnoreWriteError is false', (done) => {
+        it('passes set error when generateIgnoreWriteError is false (promise)', (done) => {
 
             let gen = 0;
 
@@ -1581,9 +1586,9 @@ describe('Policy', () => {
             const client = new Catbox.Client(Import, { partition: 'test-partition' });
             const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-            policy.set = function () {
+            policy.set = function (key, value, ttl, cb) {
 
-                return Promise.reject(new Error('bad cache'));
+                cb(new Error('bad cache'));
             };
 
             client.start()
@@ -1597,9 +1602,9 @@ describe('Policy', () => {
         });
     });
 
-    describe('set()', () => {
+    describe('set() (promise)', () => {
 
-        it('returns null on set when no cache client provided', (done) => {
+        it('returns null on set when no cache client provided (promise)', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
@@ -1609,7 +1614,7 @@ describe('Policy', () => {
             });
         });
 
-        it('ignores missing callback', (done) => {
+        it('ignores missing callback (promise)', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
@@ -1622,9 +1627,9 @@ describe('Policy', () => {
         });
     });
 
-    describe('drop()', () => {
+    describe('drop() (promise)', () => {
 
-        it('returns null on drop when no cache client provided', (done) => {
+        it('returns null on drop when no cache client provided (promise)', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
@@ -1634,7 +1639,7 @@ describe('Policy', () => {
             });
         });
 
-        it('calls the extension clients drop function', (done) => {
+        it('calls the extension clients drop function (promise)', (done) => {
 
             let called = false;
             const engine = {
@@ -1671,7 +1676,7 @@ describe('Policy', () => {
             });
         });
 
-        it('ignores missing callback', (done) => {
+        it('ignores missing callback (promise)', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
@@ -1683,7 +1688,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('counts drop error', (done) => {
+        it('counts drop error (promise)', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -1719,7 +1724,7 @@ describe('Policy', () => {
             });
         });
 
-        it('errors on invalid keys', (done) => {
+        it('errors on invalid keys (promise)', () => {
 
             const policyConfig = {
                 expiresIn: 50000
@@ -1727,16 +1732,15 @@ describe('Policy', () => {
 
             const client = new Catbox.Client(Import);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
-            policy.drop(null)
+            return policy.drop(null)
             .catch((err) => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Invalid key');
-                done();
             });
         });
 
-        it('handles objects as keys', (done) => {
+        it('handles objects as keys (promise)', (done) => {
 
             const policyConfig = {
                 expiresIn: 50000
@@ -1755,9 +1759,9 @@ describe('Policy', () => {
         });
     });
 
-    describe('ttl()', () => {
+    describe('ttl() (promise)', () => {
 
-        it('returns the ttl factoring in the created time', (done) => {
+        it('returns the ttl factoring in the created time (promise)', (done) => {
 
             const engine = {
                 start: function (callback) {
@@ -1786,7 +1790,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns expired when created in the future', (done) => {
+        it('returns expired when created in the future (promise)', (done) => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1802,7 +1806,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns expired on c-e-n same day', (done) => {
+        it('returns expired on c-e-n same day (promise)', (done) => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1818,7 +1822,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns expired on c-(midnight)-e-n', (done) => {
+        it('returns expired on c-(midnight)-e-n (promise)', (done) => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1834,7 +1838,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns ttl on c-n-e same day', (done) => {
+        it('returns ttl on c-n-e same day (promise)', (done) => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1850,7 +1854,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns ttl on c-(midnight)-n-e', (done) => {
+        it('returns ttl on c-(midnight)-n-e (promise)', (done) => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1867,16 +1871,16 @@ describe('Policy', () => {
         });
     });
 
-    describe('compile()', () => {
+    describe('compile() (promise)', () => {
 
-        it('does not try to compile a null config', (done) => {
+        it('does not try to compile a null config (promise)', (done) => {
 
             const rule = Catbox.policy.compile(null);
             expect(rule).to.deep.equal({});
             done();
         });
 
-        it('compiles a single rule', (done) => {
+        it('compiles a single rule (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000
@@ -1887,7 +1891,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('ignores external options', (done) => {
+        it('ignores external options (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000,
@@ -1899,7 +1903,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('assigns the expiresIn when the rule is cached', (done) => {
+        it('assigns the expiresIn when the rule is cached (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000
@@ -1910,7 +1914,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('allows a rule with neither expiresAt or expiresIn', (done) => {
+        it('allows a rule with neither expiresAt or expiresIn (promise)', (done) => {
 
             const fn = function () {
 
@@ -1921,7 +1925,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('allows a rule with expiresAt and undefined expiresIn', (done) => {
+        it('allows a rule with expiresAt and undefined expiresIn (promise)', (done) => {
 
             const fn = function () {
 
@@ -1932,7 +1936,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('allows combination of expiresIn, staleTimeout and staleIn function', (done) => {
+        it('allows combination of expiresIn, staleTimeout and staleIn function (promise)', (done) => {
 
             const staleIn = function (stored, ttl) {
 
@@ -1957,7 +1961,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error when staleIn is greater than expiresIn', (done) => {
+        it('throws an error when staleIn is greater than expiresIn (promise)', (done) => {
 
             const config = {
                 expiresIn: 500000,
@@ -1977,7 +1981,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error when staleTimeout is greater than expiresIn', (done) => {
+        it('throws an error when staleTimeout is greater than expiresIn (promise)', (done) => {
 
             const config = {
                 expiresIn: 500000,
@@ -1997,7 +2001,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error when staleTimeout is greater than expiresIn - staleIn', (done) => {
+        it('throws an error when staleTimeout is greater than expiresIn - staleIn (promise)', (done) => {
 
             const config = {
                 expiresIn: 30000,
@@ -2017,7 +2021,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error when staleTimeout is used without server mode', (done) => {
+        it('throws an error when staleTimeout is used without server mode (promise)', (done) => {
 
             const config = {
                 expiresIn: 1000000,
@@ -2037,7 +2041,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns rule when staleIn is less than expiresIn', (done) => {
+        it('returns rule when staleIn is less than expiresIn (promise)', (done) => {
 
             const config = {
                 expiresIn: 1000000,
@@ -2054,7 +2058,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns rule when staleIn is less than 24 hours and using expiresAt', (done) => {
+        it('returns rule when staleIn is less than 24 hours and using expiresAt (promise)', (done) => {
 
             const config = {
                 expiresAt: '03:00',
@@ -2070,7 +2074,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('does not throw an error if has both staleTimeout and staleIn', (done) => {
+        it('does not throw an error if has both staleTimeout and staleIn (promise)', (done) => {
 
             const config = {
                 staleIn: 30000,
@@ -2089,7 +2093,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error if trying to use stale caching on the client', (done) => {
+        it('throws an error if trying to use stale caching on the client (promise)', (done) => {
 
             const config = {
                 staleIn: 30000,
@@ -2109,7 +2113,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('converts the stale time to ms', (done) => {
+        it('converts the stale time to ms (promise)', (done) => {
 
             const config = {
                 staleIn: 30000,
@@ -2126,7 +2130,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error if staleTimeout is greater than expiresIn', (done) => {
+        it('throws an error if staleTimeout is greater than expiresIn (promise)', (done) => {
 
             const config = {
                 staleIn: 2000,
@@ -2146,7 +2150,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error if staleIn is greater than expiresIn', (done) => {
+        it('throws an error if staleIn is greater than expiresIn (promise)', (done) => {
 
             const config = {
                 staleIn: 1000000,
@@ -2166,7 +2170,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('allows a rule with generateFunc and generateTimeout', (done) => {
+        it('allows a rule with generateFunc and generateTimeout (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000,
@@ -2184,7 +2188,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error with generateFunc but no generateTimeout', (done) => {
+        it('throws an error with generateFunc but no generateTimeout (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000,
@@ -2201,7 +2205,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error with generateTimeout but no generateFunc', (done) => {
+        it('throws an error with generateTimeout but no generateFunc (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000,
@@ -2217,7 +2221,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('throws an error if staleTimeout is greater than pendingGenerateTimeout', (done) => {
+        it('throws an error if staleTimeout is greater than pendingGenerateTimeout (promise)', (done) => {
 
             const config = {
                 staleIn: 30000,
@@ -2238,7 +2242,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('should accept a valid pendingGenerateTimeout', (done) => {
+        it('should accept a valid pendingGenerateTimeout (promise)', (done) => {
 
             const config = {
                 staleIn: 30000,
@@ -2257,9 +2261,9 @@ describe('Policy', () => {
         });
     });
 
-    describe('Policy.ttl()', () => {
+    describe('Policy.ttl() (promise)', () => {
 
-        it('returns zero when a rule is expired', (done) => {
+        it('returns zero when a rule is expired (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000
@@ -2273,7 +2277,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns a positive number when a rule is not expired', (done) => {
+        it('returns a positive number when a rule is not expired (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000
@@ -2286,7 +2290,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns the correct expires time when no created time is provided', (done) => {
+        it('returns the correct expires time when no created time is provided (promise)', (done) => {
 
             const config = {
                 expiresIn: 50000
@@ -2298,7 +2302,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns 0 when created several days ago and expiresAt is used', (done) => {
+        it('returns 0 when created several days ago and expiresAt is used (promise)', (done) => {
 
             const config = {
                 expiresAt: '13:00'
@@ -2311,7 +2315,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns 0 when created in the future', (done) => {
+        it('returns 0 when created in the future (promise)', (done) => {
 
             const config = {
                 expiresIn: 100
@@ -2324,7 +2328,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns 0 for bad rule', (done) => {
+        it('returns 0 for bad rule (promise)', (done) => {
 
             const created = Date.now() - 1000;
             const ttl = Catbox.policy.ttl({}, created);
@@ -2332,7 +2336,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour', (done) => {
+        it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour (promise)', (done) => {
 
             const config = {
                 expiresAt: '12:00'
@@ -2345,7 +2349,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns a positive number when using a future expiresAt', (done) => {
+        it('returns a positive number when using a future expiresAt (promise)', (done) => {
 
             let hour = new Date(Date.now() + 60 * 60 * 1000).getHours();
             hour = hour === 0 ? 1 : hour;
@@ -2361,7 +2365,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns the correct number when using a future expiresAt', (done) => {
+        it('returns the correct number when using a future expiresAt (promise)', (done) => {
 
             const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
             const hours = twoHoursAgo.getHours();
@@ -2380,7 +2384,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns correct number when using an expiresAt time tomorrow', (done) => {
+        it('returns correct number when using an expiresAt time tomorrow (promise)', (done) => {
 
             const hour = new Date(Date.now() - 60 * 60 * 1000).getHours();
 
@@ -2395,7 +2399,7 @@ describe('Policy', () => {
             done();
         });
 
-        it('returns correct number when using a created time from yesterday and expires in 2 hours', (done) => {
+        it('returns correct number when using a created time from yesterday and expires in 2 hours (promise)', (done) => {
 
             const hour = new Date(Date.now() + 2 * 60 * 60 * 1000).getHours();
 
@@ -2413,9 +2417,9 @@ describe('Policy', () => {
         });
     });
 
-    describe('isReady()', () => {
+    describe('isReady() (promise)', () => {
 
-        it('returns cache engine readiness', (done) => {
+        it('returns cache engine readiness (promise)', (done) => {
 
             const expected = true;
             const engine = {
@@ -2448,7 +2452,7 @@ describe('Policy', () => {
             });
         });
 
-        it('returns false when no cache client provided', (done) => {
+        it('returns false when no cache client provided (promise)', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
