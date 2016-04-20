@@ -2,7 +2,7 @@
 
 // Load modules
 
-const Catbox = require('..');
+const Catbox = require('../../');
 const Code = require('code');
 const Lab = require('lab');
 const Import = require('./import');

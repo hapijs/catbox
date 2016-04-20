@@ -2,7 +2,7 @@
 
 // Load modules
 
-const Catbox = require('..');
+const Catbox = require('../../');
 const Code = require('code');
 const Lab = require('lab');
 
@@ -323,7 +323,7 @@ describe('Client', () => {
 
         it('errors on empty key', (done) => {
 
-            const client = new Catbox.Client(require('../test/import'));
+            const client = new Catbox.Client(require('./import'));
             client.start((err) => {
 
                 expect(err).to.not.exist();
