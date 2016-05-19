@@ -8,7 +8,15 @@ Version: **7.x**
 Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory cache,
-[Redis](http://redis.io/), [MongoDB](http://www.mongodb.org/), [Memcached](http://memcached.org/), [Riak](http://basho.com/riak/), [Amazon S3](http://aws.amazon.com/s3/), [RethinkDB](http://rethinkdb.com), [Couchbase](http://www.couchbase.com/) and [Aerospike](http://www.aerospike.com/).
+ [Redis](http://redis.io/),
+ [MongoDB](http://www.mongodb.org/),
+ [Memcached](http://memcached.org/),
+ [Riak](http://basho.com/riak/),
+ [Amazon S3](http://aws.amazon.com/s3/),
+ [RethinkDB](http://rethinkdb.com),
+ [Couchbase](http://www.couchbase.com/),
+ [Aerospike](http://www.aerospike.com/) and
+ [LevelDB](http://leveldb.org/).
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
 
 
