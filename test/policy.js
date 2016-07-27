@@ -40,7 +40,7 @@ describe('Policy', () => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
-                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
+                    expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -64,7 +64,7 @@ describe('Policy', () => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
-                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
+                    expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -88,7 +88,7 @@ describe('Policy', () => {
 
                     expect(err).to.not.exist();
                     expect(value).to.not.exist();
-                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
+                    expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -112,7 +112,7 @@ describe('Policy', () => {
 
                     expect(err).to.not.exist();
                     expect(value).to.equal('123');
-                    expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
+                    expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                     done();
                 });
             });
@@ -152,7 +152,7 @@ describe('Policy', () => {
 
                         expect(err).to.not.exist();
                         expect(value).to.equal('123');
-                        expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
+                        expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                         done();
                     });
                 });
@@ -177,7 +177,7 @@ describe('Policy', () => {
 
                         expect(err).to.exist();
                         expect(err.message).to.equal('Invalid key');
-                        expect(policy.stats).to.deep.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 2 });
+                        expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 2 });
                         done();
                     });
                 });
@@ -215,7 +215,7 @@ describe('Policy', () => {
 
                 expect(err).to.be.instanceOf(Error);
                 expect(value).to.not.exist();
-                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 1 });
+                expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 1 });
                 done();
             });
         });
@@ -255,7 +255,7 @@ describe('Policy', () => {
                 expect(err).to.not.exist();
                 expect(value).to.equal('item');
                 expect(cached.isStale).to.be.false();
-                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
+                expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
                 done();
             });
         });
@@ -268,7 +268,7 @@ describe('Policy', () => {
 
                 expect(err).to.not.exist();
                 expect(value).to.not.exist();
-                expect(policy.stats).to.deep.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
+                expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
                 done();
             });
         });
@@ -497,7 +497,7 @@ describe('Policy', () => {
 
                             expect(err).to.not.exist();
                             expect(value2.gen).to.equal(1);
-                            expect(policy.stats).to.deep.equal({ sets: 1, gets: 2, hits: 0, stales: 0, generates: 1, errors: 0 });
+                            expect(policy.stats).to.equal({ sets: 1, gets: 2, hits: 0, stales: 0, generates: 1, errors: 0 });
                             done();
                         });
                     });
@@ -1343,7 +1343,7 @@ describe('Policy', () => {
 
                                         expect(err).to.not.exist();
                                         expect(value3.gen).to.equal(2);        // Fresh
-                                        expect(policy.stats).to.deep.equal({ sets: 2, gets: 3, hits: 2, stales: 1, generates: 2, errors: 0 });
+                                        expect(policy.stats).to.equal({ sets: 2, gets: 3, hits: 2, stales: 1, generates: 2, errors: 0 });
                                         done();
                                     });
                                 }, 11);
@@ -1950,7 +1950,7 @@ describe('Policy', () => {
         it('does not try to compile a null config', (done) => {
 
             const rule = Catbox.policy.compile(null);
-            expect(rule).to.deep.equal({});
+            expect(rule).to.equal({});
             done();
         });
 
