@@ -76,6 +76,7 @@ The `Client` object provides the following methods:
     - `key` - a cache key object (see below).
     - `callback` - a function with the signature `function(err)`.
 - `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready.
+- `validateSegmentName(segment)` - returns `null` if the segment name is valid (see below), otherwise should return an instance of `Error` with an appropriate message.
 
 
 Any method with a `key` argument takes an object with the following required properties:
