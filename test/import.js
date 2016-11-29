@@ -110,7 +110,7 @@ internals.Connection.prototype.set = function (key, value, ttl, callback) {
     const envelope = {
         item: stringifiedValue,
         stored: Date.now(),
-        ttl: ttl
+        ttl
     };
 
     this.cache[key.segment] = this.cache[key.segment] || {};

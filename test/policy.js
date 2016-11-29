@@ -792,7 +792,7 @@ describe('Policy', () => {
 
                 const rule = {
                     expiresIn: 100,
-                    staleIn: staleIn,
+                    staleIn,
                     staleTimeout: 5,
                     generateTimeout: 20,
                     generateFunc: function (id, next) {
@@ -850,7 +850,7 @@ describe('Policy', () => {
                         setTimeout(() => {
 
                             if (gen !== 2) {
-                                return next(null, { gen: gen });
+                                return next(null, { gen });
                             }
 
                             return next(new Error());
@@ -908,7 +908,7 @@ describe('Policy', () => {
                         setTimeout(() => {
 
                             if (gen === 1) {
-                                return next(null, { gen: gen });
+                                return next(null, { gen });
                             }
 
                             return next(new Error());
@@ -964,7 +964,7 @@ describe('Policy', () => {
                         setTimeout(() => {
 
                             if (gen === 1) {
-                                return next(null, { gen: gen });
+                                return next(null, { gen });
                             }
 
                             return next(new Error());
@@ -1021,7 +1021,7 @@ describe('Policy', () => {
                         setTimeout(() => {
 
                             if (gen === 1) {
-                                return next(null, { gen: gen });
+                                return next(null, { gen });
                             }
 
                             return next(new Error());
@@ -1077,7 +1077,7 @@ describe('Policy', () => {
                         ++gen;
 
                         if (gen === 1) {
-                            return next(null, { gen: gen });
+                            return next(null, { gen });
                         }
 
                         return next(new Error());
@@ -1130,7 +1130,7 @@ describe('Policy', () => {
                         ++gen;
 
                         if (gen === 1) {
-                            return next(null, { gen: gen });
+                            return next(null, { gen });
                         }
 
                         return next(new Error());
@@ -1181,7 +1181,7 @@ describe('Policy', () => {
                         ++gen;
 
                         if (gen === 1) {
-                            return next(null, { gen: gen });
+                            return next(null, { gen });
                         }
 
                         return next(new Error());
@@ -1277,7 +1277,7 @@ describe('Policy', () => {
 
                         ++gen;
                         if (gen !== 2) {
-                            return next(null, { gen: gen });
+                            return next(null, { gen });
                         }
 
                         return next(new Error());
@@ -1370,7 +1370,7 @@ describe('Policy', () => {
                             return next(new Error());
                         }
 
-                        return next(null, { gen: gen });
+                        return next(null, { gen });
                     }
                 };
 
@@ -2019,7 +2019,7 @@ describe('Policy', () => {
 
             const config = {
                 expiresIn: 500000,
-                staleIn: staleIn,
+                staleIn,
                 staleTimeout: 500,
                 generateTimeout: 10,
                 generateFunc: function () { }
