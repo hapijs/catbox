@@ -1753,16 +1753,12 @@ describe('Policy', () => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            expect(() => {
+            policy.drop((err) => {
 
-                policy.drop((err) => {
+                expect(err).to.not.exist();
+                done();
+            });
 
-                    expect(err).to.not.exist();
-                    done();
-                });
-            }).to.not.throw();
-
-            done();
         });
 
         it('ignores missing callback', (done) => {
