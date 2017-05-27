@@ -1799,6 +1799,18 @@ describe('Policy', () => {
             });
         });
 
+        it('ignores missing key', (done) => {
+
+            const policy = new Catbox.Policy({ expiresIn: 1 });
+
+            policy.drop((err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+
+        });
+
         it('ignores missing callback', (done) => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
@@ -1859,6 +1871,17 @@ describe('Policy', () => {
 
                 expect(err).to.exist();
                 expect(err.message).to.equal('Invalid key');
+                done();
+            });
+        });
+
+        it('accepts empty string', (done) => {
+
+            const policy = new Catbox.Policy({ expiresIn: 1 });
+
+            policy.drop('', (err) => {
+
+                expect(err).to.not.exist();
                 done();
             });
         });
