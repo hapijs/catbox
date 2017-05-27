@@ -1855,11 +1855,14 @@ describe('Policy', () => {
 
             const client = new Catbox.Client(Import);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
-            policy.drop(null, (err) => {
+            client.start((err) => {
 
-                expect(err).to.exist();
-                expect(err.message).to.equal('Invalid key');
-                done();
+                expect(err).to.not.exist();
+                policy.drop(null, (err) => {
+
+                    expect(err).to.exist();
+                    done();
+                });
             });
         });
 
