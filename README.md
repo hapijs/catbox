@@ -89,7 +89,7 @@ Any method with a `key` argument takes an object with the following required pro
 The `Policy` object provides a convenient cache interface by setting a global policy which is automatically applied to every storage action.
 The object is constructed using `new Policy(options, [cache, segment])` where:
 
-- `options` - is an object with the following keys:
+- `options` - is an object with the following optional keys (unless noted otherwise):
     - `expiresIn` - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used
       together with `expiresAt`.
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records for the route
