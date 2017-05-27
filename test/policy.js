@@ -1267,7 +1267,6 @@ describe('Policy', () => {
                 });
             });
 
-
             it('returns fresh objects', (done) => {
 
                 let gen = 0;
@@ -2368,6 +2367,44 @@ describe('Policy', () => {
             const rule = Catbox.policy.compile(config, true);
             expect(rule.pendingGenerateTimeout).to.equal(5000);
 
+            done();
+        });
+
+        it('throws an error if staleIn is greater than one day when expiredAt is used', (done) => {
+
+            const config = {
+                staleIn: 1000 * 60 * 60 * 24 + 1,
+                expiresAt: '12:00',
+                staleTimeout: 300,
+                generateTimeout: 10,
+                generateFunc: function () { }
+            };
+
+            const fn = function () {
+
+                Catbox.policy.compile(config, true);
+            };
+
+            expect(fn).to.throw();
+            done();
+        });
+
+        it('allows staleIn to be greater than one day when expiredAt is not used', (done) => {
+
+            const config = {
+                staleIn: 1000 * 60 * 60 * 24 + 1,
+                expiresIn: 1000 * 60 * 60 * 24 + 400,
+                staleTimeout: 300,
+                generateTimeout: 10,
+                generateFunc: function () { }
+            };
+
+            const fn = function () {
+
+                Catbox.policy.compile(config, true);
+            };
+
+            expect(fn).to.not.throw();
             done();
         });
     });
