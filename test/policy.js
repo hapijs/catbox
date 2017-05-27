@@ -718,6 +718,56 @@ describe('Policy', () => {
                 });
             });
 
+            it('generateTimeout is triggered when staleTimeout is greater than ttl and generation is slow', (done) => {
+
+                let gen = 0;
+
+                let generateCalled = 0;
+
+                const rule = {
+                    expiresIn: 121,
+                    staleIn: 1,
+                    staleTimeout: 50,
+                    generateTimeout: 100,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(() => {
+
+                            return next(null, { gen: ++gen });
+                        }, generateCalled++ === 1 ? 2500 : 1);
+                    }
+                };
+
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(() => {
+
+                    policy.get('test', (err, value1, cached1, report1) => {
+
+                        expect(err).to.not.exist();
+                        expect(value1.gen).to.equal(1);        // Fresh
+                        setTimeout(() => {
+
+                            policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(err).to.exist();
+                                expect(err.output.statusCode).to.equal(503);       // Service Unavailable
+                                setTimeout(() => {
+
+                                    policy.get('test', (err, value3, cached3, report3) => {
+
+                                        expect(err).to.not.exist();
+                                        expect(value3.gen).to.equal(2);        // Fresh
+                                        done();
+                                    });
+                                }, 8);
+                            });
+                        }, 80);
+                    });
+                });
+            });
+
             it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period ', (done) => {
 
                 let gen = 0;
