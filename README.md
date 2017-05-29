@@ -35,6 +35,7 @@ each service must be manually installed via npm or package dependencies manually
 - [Couchbase](https://github.com/cmfatih/catbox-couchbase)
 - [Aerospike](https://github.com/ooogway/catbox-aerospike)
 - [LevelDB](https://github.com/mshick/catbox-multilevel)
+- [Local Disk](https://github.com/mirusresearch/catbox-disk)
 
 
 ### `Client`
