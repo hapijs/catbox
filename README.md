@@ -5,7 +5,7 @@ Version: **7.x**
 
 [![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
 
-Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
+Lead Maintainer: [Gil Pedersen](https://github.com/kanongil)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory cache,
  [Redis](http://redis.io/),
