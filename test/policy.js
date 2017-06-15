@@ -829,6 +829,55 @@ describe('Policy', () => {
                 });
             });
 
+            it('returns fresh object when cache is expired and called during a pendingGenerateTimeout period ', (done) => {
+
+                let gen = 0;
+
+                const rule = {
+                    expiresIn: 1000,
+                    staleIn: 100,
+                    staleTimeout: 5,
+                    pendingGenerateTimeout: 200,
+                    generateTimeout: false,
+                    generateFunc: function (id, next) {
+
+                        setTimeout(() => {
+
+                            return next(null, { gen: ++gen }, 1000);
+                        }, 50);
+                    }
+                };
+
+                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                client.start(() => {
+
+                    policy.get('test', (err, value1, cached1, report1) => {
+
+                        expect(err).to.not.exist();
+                        expect(value1.gen).to.equal(1);        // Fresh
+                        setTimeout(() => {
+
+                            policy.get('test', (err, value2, cached2, report2) => {
+
+                                expect(err).to.not.exist();
+                                expect(value2.gen).to.equal(1);        // Stale
+                                setTimeout(() => {
+
+                                    policy.get('test', (err, value3, cached3, report3) => {
+
+                                        expect(err).to.not.exist();
+                                        expect(value3.gen).to.equal(3);        // New
+                                        done();
+                                    });
+                                }, 40); // just after cache expiration
+                            });
+                        }, 980); // just before cache expiration
+                    });
+                });
+            });
+
             it('returns stale object then fresh object based on timing using staleIn function', (done) => {
 
                 const staleIn = function (stored, ttl) {
