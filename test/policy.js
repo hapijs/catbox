@@ -829,7 +829,7 @@ describe('Policy', () => {
                 });
             });
 
-            it('returns fresh object when cache is expired and called during a pendingGenerateTimeout period ', (done) => {
+            it('returns fresh object when cache is expired and called during a pendingGenerateTimeout period', (done) => {
 
                 let gen = 0;
 
@@ -868,7 +868,7 @@ describe('Policy', () => {
                                     policy.get('test', (err, value3, cached3, report3) => {
 
                                         expect(err).to.not.exist();
-                                        expect(value3.gen).to.equal(3);        // New
+                                        expect(value3.gen).to.equal(2);        // New
                                         done();
                                     });
                                 }, 40); // just after cache expiration
