@@ -392,6 +392,77 @@ describe('Client', () => {
         });
     });
 
+    describe('dropSegment()', () => {
+
+        it('errors if not ready', (done) => {
+
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return false;
+                }
+            };
+
+            const client = new Catbox.Client(engine);
+            client.dropSegment('test', (err, result) => {
+
+                expect(err).to.not.equal(null);
+                done();
+            });
+        });
+
+        it('errors if client does not support dropSegment', (done) => {
+
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                }
+            };
+
+            const client = new Catbox.Client(engine);
+            client.dropSegment('test', (err, result) => {
+
+                expect(err).to.not.equal(null);
+                done();
+            });
+        });
+
+        it('calls the extension clients dropSegment function', (done) => {
+
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                dropSegment: function (key, callback) {
+
+                    callback(null, 'success');
+                }
+            };
+
+            const client = new Catbox.Client(engine);
+            client.dropSegment('test', (err, result) => {
+
+                expect(err).to.not.exist();
+                expect(result).to.equal('success');
+                done();
+            });
+        });
+    });
+
     describe('validateKey()', () => {
 
         it('errors on missing segment', (done) => {
