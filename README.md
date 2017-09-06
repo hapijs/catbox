@@ -76,6 +76,9 @@ The `Client` object provides the following methods:
 - `drop(key, callback)` - remove an item from cache where:
     - `key` - a cache key object (see below).
     - `callback` - a function with the signature `function(err)`.
+- `dropSegment(segment, callback)` - remove items inside the cache segment:
+    - `segment` - the segment name.
+    - `callback` - a function with the signature `function(err)`.
 - `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready.
 - `validateSegmentName(segment)` - returns `null` if the segment name is valid (see below), otherwise should return an instance of `Error` with an appropriate message.
 
