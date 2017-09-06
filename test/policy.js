@@ -539,6 +539,8 @@ describe('Policy', () => {
 
             it('returns an error when get fails and generateOnReadError is false', (done) => {
 
+                let gen = 0;
+
                 const rule = {
                     expiresIn: 100,
                     staleIn: 20,
