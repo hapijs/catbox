@@ -1936,6 +1936,109 @@ describe('Policy', () => {
         });
     });
 
+    describe('dropSegment()', () => {
+
+        it('returns null on drop when no cache client provided', (done) => {
+
+            const policy = new Catbox.Policy({ expiresIn: 1 });
+
+            policy.dropSegment((err) => {
+
+                expect(err).to.not.exist();
+                done();
+            });
+        });
+
+        it('calls the extension clients dropSegment function with the segment', (done) => {
+
+            let called = false;
+            let segmentName = null;
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                dropSegment: function (segment, callback) {
+
+                    called = true;
+                    segmentName = segment;
+                    callback(null);
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            const policyConfig = {
+                expiresIn: 50000
+            };
+
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            policy.dropSegment((err) => {
+
+                expect(err).to.not.exist();
+                expect(called).to.be.true();
+                expect(segmentName).to.equal('test');
+                done();
+            });
+        });
+
+        it('ignores missing callback', (done) => {
+
+            const policy = new Catbox.Policy({ expiresIn: 1 });
+
+            expect(() => {
+
+                policy.dropSegment();
+            }).to.not.throw();
+
+            done();
+        });
+
+        it('counts drop error', (done) => {
+
+            const engine = {
+                start: function (callback) {
+
+                    callback();
+                },
+                isReady: function () {
+
+                    return true;
+                },
+                dropSegment: function (segment, callback) {
+
+                    callback(new Error('failed'));
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            const policyConfig = {
+                expiresIn: 50000
+            };
+
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            policy.dropSegment((err) => {
+
+                expect(err).to.exist();
+                expect(policy.stats.errors).to.equal(1);
+                done();
+            });
+        });
+    });
+
     describe('ttl()', () => {
 
         it('returns the ttl factoring in the created time', (done) => {
