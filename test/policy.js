@@ -4,18 +4,14 @@
 
 const Catbox = require('..');
 const Code = require('code');
+const Hoek = require('hoek');
 const Lab = require('lab');
-const Import = require('./import');
+
+const Connections = require('./connections');
 
 // Declare internals
 
 const internals = {};
-
-
-internals.delay = function (duration) {
-
-    return new Promise((resolve) => setTimeout(resolve, duration));
-};
 
 
 // Test shortcuts
@@ -30,14 +26,14 @@ describe('Policy', () => {
 
     it('returns cached item', async () => {
 
-        const client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Connections.Callbacks);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
         await client.start();
 
         await policy.set('x', '123', null);
 
-        const { value, cached, report } = await policy.get('x');
+        const { value } = await policy.get('x');
 
         expect(value).to.equal('123');
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -45,14 +41,14 @@ describe('Policy', () => {
 
     it('works with special property names', async () => {
 
-        const client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Connections.Callbacks);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
         await client.start();
 
         await policy.set('__proto__', '123', null);
 
-        const { value, cached, report } = await policy.get('__proto__');
+        const { value } = await policy.get('__proto__');
 
         expect(value).to.equal('123');
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -60,14 +56,14 @@ describe('Policy', () => {
 
     it('finds nothing when using empty policy rules', async () => {
 
-        const client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Connections.Callbacks);
         const policy = new Catbox.Policy({}, client, 'test');
 
         await client.start();
 
         await policy.set('x', '123', null);
 
-        const { value, cached, report } = await policy.get('x');
+        const { value } = await policy.get('x');
 
         expect(value).to.not.exist();
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
@@ -75,14 +71,14 @@ describe('Policy', () => {
 
     it('returns cached item with no global rules and manual ttl', async () => {
 
-        const client = new Catbox.Client(Import);
+        const client = new Catbox.Client(Connections.Callbacks);
         const policy = new Catbox.Policy({}, client, 'test');
 
         await client.start();
 
         await policy.set('x', '123', 1000);
 
-        const { value, cached, report } = await policy.get('x');
+        const { value } = await policy.get('x');
 
         expect(value).to.equal('123');
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -96,7 +92,7 @@ describe('Policy', () => {
 
         expect(() => {
 
-            const client = new Catbox.Client(Import);
+            const client = new Catbox.Client(Connections.Callbacks);
             new Catbox.Policy(config, client);
         }).to.throw('Invalid segment name: undefined (Empty string)');
     });
@@ -105,14 +101,14 @@ describe('Policy', () => {
 
         it('returns cached item using object id', async () => {
 
-            const client = new Catbox.Client(Import);
+            const client = new Catbox.Client(Connections.Callbacks);
             const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
             await client.start();
 
             await policy.set({ id: 'x' }, '123', null);
 
-            const { value, cached, report } = await policy.get({ id: 'x' });
+            const { value } = await policy.get({ id: 'x' });
 
             expect(value).to.equal('123');
             expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -120,7 +116,7 @@ describe('Policy', () => {
 
         it('rejects the promise on null id', async () => {
 
-            const client = new Catbox.Client(Import);
+            const client = new Catbox.Client(Connections.Callbacks);
             const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
             await client.start();
@@ -191,7 +187,7 @@ describe('Policy', () => {
             const client = new Catbox.Client(engine);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-            const { value, cached, report } = await policy.get('test1');
+            const { value, report } = await policy.get('test1');
 
             expect(value).to.equal('item');
             expect(report.isStale).to.be.false();
@@ -202,7 +198,7 @@ describe('Policy', () => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            const { value, cached, report } = await policy.get('x');
+            const { value } = await policy.get('x');
 
             expect(value).to.not.exist();
             expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
@@ -236,16 +232,13 @@ describe('Policy', () => {
                 const policyConfig = {
                     expiresIn: 50000,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, false);
-                    }
+                    generateFunc: (id) => false
                 };
 
                 const client = new Catbox.Client(engine);
                 const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-                const { value, cached, report } = await policy.get('test1');
+                const { value } = await policy.get('test1');
 
                 expect(value).to.equal(false);
             });
@@ -255,13 +248,10 @@ describe('Policy', () => {
                 const policy = new Catbox.Policy({
                     expiresIn: 1,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, 'new result');
-                    }
+                    generateFunc: (id) => 'new result'
                 });
 
-                const { value, cached, report } = await policy.get('test');
+                const { value, cached } = await policy.get('test');
 
                 expect(value).to.equal('new result');
                 expect(cached).to.not.exist();
@@ -275,18 +265,15 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value, cached, report } = await policy.get('test');
+                const { value } = await policy.get('test');
 
                 expect(value.gen).to.equal(1);
             });
@@ -300,13 +287,10 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy({ expiresIn: 100 }, client, 'test-segment');
 
                 await client.start();
@@ -331,13 +315,10 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 client.get = async function (key) {
 
                     throw new Error('bad client');
@@ -346,7 +327,7 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value, cached, report } = await policy.get('test');
+                const { value } = await policy.get('test');
 
                 expect(value.gen).to.equal(1);
             });
@@ -361,13 +342,10 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     generateOnReadError: false,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 client.get = async function (key) {
 
                     throw new Error('bad client');
@@ -389,26 +367,25 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            return next(null, { gen: ++gen }, 100);
-                        }, 6);
+                        await internals.wait(6);
+                        flags.ttl = 100;
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(27);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(27);
+                const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
             });
@@ -422,31 +399,30 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            return next(null, { gen: ++gen }, 100);
-                        }, 6);
+                        await internals.wait(6);
+                        flags.ttl = 100;
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.delay(3);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(3);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
             });
@@ -462,37 +438,36 @@ describe('Policy', () => {
                     staleIn: 100,
                     staleTimeout: 5,
                     generateTimeout: 100,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            generateCalled++;
-                            return next(null, { gen: ++gen }, 1000);
-                        }, 50);
+                        ++generateCalled;
+                        await internals.wait(50);
+                        flags.ttl = 1000;
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(101);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(101);
+                const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.delay(8);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(8);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await internals.delay(50);
-                const { value: value4, cached: cached4, report: report4 } = await policy.get('test');
+                await internals.wait(50);
+                const { value: value4 } = await policy.get('test');
 
                 expect(value4.gen).to.equal(3);        // Fresh
                 expect(generateCalled).to.equal(3);    // original generate + 2 calls while stale
@@ -509,32 +484,30 @@ describe('Policy', () => {
                     staleIn: 1,
                     staleTimeout: 50,
                     generateTimeout: 100,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            return next(null, { gen: ++gen });
-                        }, generateCalled++ === 1 ? 2500 : 1);
+                        await internals.wait(generateCalled++ === 1 ? 2500 : 1);
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(80);
+                await internals.wait(80);
                 const error = await expect(policy.get('test')).to.reject(Error);
 
                 expect(error).to.exist();
                 expect(error.output.statusCode).to.equal(503);       // Service Unavailable
 
-                await internals.delay(8);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(8);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
             });
@@ -551,38 +524,37 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     pendingGenerateTimeout: 200,
                     generateTimeout: 100,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            generateCalled++;
-                            return next(null, { gen: ++gen }, 1000);
-                        }, 50);
+                        await internals.wait(50);
+                        flags.ttl = 1000;
+                        ++generateCalled;
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(101);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(101);
+                const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.delay(8);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(8);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await internals.delay(50);
+                await internals.wait(50);
 
-                const { value: value4, cached: cached4, report: report4 } = await policy.get('test');
+                const { value: value4 } = await policy.get('test');
 
                 expect(value4.gen).to.equal(2);        // Fresh
                 expect(generateCalled).to.equal(2); // original generate + 1 call while stale
@@ -598,31 +570,30 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     pendingGenerateTimeout: 200,
                     generateTimeout: false,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            return next(null, { gen: ++gen }, 1000);
-                        }, 50);
+                        await internals.wait(50);
+                        flags.ttl = 1000;
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(980);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(980);
+                const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.delay(40);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(40);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // New
             });
@@ -643,31 +614,30 @@ describe('Policy', () => {
                     staleIn,
                     staleTimeout: 5,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id, flags) {
 
-                        setTimeout(() => {
-
-                            return next(null, { gen: ++gen }, 100);
-                        }, 6);
+                        await internals.wait(6);
+                        flags.ttl = 100;
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.delay(3);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(3);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
             });
@@ -681,39 +651,36 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
+                        await internals.wait(6);
+                        if (gen !== 2) {
+                            return { gen };
+                        }
 
-                        setTimeout(() => {
-
-                            if (gen !== 2) {
-                                return next(null, { gen });
-                            }
-
-                            return next(new Error());
-                        }, 6);
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.delay(3);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(3);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(3);     // Fresh
             });
@@ -728,38 +695,35 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     dropOnError: true,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
+                        await internals.wait(6);
+                        if (gen === 1) {
+                            return { gen };
+                        }
 
-                        setTimeout(() => {
-
-                            if (gen === 1) {
-                                return next(null, { gen });
-                            }
-
-                            return next(new Error());
-                        }, 6);
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.delay(3);
+                await internals.wait(3);
                 await expect(policy.get('test')).to.reject(Error);   // Stale
             });
 
@@ -772,38 +736,35 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
+                        await internals.wait(6);
+                        if (gen === 1) {
+                            return { gen };
+                        }
 
-                        setTimeout(() => {
-
-                            if (gen === 1) {
-                                return next(null, { gen });
-                            }
-
-                            return next(new Error());
-                        }, 6);
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.delay(3);
+                await internals.wait(3);
                 await expect(policy.get('test')).to.reject(Error);    // Stale
             });
 
@@ -817,39 +778,36 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     dropOnError: false,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
+                        await internals.wait(6);
+                        if (gen === 1) {
+                            return { gen };
+                        }
 
-                        setTimeout(() => {
-
-                            if (gen === 1) {
-                                return next(null, { gen });
-                            }
-
-                            return next(new Error());
-                        }, 6);
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.delay(3);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(3);
+                const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);     // Stale
             });
@@ -864,28 +822,27 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     dropOnError: false,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
-
                         if (gen === 1) {
-                            return next(null, { gen });
+                            return { gen };
                         }
 
-                        return next(new Error());
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
+                await internals.wait(21);
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
@@ -908,28 +865,27 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     dropOnError: true,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
-
                         if (gen === 1) {
-                            return next(null, { gen });
+                            return { gen };
                         }
 
-                        return next(new Error());
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
+                await internals.wait(21);
 
                 await expect(policy.get('test')).to.reject(Error);      // Generates a new one in background which will produce Error and clear the cache
                 await expect(policy.get('test')).to.reject(Error);
@@ -944,41 +900,30 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
-
                         if (gen === 1) {
-                            return next(null, { gen });
+                            return { gen };
                         }
 
-                        return next(new Error());
+                        throw new Error('boom');
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1 } = await policy.get('test');
+                const { value: value1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
 
-                // Generates a new one in background which will produce Error, but not clear the cache
-
-                expect(value2.gen).to.equal(1);       // Stale
-                expect(report2.isStale).to.be.true();
-                expect(report2.error).to.be.instanceOf(Error);
-
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
-
-                expect(value3.gen).to.equal(1);       // Stale
-                expect(report2.isStale).to.be.true();
-                expect(report3.error).to.be.instanceOf(Error);
+                await expect(policy.get('test')).to.reject('boom');         // Generates a new one in background which will produce Error, but not clear the cache
+                await expect(policy.get('test')).to.reject('boom');
             });
 
             it('returns fresh objects', async () => {
@@ -990,30 +935,27 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 10,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1, report: report1 } = await policy.get('test');
 
                 expect(report1.error).to.not.exist();
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(report2.error).to.not.exist();
                 expect(value2.gen).to.equal(2);     // Fresh
 
-                await internals.delay(1);
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
+                await internals.wait(1);
+                const { value: value3, report: report3 } = await policy.get('test');
 
                 expect(report3.error).to.not.exist();
                 expect(value3.gen).to.equal(2);     // Fresh
@@ -1030,29 +972,30 @@ describe('Policy', () => {
                     staleTimeout: 10,
                     generateTimeout: 10,
                     dropOnError: false,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
+                        await internals.wait(6);
                         if (gen !== 2) {
-                            return next(null, { gen });
+                            return { gen };
                         }
 
-                        return next(new Error());
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1, report: report1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.delay(21);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(21);
+                const { value: value2, report: report2 } = await policy.get('test');
 
                 // Generates a new one which will produce Error
 
@@ -1070,29 +1013,26 @@ describe('Policy', () => {
                     staleIn: 15,
                     staleTimeout: 15,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
+                const { value: value1, report: report1 } = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.delay(5);
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                await internals.wait(5);
+                const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Fresh
                 expect(report2.error).to.not.exist();
 
-                await internals.delay(11);
+                await internals.wait(11);
 
                 const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
 
@@ -1111,34 +1051,31 @@ describe('Policy', () => {
                     staleIn: 5,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
                         ++gen;
-
-                        if (gen === 2) {
-                            return next(new Error());
+                        if (gen !== 2) {
+                            return { gen };
                         }
 
-                        return next(null, { gen });
+                        throw new Error();
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');
-
+                const { value: value1, report: report1 } = await policy.get('test');
                 expect(value1.gen).to.equal(1);     // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.delay(8);
+                await internals.wait(8);
 
                 await expect(policy.get('test')).to.reject(Error);
 
                 const value3 = await policy._cache.get({ segment: policy._segment, id: 'test' });
-
                 expect(value3).to.equal(null);
             });
 
@@ -1149,16 +1086,14 @@ describe('Policy', () => {
                 const rule = {
                     expiresIn: 10,
                     generateTimeout: 5,
-                    generateFunc: function (id, next) {
+                    generateFunc: async function (id) {
 
-                        setTimeout(() => {
-
-                            return next(null, { gen: ++gen });
-                        }, 6);
+                        await internals.wait(6);
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1166,14 +1101,14 @@ describe('Policy', () => {
                 const error1 = await expect(policy.get('test')).to.reject(Error);
                 expect(error1.output.statusCode).to.equal(503);
 
-                await internals.delay(2);
+                await internals.wait(2);
 
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');
+                const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);
                 expect(report2.error).to.not.exist();
 
-                await internals.delay(8);
+                await internals.wait(8);
 
                 const error3 = await expect(policy.get('test')).to.reject(Error);
                 expect(error3.output.statusCode).to.equal(503);
@@ -1184,10 +1119,13 @@ describe('Policy', () => {
                 const rule = {
                     expiresIn: 50000,
                     generateTimeout: 5,
-                    generateFunc: function () { }
+                    generateFunc: async function (id) {
+
+                        await internals.never();
+                    }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1203,10 +1141,13 @@ describe('Policy', () => {
                 const rule = {
                     expiresIn: 50000,
                     generateTimeout: false,
-                    generateFunc: function () { }
+                    generateFunc: async function (id) {
+
+                        await internals.never();
+                    }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1224,7 +1165,7 @@ describe('Policy', () => {
                     ++called;
                 });
 
-                await internals.delay(20);
+                await internals.wait(20);
 
                 expect(called).to.equal(0);
             });
@@ -1235,13 +1176,10 @@ describe('Policy', () => {
                 const rule = {
                     expiresIn: 100,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1249,7 +1187,7 @@ describe('Policy', () => {
                 let result = null;
                 const compare = async () => {
 
-                    const { value, cached, report } = await policy.get('test');
+                    const { value } = await policy.get('test');
 
                     if (!result) {
                         result = value;
@@ -1267,13 +1205,13 @@ describe('Policy', () => {
                 const rule = {
                     expiresIn: 100,
                     generateTimeout: 10,
-                    generateFunc: function (id, next) {
+                    generateFunc: (id) => {
 
                         throw new Error('generate failed');
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1303,16 +1241,14 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 10,
                     generateTimeout: 20,
-                    generateFunc: function (id, next) {
+                    generateFunc: async (id) => {
 
-                        setTimeout(() => {
-
-                            next(null, { gen: ++gen });
-                        }, 5);
+                        await internals.wait(5);
+                        return { gen: ++gen };
                     }
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
 
                 const orig = client.connection.get;
                 client.connection.get = function (key, callback) {      // Delayed get
@@ -1327,18 +1263,18 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1, cached: cached1, report: report1 } = await policy.get('test');       // Cache lookup takes 10 + generate 5
+                const { value: value1, report: report1 } = await policy.get('test');       // Cache lookup takes 10 + generate 5
 
                 expect(value1.gen).to.equal(1);                      // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.delay(21);                           // Wait for stale
-                const { value: value2, cached: cached2, report: report2 } = await policy.get('test');       // Cache lookup takes 10, generate comes back after 5
+                await internals.wait(21);                           // Wait for stale
+                const { value: value2, report: report2 } = await policy.get('test');       // Cache lookup takes 10, generate comes back after 5
 
                 expect(value2.gen).to.equal(2);                      // Fresh
                 expect(report2.error).to.not.exist();
 
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');       // Cache lookup takes 10
+                const { value: value3, report: report3 } = await policy.get('test');       // Cache lookup takes 10
 
                 expect(value3.gen).to.equal(2);                                 // Cached (10 left to stale)
                 expect(report3.error).to.not.exist();
@@ -1346,7 +1282,6 @@ describe('Policy', () => {
                 client.connection.get = orig;
             });
 
-            // TODO: remove generateIgnoreWriteError??
             it('passes set error when generateIgnoreWriteError is false', async () => {
 
                 let gen = 0;
@@ -1357,27 +1292,20 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     generateTimeout: 10,
                     generateIgnoreWriteError: false,
-                    generateFunc: function (id, next) {
-
-                        return next(null, { gen: ++gen });
-                    }
+                    generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Import, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
-                policy.set = async function (key, value, ttl) {
+                policy.set = function (key, value, ttl) {
 
                     throw new Error('bad cache');
                 };
 
                 await client.start();
 
-                const { value, cached, report } = await policy.get('test');
-
-                expect(value.gen).to.equal(1);
-                expect(report.error).to.exist();
-                expect(report.error.message).to.equal('bad cache');
+                await expect(policy.get('test')).to.reject('bad cache');
             });
         });
     });
@@ -1474,7 +1402,7 @@ describe('Policy', () => {
                 expiresIn: 50000
             };
 
-            const client = new Catbox.Client(Import);
+            const client = new Catbox.Client(Connections.Callbacks);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
             await client.start();
 
@@ -1487,7 +1415,7 @@ describe('Policy', () => {
                 expiresIn: 50000
             };
 
-            const client = new Catbox.Client(Import);
+            const client = new Catbox.Client(Connections.Callbacks);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
             await client.start();
 
@@ -1672,7 +1600,10 @@ describe('Policy', () => {
                 staleIn,
                 staleTimeout: 500,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1690,7 +1621,10 @@ describe('Policy', () => {
                 staleIn: 1000000,
                 staleTimeout: 500,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1708,7 +1642,10 @@ describe('Policy', () => {
                 staleIn: 100000,
                 staleTimeout: 500000,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1726,7 +1663,10 @@ describe('Policy', () => {
                 staleIn: 20000,
                 staleTimeout: 10000,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1744,7 +1684,10 @@ describe('Policy', () => {
                 staleIn: 500000,
                 staleTimeout: 500,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1762,7 +1705,10 @@ describe('Policy', () => {
                 staleIn: 500000,
                 staleTimeout: 500,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const rule = Catbox.policy.compile(config, true);
@@ -1777,7 +1723,10 @@ describe('Policy', () => {
                 staleIn: 5000000,
                 staleTimeout: 500,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const rule = Catbox.policy.compile(config, true);
@@ -1791,7 +1740,10 @@ describe('Policy', () => {
                 staleTimeout: 300,
                 expiresIn: 60000,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1808,7 +1760,10 @@ describe('Policy', () => {
                 expiresIn: 60000,
                 staleTimeout: 300,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1826,7 +1781,10 @@ describe('Policy', () => {
                 expiresIn: 60000,
                 staleTimeout: 300,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const rule = Catbox.policy.compile(config, true);
@@ -1841,7 +1799,10 @@ describe('Policy', () => {
                 expiresIn: 10000,
                 staleTimeout: 30000,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1859,7 +1820,10 @@ describe('Policy', () => {
                 expiresIn: 60000,
                 staleTimeout: 30,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1875,7 +1839,10 @@ describe('Policy', () => {
             const config = {
                 expiresIn: 50000,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1890,7 +1857,10 @@ describe('Policy', () => {
 
             const config = {
                 expiresIn: 50000,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1924,7 +1894,10 @@ describe('Policy', () => {
                 staleTimeout: 300,
                 pendingGenerateTimeout: 200,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1943,7 +1916,10 @@ describe('Policy', () => {
                 staleTimeout: 300,
                 pendingGenerateTimeout: 5000,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const rule = Catbox.policy.compile(config, true);
@@ -1957,7 +1933,10 @@ describe('Policy', () => {
                 expiresAt: '12:00',
                 staleTimeout: 300,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -1975,7 +1954,10 @@ describe('Policy', () => {
                 expiresIn: 1000 * 60 * 60 * 24 + 400,
                 staleTimeout: 300,
                 generateTimeout: 10,
-                generateFunc: function () { }
+                generateFunc: async (id) => {
+
+                    await internals.never();
+                }
             };
 
             const fn = function () {
@@ -2172,3 +2154,15 @@ describe('Policy', () => {
         });
     });
 });
+
+
+internals.wait = function (duration) {
+
+    return new Promise((resolve) => setTimeout(resolve, duration));
+};
+
+
+internals.never = function () {
+
+    return new Promise(Hoek.ignore);
+};

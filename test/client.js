@@ -6,6 +6,8 @@ const Catbox = require('..');
 const Code = require('code');
 const Lab = require('lab');
 
+const Connections = require('./connections');
+
 
 // Declare internals
 
@@ -24,8 +26,7 @@ describe('Client', () => {
 
     it('uses prototype engine', async () => {
 
-        const Obj = require('./import');
-        const client = new Catbox.Client(Obj);
+        const client = new Catbox.Client(Connections.Callbacks);
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
@@ -38,8 +39,7 @@ describe('Client', () => {
 
     it('supports empty keys', async () => {
 
-        const Obj = require('./import');
-        const client = new Catbox.Client(Obj);
+        const client = new Catbox.Client(Connections.Callbacks);
         await client.start();
 
         const key = { id: '', segment: 'test' };
@@ -52,8 +52,7 @@ describe('Client', () => {
 
     it('uses object instance engine', async () => {
 
-        const Obj = require('./import');
-        const client = new Catbox.Client(new Obj());
+        const client = new Catbox.Client(new Connections.Callbacks());
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
@@ -270,7 +269,7 @@ describe('Client', () => {
 
         it('errors on empty key', async () => {
 
-            const client = new Catbox.Client(require('../test/import'));
+            const client = new Catbox.Client(Connections.Callbacks);
             await client.start();
 
             await expect(client.get({})).to.reject('Invalid key');
@@ -327,8 +326,7 @@ describe('Client', () => {
 
         it('errors on missing segment', async () => {
 
-            const Obj = require('./import');
-            const client = new Catbox.Client(Obj);
+            const client = new Catbox.Client(Connections.Callbacks);
             await client.start();
 
             const key = { id: 'x' };
