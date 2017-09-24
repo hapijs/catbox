@@ -18,7 +18,7 @@
         "joi": "10.x.x"
     },
     "devDependencies": {
-        "code": "4.x.x",
+        "code": "5.x.x",
         "lab": "14.x.x"
     },
     "scripts": {
