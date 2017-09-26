@@ -2,8 +2,6 @@
 
 // Load modules
 
-const Hoek = require('hoek');
-
 
 // Declare internals
 
@@ -18,13 +16,11 @@ exports.Callbacks = class {
 
     start(callback) {
 
-        callback = Hoek.nextTick(callback);
-
         if (!this.cache) {
             this.cache = {};
         }
 
-        return callback();
+        return setImmediate(callback);
     }
 
     stop() {
@@ -53,7 +49,8 @@ exports.Callbacks = class {
 
     get(key, callback) {
 
-        callback = Hoek.nextTick(callback);
+        const orig = callback;
+        callback = (...args) => setImmediate(() => orig(...args));
 
         if (!this.cache) {
             return callback(new Error('Callbacks not started'));
@@ -88,7 +85,8 @@ exports.Callbacks = class {
 
     set(key, value, ttl, callback) {
 
-        callback = Hoek.nextTick(callback);
+        const orig = callback;
+        callback = (...args) => setImmediate(() => orig(...args));
 
         if (!this.cache) {
             return callback(new Error('Callbacks not started'));
@@ -129,7 +127,8 @@ exports.Callbacks = class {
 
     drop(key, callback) {
 
-        callback = Hoek.nextTick(callback);
+        const orig = callback;
+        callback = (...args) => setImmediate(() => orig(...args));
 
         if (!this.cache) {
             return callback(new Error('Callbacks not started'));

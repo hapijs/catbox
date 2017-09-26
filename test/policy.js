@@ -369,7 +369,7 @@ describe('Policy', () => {
                     generateTimeout: 20,
                     generateFunc: async function (id, flags) {
 
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         flags.ttl = 100;
                         return { gen: ++gen };
                     }
@@ -384,7 +384,7 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(27);
+                await Hoek.wait(27);
                 const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
@@ -401,7 +401,7 @@ describe('Policy', () => {
                     generateTimeout: 20,
                     generateFunc: async function (id, flags) {
 
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         flags.ttl = 100;
                         return { gen: ++gen };
                     }
@@ -416,12 +416,12 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.wait(3);
+                await Hoek.wait(3);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
@@ -441,7 +441,7 @@ describe('Policy', () => {
                     generateFunc: async function (id, flags) {
 
                         ++generateCalled;
-                        await internals.wait(50);
+                        await Hoek.wait(50);
                         flags.ttl = 1000;
                         return { gen: ++gen };
                     }
@@ -456,17 +456,17 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(101);
+                await Hoek.wait(101);
                 const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.wait(8);
+                await Hoek.wait(8);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await internals.wait(50);
+                await Hoek.wait(50);
                 const { value: value4 } = await policy.get('test');
 
                 expect(value4.gen).to.equal(3);        // Fresh
@@ -486,7 +486,7 @@ describe('Policy', () => {
                     generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
-                        await internals.wait(generateCalled++ === 1 ? 2500 : 1);
+                        await Hoek.wait(generateCalled++ === 1 ? 2500 : 1);
                         return { gen: ++gen };
                     }
                 };
@@ -500,13 +500,13 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(80);
+                await Hoek.wait(80);
                 const error = await expect(policy.get('test')).to.reject(Error);
 
                 expect(error).to.exist();
                 expect(error.output.statusCode).to.equal(503);       // Service Unavailable
 
-                await internals.wait(8);
+                await Hoek.wait(8);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
@@ -526,7 +526,7 @@ describe('Policy', () => {
                     generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
-                        await internals.wait(50);
+                        await Hoek.wait(50);
                         flags.ttl = 1000;
                         ++generateCalled;
                         return { gen: ++gen };
@@ -542,17 +542,17 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(101);
+                await Hoek.wait(101);
                 const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.wait(8);
+                await Hoek.wait(8);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await internals.wait(50);
+                await Hoek.wait(50);
 
                 const { value: value4 } = await policy.get('test');
 
@@ -572,7 +572,7 @@ describe('Policy', () => {
                     generateTimeout: false,
                     generateFunc: async function (id, flags) {
 
-                        await internals.wait(50);
+                        await Hoek.wait(50);
                         flags.ttl = 1000;
                         return { gen: ++gen };
                     }
@@ -587,12 +587,12 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(980);
+                await Hoek.wait(980);
                 const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.wait(40);
+                await Hoek.wait(40);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // New
@@ -616,7 +616,7 @@ describe('Policy', () => {
                     generateTimeout: 20,
                     generateFunc: async function (id, flags) {
 
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         flags.ttl = 100;
                         return { gen: ++gen };
                     }
@@ -631,12 +631,12 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await internals.wait(3);
+                await Hoek.wait(3);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
@@ -654,7 +654,7 @@ describe('Policy', () => {
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         if (gen !== 2) {
                             return { gen };
                         }
@@ -672,14 +672,14 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.wait(3);
+                await Hoek.wait(3);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(3);     // Fresh
@@ -698,7 +698,7 @@ describe('Policy', () => {
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         if (gen === 1) {
                             return { gen };
                         }
@@ -716,14 +716,14 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.wait(3);
+                await Hoek.wait(3);
                 await expect(policy.get('test')).to.reject(Error);   // Stale
             });
 
@@ -739,7 +739,7 @@ describe('Policy', () => {
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         if (gen === 1) {
                             return { gen };
                         }
@@ -757,14 +757,14 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.wait(3);
+                await Hoek.wait(3);
                 await expect(policy.get('test')).to.reject(Error);    // Stale
             });
 
@@ -781,7 +781,7 @@ describe('Policy', () => {
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         if (gen === 1) {
                             return { gen };
                         }
@@ -799,14 +799,14 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await internals.wait(3);
+                await Hoek.wait(3);
                 const { value: value3 } = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);     // Stale
@@ -842,7 +842,7 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
@@ -885,7 +885,7 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
 
                 await expect(policy.get('test')).to.reject(Error);      // Generates a new one in background which will produce Error and clear the cache
                 await expect(policy.get('test')).to.reject(Error);
@@ -920,7 +920,7 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
 
                 await expect(policy.get('test')).to.reject('boom');         // Generates a new one in background which will produce Error, but not clear the cache
                 await expect(policy.get('test')).to.reject('boom');
@@ -948,13 +948,13 @@ describe('Policy', () => {
                 expect(report1.error).to.not.exist();
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(report2.error).to.not.exist();
                 expect(value2.gen).to.equal(2);     // Fresh
 
-                await internals.wait(1);
+                await Hoek.wait(1);
                 const { value: value3, report: report3 } = await policy.get('test');
 
                 expect(report3.error).to.not.exist();
@@ -975,7 +975,7 @@ describe('Policy', () => {
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         if (gen !== 2) {
                             return { gen };
                         }
@@ -994,7 +994,7 @@ describe('Policy', () => {
                 expect(value1.gen).to.equal(1);     // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.wait(21);
+                await Hoek.wait(21);
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 // Generates a new one which will produce Error
@@ -1026,13 +1026,13 @@ describe('Policy', () => {
                 expect(value1.gen).to.equal(1);        // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.wait(5);
+                await Hoek.wait(5);
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Fresh
                 expect(report2.error).to.not.exist();
 
-                await internals.wait(11);
+                await Hoek.wait(11);
 
                 const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
 
@@ -1071,7 +1071,7 @@ describe('Policy', () => {
                 expect(value1.gen).to.equal(1);     // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.wait(8);
+                await Hoek.wait(8);
 
                 await expect(policy.get('test')).to.reject(Error);
 
@@ -1088,7 +1088,7 @@ describe('Policy', () => {
                     generateTimeout: 5,
                     generateFunc: async function (id) {
 
-                        await internals.wait(6);
+                        await Hoek.wait(6);
                         return { gen: ++gen };
                     }
                 };
@@ -1101,14 +1101,14 @@ describe('Policy', () => {
                 const error1 = await expect(policy.get('test')).to.reject(Error);
                 expect(error1.output.statusCode).to.equal(503);
 
-                await internals.wait(2);
+                await Hoek.wait(2);
 
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);
                 expect(report2.error).to.not.exist();
 
-                await internals.wait(8);
+                await Hoek.wait(8);
 
                 const error3 = await expect(policy.get('test')).to.reject(Error);
                 expect(error3.output.statusCode).to.equal(503);
@@ -1121,7 +1121,7 @@ describe('Policy', () => {
                     generateTimeout: 5,
                     generateFunc: async function (id) {
 
-                        await internals.never();
+                        await Hoek.block();
                     }
                 };
 
@@ -1143,7 +1143,7 @@ describe('Policy', () => {
                     generateTimeout: false,
                     generateFunc: async function (id) {
 
-                        await internals.never();
+                        await Hoek.block();
                     }
                 };
 
@@ -1165,7 +1165,7 @@ describe('Policy', () => {
                     ++called;
                 });
 
-                await internals.wait(20);
+                await Hoek.wait(20);
 
                 expect(called).to.equal(0);
             });
@@ -1243,7 +1243,7 @@ describe('Policy', () => {
                     generateTimeout: 20,
                     generateFunc: async (id) => {
 
-                        await internals.wait(5);
+                        await Hoek.wait(5);
                         return { gen: ++gen };
                     }
                 };
@@ -1268,7 +1268,7 @@ describe('Policy', () => {
                 expect(value1.gen).to.equal(1);                      // Fresh
                 expect(report1.error).to.not.exist();
 
-                await internals.wait(21);                           // Wait for stale
+                await Hoek.wait(21);                           // Wait for stale
                 const { value: value2, report: report2 } = await policy.get('test');       // Cache lookup takes 10, generate comes back after 5
 
                 expect(value2.gen).to.equal(2);                      // Fresh
@@ -1602,7 +1602,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1623,7 +1623,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1644,7 +1644,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1665,7 +1665,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1686,7 +1686,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1707,7 +1707,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1725,7 +1725,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1742,7 +1742,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1762,7 +1762,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1783,7 +1783,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1801,7 +1801,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1822,7 +1822,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1841,7 +1841,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1859,7 +1859,7 @@ describe('Policy', () => {
                 expiresIn: 50000,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1896,7 +1896,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1918,7 +1918,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1935,7 +1935,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -1956,7 +1956,7 @@ describe('Policy', () => {
                 generateTimeout: 10,
                 generateFunc: async (id) => {
 
-                    await internals.never();
+                    await Hoek.block();
                 }
             };
 
@@ -2154,15 +2154,3 @@ describe('Policy', () => {
         });
     });
 });
-
-
-internals.wait = function (duration) {
-
-    return new Promise((resolve) => setTimeout(resolve, duration));
-};
-
-
-internals.never = function () {
-
-    return new Promise(Hoek.ignore);
-};
