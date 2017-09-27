@@ -1,7 +1,7 @@
 {
     "name": "catbox",
     "description": "Multi-strategy object caching service",
-    "version": "8.0.0",
+    "version": "8.0.1",
     "repository": "git://github.com/hapijs/catbox",
     "main": "lib/index.js",
     "keywords": [
