@@ -3,7 +3,7 @@
 Multi-strategy object caching service
 Version: **8.x**
 
-[![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
+[![Build Status](https://secure.travis-ci.org/hapijs/catbox.svg)](http://travis-ci.org/hapijs/catbox)
 
 Lead Maintainer: [Gil Pedersen](https://github.com/kanongil)
 
@@ -58,24 +58,24 @@ from a `get()` is owned by the called and can be safely modified without affecti
 
 The `Client` object provides the following methods:
 
-- `start(callback)` - creates a connection to the cache server. Must be called before any other method is available.
-  The `callback` signature is `function(err)`.
+- `start()` - creates a connection to the cache server. Must be called before any other method is available.
+    - returns a promise that resolves once started.
 - `stop()` - terminates the connection to the cache server.
-- `get(key, callback)` - retrieve an item from the cache engine if found where:
+- `get(key)` - retrieve an item from the cache engine:
     - `key` - a cache key object (see below).
-    - `callback` - a function with the signature `function(err, cached)`. If the item is not found, both `err` and `cached` are `null`.
-      If found, the `cached` object contains the following:
+    - returns a promise that resolves with a `cached` object, or `null` if not found.
+      The `cached` object contains the following:
         - `item` - the value stored in the cache using `set()`.
         - `stored` - the timestamp when the item was stored in the cache (in milliseconds).
         - `ttl` - the remaining time-to-live (not the original value used when storing the object).
-- `set(key, value, ttl, callback)` - store an item in the cache for a specified length of time, where:
+- `set(key, value, ttl)` - store an item in the cache for a specified length of time, where:
     - `key` - a cache key object (see below).
     - `value` - the string or object value to be stored.
     - `ttl` - a time-to-live value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
-    - `callback` - a function with the signature `function(err)`.
-- `drop(key, callback)` - remove an item from cache where:
+    - returns a promise that resolves once the value has been set.
+- `drop(key)` - remove an item from cache where:
     - `key` - a cache key object (see below).
-    - `callback` - a function with the signature `function(err)`.
+    - returns a promise that resolves once the value has been dropped.
 - `isReady()` - returns `true` if cache engine determines itself as ready, `false` if it is not ready.
 - `validateSegmentName(segment)` - returns `null` if the segment name is valid (see below), otherwise should return an instance of `Error` with an appropriate message.
 
@@ -96,10 +96,10 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
     - `expiresAt` - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records for the route
       expire. Uses local time. Cannot be used together with `expiresIn`.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the cache when calling `get()`. The method's
-      signature is `function(id, next)` where:
+      signature is `function(id, flags)` where:
         - `id` - the `id` string or object provided to the `get()` method.
-        - `next` - the method called when the new item is returned with the signature `function(err, value, ttl)` where:
-            - `err` - an error condition.
+        - `flags` - object on which a `ttl` property can be set for the returned value.
+        - returns a `value` or a promise that resolves with a `value` where:
             - `value` - the new value generated.
             - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache. Defaults to the cache global policy.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to regenerate it when `generateFunc` is
@@ -127,11 +127,10 @@ The object is constructed using `new Policy(options, [cache, segment])` where:
 
 The `Policy` object provides the following methods:
 
-- `get(id, callback)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
-  is generated, stored in the cache, and returned. Multiple concurrent requests are queued and processed once. The method arguments are:
+- `get(id)` - retrieve an item from the cache. If the item is not found and the `generateFunc` method was provided, a new value
+  is generated, stored in the cache, and returned. Multiple concurrent requests are queued and processed once.
     - `id` - the unique item identifier (within the policy segment). Can be a string or an object with the required 'id' key.
-    - `callback` - the return function. The function signature is `function(err, value, cached, report)` where:
-        - `err` - any errors encountered.
+    - returns a promise with a `{ value, cached, report }` object:
         - `value` - the fetched or generated value.
         - `cached` - `null` if a valid item was not found in the cache, or an object with the following keys:
             - `item` - the cached `value`.
@@ -144,15 +143,15 @@ The `Policy` object provides the following methods:
             - `isStale` - `true` if the item is stale.
             - `ttl` - the cache ttl value for the record.
             - `error` - lookup error.
-- `set(id, value, ttl, callback)` - store an item in the cache where:
+- `set(id, value, ttl)` - store an item in the cache where:
     - `id` - the unique item identifier (within the policy segment).
     - `value` - the string or object value to be stored.
     - `ttl` - a time-to-live **override** value in milliseconds after which the item is automatically removed from the cache (or is marked invalid).
       This should be set to `0` in order to use the caching rules configured when creating the `Policy` object.
-    - `callback` - a function with the signature `function(err)`.
-- `drop(id, callback)` - remove the item from cache where:
+    - returns a promise that resolves once the value has been set.
+- `drop(id)` - remove the item from cache where:
     - `id` - the unique item identifier (within the policy segment).
-    - `callback` - a function with the signature `function(err)`.
+    - returns a promise that resolves once the value has been dropped.
 - `ttl(created)` - given a `created` timestamp in milliseconds, returns the time-to-live left based on the configured rules.
 - `rules(options)` - changes the policy rules after construction (note that items already stored will not be affected) where:
     - `options` - the same `options` as the `Policy` constructor.
