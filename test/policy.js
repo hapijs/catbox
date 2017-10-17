@@ -31,7 +31,7 @@ describe('Policy', () => {
 
         await policy.set('x', '123', null);
 
-        const { value } = await policy.get('x');
+        const value = await policy.get('x');
 
         expect(value).to.equal('123');
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -46,7 +46,7 @@ describe('Policy', () => {
 
         await policy.set('__proto__', '123', null);
 
-        const { value } = await policy.get('__proto__');
+        const value = await policy.get('__proto__');
 
         expect(value).to.equal('123');
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -61,7 +61,7 @@ describe('Policy', () => {
 
         await policy.set('x', '123', null);
 
-        const { value } = await policy.get('x');
+        const value = await policy.get('x');
 
         expect(value).to.not.exist();
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
@@ -76,7 +76,7 @@ describe('Policy', () => {
 
         await policy.set('x', '123', 1000);
 
-        const { value } = await policy.get('x');
+        const value = await policy.get('x');
 
         expect(value).to.equal('123');
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -106,7 +106,7 @@ describe('Policy', () => {
 
             await policy.set({ id: 'x' }, '123', null);
 
-            const { value } = await policy.get({ id: 'x' });
+            const value = await policy.get({ id: 'x' });
 
             expect(value).to.equal('123');
             expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
@@ -179,7 +179,8 @@ describe('Policy', () => {
                 }
             };
             const policyConfig = {
-                expiresIn: 50000
+                expiresIn: 50000,
+                getDecoratedValue: true
             };
 
             const client = new Catbox.Client(engine);
@@ -196,7 +197,7 @@ describe('Policy', () => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 
-            const { value } = await policy.get('x');
+            const value = await policy.get('x');
 
             expect(value).to.not.exist();
             expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
@@ -236,7 +237,7 @@ describe('Policy', () => {
                 const client = new Catbox.Client(engine);
                 const policy = new Catbox.Policy(policyConfig, client, 'test');
 
-                const { value } = await policy.get('test1');
+                const value = await policy.get('test1');
 
                 expect(value).to.equal(false);
             });
@@ -246,7 +247,8 @@ describe('Policy', () => {
                 const policy = new Catbox.Policy({
                     expiresIn: 1,
                     generateTimeout: 10,
-                    generateFunc: (id) => 'new result'
+                    generateFunc: (id) => 'new result',
+                    getDecoratedValue: true
                 });
 
                 const { value, cached } = await policy.get('test');
@@ -271,7 +273,7 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value } = await policy.get('test');
+                const value = await policy.get('test');
 
                 expect(value.gen).to.equal(1);
             });
@@ -293,12 +295,12 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1).to.not.exist();
                 policy.rules(rule);
 
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);
                 expect(policy.stats).to.equal({ sets: 1, gets: 2, hits: 0, stales: 0, generates: 1, errors: 0 });
@@ -325,7 +327,7 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value } = await policy.get('test');
+                const value = await policy.get('test');
 
                 expect(value.gen).to.equal(1);
             });
@@ -378,12 +380,12 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(27);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
             });
@@ -410,17 +412,17 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(21);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(3);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
             });
@@ -450,22 +452,22 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(101);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(8);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(50);
-                const { value: value4 } = await policy.get('test');
+                const value4 = await policy.get('test');
 
                 expect(value4.gen).to.equal(3);        // Fresh
                 expect(generateCalled).to.equal(3);    // original generate + 2 calls while stale
@@ -494,7 +496,7 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
@@ -505,7 +507,7 @@ describe('Policy', () => {
                 expect(error.output.statusCode).to.equal(503);       // Service Unavailable
 
                 await Hoek.wait(8);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
             });
@@ -536,23 +538,23 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(101);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(8);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(50);
 
-                const { value: value4 } = await policy.get('test');
+                const value4 = await policy.get('test');
 
                 expect(value4.gen).to.equal(2);        // Fresh
                 expect(generateCalled).to.equal(2); // original generate + 1 call while stale
@@ -581,17 +583,17 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(980);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(40);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // New
             });
@@ -625,17 +627,17 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(21);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(3);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(2);        // Fresh
             });
@@ -666,19 +668,19 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
                 await Hoek.wait(21);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
                 await Hoek.wait(3);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(3);     // Fresh
             });
@@ -710,12 +712,12 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
                 await Hoek.wait(21);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
@@ -751,12 +753,12 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
                 await Hoek.wait(21);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 // Generates a new one in background which will produce Error and clear the cache
 
@@ -793,19 +795,19 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
                 await Hoek.wait(21);
-                const { value: value2 } = await policy.get('test');
+                const value2 = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
                 await Hoek.wait(3);
-                const { value: value3 } = await policy.get('test');
+                const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);     // Stale
             });
@@ -828,7 +830,8 @@ describe('Policy', () => {
                         }
 
                         throw new Error();
-                    }
+                    },
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
@@ -879,7 +882,7 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
+                const value1 = await policy.get('test');
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
@@ -914,9 +917,8 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1 } = await policy.get('test');
-
-                expect(value1.gen).to.equal(1);     // Fresh
+                const value = await policy.get('test');
+                expect(value.gen).to.equal(1);     // Fresh
 
                 await Hoek.wait(21);
 
@@ -933,7 +935,8 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 10,
                     generateTimeout: 10,
-                    generateFunc: (id) => ({ gen: ++gen })
+                    generateFunc: (id) => ({ gen: ++gen }),
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
@@ -979,7 +982,8 @@ describe('Policy', () => {
                         }
 
                         throw new Error();
-                    }
+                    },
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
@@ -1011,7 +1015,8 @@ describe('Policy', () => {
                     staleIn: 15,
                     staleTimeout: 15,
                     generateTimeout: 10,
-                    generateFunc: (id) => ({ gen: ++gen })
+                    generateFunc: (id) => ({ gen: ++gen }),
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
@@ -1057,7 +1062,8 @@ describe('Policy', () => {
                         }
 
                         throw new Error();
-                    }
+                    },
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
@@ -1088,7 +1094,8 @@ describe('Policy', () => {
 
                         await Hoek.wait(10);
                         return { gen: ++gen };
-                    }
+                    },
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
@@ -1185,7 +1192,7 @@ describe('Policy', () => {
                 let result = null;
                 const compare = async () => {
 
-                    const { value } = await policy.get('test');
+                    const value = await policy.get('test');
 
                     if (!result) {
                         result = value;
@@ -1243,7 +1250,8 @@ describe('Policy', () => {
 
                         await Hoek.wait(5);
                         return { gen: ++gen };
-                    }
+                    },
+                    getDecoratedValue: true
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
