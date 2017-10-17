@@ -3,7 +3,7 @@
 Multi-strategy object caching service
 Version: **8.x**
 
-[![Build Status](https://secure.travis-ci.org/hapijs/catbox.png)](http://travis-ci.org/hapijs/catbox)
+[![Build Status](https://secure.travis-ci.org/hapijs/catbox.svg)](http://travis-ci.org/hapijs/catbox)
 
 Lead Maintainer: [Gil Pedersen](https://github.com/kanongil)
 
