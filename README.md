@@ -112,12 +112,9 @@ automatically applied to every storage action. The object is constructed using
       all cache records for the route expire. Uses local time. Cannot be used together with
       `expiresIn`.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the
-      cache when calling `get()`. The method's signature is `function(id, next)` where:
+      cache when calling `get()`. The method's signature is `async function(id, flags)` where:
         - `id` - the `id` string or object provided to the `get()` method.
-        - `next` - the method called when the new item is returned with the signature
-          `function(err, value, ttl)` where:
-            - `err` - an error condition.
-            - `value` - the new value generated.
+        - `flags` - an object used to pass back additional flags:
             - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache.
               Defaults to the cache global policy.
     - `staleIn` - number of milliseconds to mark an item stored in cache as stale and attempt to
