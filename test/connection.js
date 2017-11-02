@@ -8,19 +8,17 @@
 const internals = {};
 
 
-exports.Callbacks = class {
+module.exports = class {
     constructor(options) {
 
         this.cache = null;
     }
 
-    start(callback) {
+    start() {
 
         if (!this.cache) {
             this.cache = {};
         }
-
-        return setImmediate(callback);
     }
 
     stop() {
@@ -47,23 +45,20 @@ exports.Callbacks = class {
         return null;
     }
 
-    get(key, callback) {
-
-        const orig = callback;
-        callback = (...args) => setImmediate(() => orig(...args));
+    get(key) {
 
         if (!this.cache) {
-            return callback(new Error('Callbacks not started'));
+            throw new Error('Callbacks not started');
         }
 
         const segment = this.cache[key.segment];
         if (!segment) {
-            return callback(null, null);
+            return null;
         }
 
         const envelope = segment[key.id];
         if (!envelope) {
-            return callback(null, null);
+            return null;
         }
 
         let value = null;
@@ -71,7 +66,7 @@ exports.Callbacks = class {
             value = JSON.parse(envelope.item);
         }
         catch (ignoreErr) {
-            return callback(new Error('Bad value content'));
+            throw new Error('Bad value content');
         }
 
         const result = {
@@ -80,7 +75,7 @@ exports.Callbacks = class {
             ttl: envelope.ttl
         };
 
-        return callback(null, result);
+        return result;
     }
 
     set(key, value, ttl, callback) {
@@ -89,19 +84,11 @@ exports.Callbacks = class {
         callback = (...args) => setImmediate(() => orig(...args));
 
         if (!this.cache) {
-            return callback(new Error('Callbacks not started'));
-        }
-
-        let stringifiedValue = null;
-        try {
-            stringifiedValue = JSON.stringify(value);
-        }
-        catch (err) {
-            return callback(err);
+            throw new Error('Callbacks not started');
         }
 
         const envelope = {
-            item: stringifiedValue,
+            item: JSON.stringify(value),
             stored: Date.now(),
             ttl
         };
@@ -122,7 +109,7 @@ exports.Callbacks = class {
         envelope.timeoutId = timeoutId;
 
         segment[key.id] = envelope;
-        return callback(null);
+        return null;
     }
 
     drop(key, callback) {
@@ -131,61 +118,12 @@ exports.Callbacks = class {
         callback = (...args) => setImmediate(() => orig(...args));
 
         if (!this.cache) {
-            return callback(new Error('Callbacks not started'));
+            throw new Error('Callbacks not started');
         }
 
         const segment = this.cache[key.segment];
         if (segment) {
             delete segment[key.id];
         }
-
-        return callback();
-    }
-};
-
-exports.Promises = class extends exports.Callbacks {
-
-    start() {
-
-        return new Promise((resolve, reject) => {
-
-            super.start((err) => {
-
-                return (err ? reject(err) : resolve());
-            });
-        });
-    }
-
-    get(key) {
-
-        return new Promise((resolve, reject) => {
-
-            super.get(key, (err, result) => {
-
-                return (err ? reject(err) : resolve(result));
-            });
-        });
-    }
-
-    set(key, value, ttl) {
-
-        return new Promise((resolve, reject) => {
-
-            super.set(key, value, ttl, (err) => {
-
-                return (err ? reject(err) : resolve());
-            });
-        });
-    }
-
-    drop(key) {
-
-        return new Promise((resolve, reject) => {
-
-            super.drop(key, (err) => {
-
-                return (err ? reject(err) : resolve());
-            });
-        });
     }
 };

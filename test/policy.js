@@ -7,7 +7,7 @@ const Code = require('code');
 const Hoek = require('hoek');
 const Lab = require('lab');
 
-const Connections = require('./connections');
+const Connection = require('./connection');
 
 // Declare internals
 
@@ -24,7 +24,7 @@ describe('Policy', () => {
 
     it('returns cached item', async () => {
 
-        const client = new Catbox.Client(Connections.Callbacks);
+        const client = new Catbox.Client(Connection);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
         await client.start();
@@ -39,7 +39,7 @@ describe('Policy', () => {
 
     it('works with special property names', async () => {
 
-        const client = new Catbox.Client(Connections.Callbacks);
+        const client = new Catbox.Client(Connection);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
         await client.start();
@@ -54,7 +54,7 @@ describe('Policy', () => {
 
     it('finds nothing when using empty policy rules', async () => {
 
-        const client = new Catbox.Client(Connections.Callbacks);
+        const client = new Catbox.Client(Connection);
         const policy = new Catbox.Policy({}, client, 'test');
 
         await client.start();
@@ -69,7 +69,7 @@ describe('Policy', () => {
 
     it('returns cached item with no global rules and manual ttl', async () => {
 
-        const client = new Catbox.Client(Connections.Callbacks);
+        const client = new Catbox.Client(Connection);
         const policy = new Catbox.Policy({}, client, 'test');
 
         await client.start();
@@ -90,7 +90,7 @@ describe('Policy', () => {
 
         expect(() => {
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             new Catbox.Policy(config, client);
         }).to.throw('Invalid segment name: undefined (Empty string)');
     });
@@ -99,7 +99,7 @@ describe('Policy', () => {
 
         it('returns cached item using object id', async () => {
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
             await client.start();
@@ -114,7 +114,7 @@ describe('Policy', () => {
 
         it('rejects the promise on null id', async () => {
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
 
             await client.start();
@@ -127,17 +127,14 @@ describe('Policy', () => {
         it('rejects the promise when an error occurs getting the item', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
-                    callback(new Error());
+                    throw new Error();
                 },
                 validateSegmentName: function () {
 
@@ -158,20 +155,17 @@ describe('Policy', () => {
         it('returns the cached result when no error occurs', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
-                    callback(null, {
+                    return {
                         stored: 'stored',
                         item: 'item'
-                    });
+                    };
                 },
                 validateSegmentName: function () {
 
@@ -208,20 +202,17 @@ describe('Policy', () => {
             it('returns falsey items', async () => {
 
                 const engine = {
-                    start: function (callback) {
-
-                        callback();
-                    },
+                    start: function () { },
                     isReady: function () {
 
                         return true;
                     },
-                    get: function (key, callback) {
+                    get: function (key) {
 
-                        callback(null, {
+                        return {
                             stored: false,
                             item: false
-                        });
+                        };
                     },
                     validateSegmentName: function () {
 
@@ -268,7 +259,7 @@ describe('Policy', () => {
                     generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -290,7 +281,7 @@ describe('Policy', () => {
                     generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy({ expiresIn: 100 }, client, 'test-segment');
 
                 await client.start();
@@ -318,7 +309,7 @@ describe('Policy', () => {
                     generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 client.get = function (key) {
 
                     return Promise.reject(new Error('bad client'));
@@ -345,7 +336,7 @@ describe('Policy', () => {
                     generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 client.get = function (key) {
 
                     return Promise.reject(new Error('bad client'));
@@ -375,7 +366,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -407,7 +398,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -447,7 +438,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -491,7 +482,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -533,7 +524,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -578,7 +569,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -622,7 +613,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -663,7 +654,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -707,7 +698,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -748,7 +739,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -790,7 +781,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -834,7 +825,7 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -877,7 +868,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -912,7 +903,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -939,7 +930,7 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -986,7 +977,7 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1019,7 +1010,7 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1066,7 +1057,7 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1098,7 +1089,7 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1130,7 +1121,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1152,7 +1143,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1184,7 +1175,7 @@ describe('Policy', () => {
                     generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1216,7 +1207,7 @@ describe('Policy', () => {
                     }
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1254,15 +1245,13 @@ describe('Policy', () => {
                     getDecoratedValue: true
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
 
                 const orig = client.connection.get;
-                client.connection.get = function (key, callback) {      // Delayed get
+                client.connection.get = async function (key) {      // Delayed get
 
-                    setTimeout(() => {
-
-                        orig.call(client.connection, key, callback);
-                    }, 10);
+                    await Hoek.wait(10);
+                    return orig.call(client.connection, key);
                 };
 
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
@@ -1301,7 +1290,7 @@ describe('Policy', () => {
                     generateFunc: (id) => ({ gen: ++gen })
                 };
 
-                const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 policy.set = function (key, value, ttl) {
@@ -1339,18 +1328,15 @@ describe('Policy', () => {
 
             let called = false;
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                drop: function (key, callback) {
+                drop: function (key) {
 
                     called = true;
-                    callback(null);
+                    return null;
                 },
                 validateSegmentName: function () {
 
@@ -1373,17 +1359,14 @@ describe('Policy', () => {
         it('counts drop error', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                drop: function (key, callback) {
+                drop: function (key) {
 
-                    callback(new Error('failed'));
+                    throw new Error('failed');
                 },
                 validateSegmentName: function () {
 
@@ -1408,7 +1391,7 @@ describe('Policy', () => {
                 expiresIn: 50000
             };
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
             await client.start();
 
@@ -1421,7 +1404,7 @@ describe('Policy', () => {
                 expiresIn: 50000
             };
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             const policy = new Catbox.Policy(policyConfig, client, 'test');
             await client.start();
 
@@ -1434,10 +1417,7 @@ describe('Policy', () => {
         it('returns the ttl factoring in the created time', () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
@@ -2126,17 +2106,14 @@ describe('Policy', () => {
 
             const expected = true;
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return expected;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
-                    callback(new Error());
+                    throw new Error();
                 },
                 validateSegmentName: function () {
 

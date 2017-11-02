@@ -6,7 +6,7 @@ const Catbox = require('..');
 const Code = require('code');
 const Lab = require('lab');
 
-const Connections = require('./connections');
+const Connection = require('./connection');
 
 
 // Declare internals
@@ -24,7 +24,7 @@ describe('Client', () => {
 
     it('uses prototype engine', async () => {
 
-        const client = new Catbox.Client(Connections.Callbacks);
+        const client = new Catbox.Client(Connection);
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
@@ -37,7 +37,7 @@ describe('Client', () => {
 
     it('supports empty keys', async () => {
 
-        const client = new Catbox.Client(Connections.Callbacks);
+        const client = new Catbox.Client(Connection);
         await client.start();
 
         const key = { id: '', segment: 'test' };
@@ -50,7 +50,7 @@ describe('Client', () => {
 
     it('uses object instance engine', async () => {
 
-        const client = new Catbox.Client(new Connections.Callbacks());
+        const client = new Catbox.Client(new Connection());
         await client.start();
 
         const key = { id: 'x', segment: 'test' };
@@ -64,10 +64,7 @@ describe('Client', () => {
     it('errors when calling get on a bad connection', async () => {
 
         const errorEngine = {
-            start: function (callback) {
-
-                callback(null);
-            },
+            start: function () { },
             stop: function () { },
             isReady: function () {
 
@@ -77,17 +74,9 @@ describe('Client', () => {
 
                 return null;
             },
-            get: function (key, callback) {
+            get: function (key) {
 
-                return callback(new Error('fail'));
-            },
-            set: function (key, value, ttl, callback) {
-
-                return callback(new Error('fail'));
-            },
-            drop: function (key, callback) {
-
-                return callback(new Error('fail'));
+                throw new Error('fail');
             }
         };
 
@@ -99,17 +88,16 @@ describe('Client', () => {
 
     describe('start()', () => {
 
-        it('passes an error in the callback when one occurs', async () => {
+        it('passes an error', async () => {
 
             const engine = {
-                start: function (callback) {
+                start: function () {
 
-                    callback(new Error());
+                    return Promise.reject(new Error());
                 }
             };
 
             const client = new Catbox.Client(engine);
-
             await expect(client.start()).to.reject();
         });
     });
@@ -119,10 +107,7 @@ describe('Client', () => {
         it('returns an error when the connection is not ready', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return false;
@@ -137,22 +122,19 @@ describe('Client', () => {
         it('wraps the result with cached details', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
                     const result = {
                         item: 'test1',
                         stored: 'test2'
                     };
 
-                    callback(null, result);
+                    return result;
                 }
             };
 
@@ -167,17 +149,14 @@ describe('Client', () => {
         it('returns nothing when item is not found', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
-                    callback(null, null);
+                    return null;
                 }
             };
 
@@ -190,17 +169,14 @@ describe('Client', () => {
         it('returns nothing when item is not found (undefined item)', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
-                    callback(null, { item: undefined });
+                    return { item: undefined };
                 }
             };
 
@@ -213,20 +189,14 @@ describe('Client', () => {
         it('returns falsey items', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
-                    callback(null, {
-                        item: false,
-                        stored: false
-                    });
+                    return { item: false, stored: false };
                 }
             };
 
@@ -239,15 +209,12 @@ describe('Client', () => {
         it('expires item', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                get: function (key, callback) {
+                get: function (key) {
 
                     const result = {
                         item: 'test1',
@@ -255,7 +222,7 @@ describe('Client', () => {
                         ttl: 50
                     };
 
-                    callback(null, result);
+                    return result;
                 }
             };
 
@@ -267,7 +234,7 @@ describe('Client', () => {
 
         it('errors on empty key', async () => {
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             await client.start();
 
             await expect(client.get({})).to.reject('Invalid key');
@@ -279,10 +246,7 @@ describe('Client', () => {
         it('returns an error when the connection is not ready', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return false;
@@ -299,24 +263,19 @@ describe('Client', () => {
         it('calls the extension clients drop function', async () => {
 
             const engine = {
-                start: function (callback) {
-
-                    callback();
-                },
+                start: function () { },
                 isReady: function () {
 
                     return true;
                 },
-                drop: function (key, callback) {
+                drop: function (key) {
 
-                    callback(null, 'success');
+                    throw new Error('meh');
                 }
             };
 
             const client = new Catbox.Client(engine);
-            const result = await client.drop({ id: 'id', segment: 'segment' });
-
-            expect(result).to.equal('success');
+            await expect(client.drop({ id: 'id', segment: 'segment' })).to.reject('meh');
         });
     });
 
@@ -324,7 +283,7 @@ describe('Client', () => {
 
         it('errors on missing segment', async () => {
 
-            const client = new Catbox.Client(Connections.Callbacks);
+            const client = new Catbox.Client(Connection);
             await client.start();
 
             const key = { id: 'x' };
