@@ -82,7 +82,7 @@ describe('Policy', () => {
         expect(policy.stats).to.equal({ sets: 1, gets: 1, hits: 1, stales: 0, generates: 0, errors: 0 });
     });
 
-    it('throws an error when segment is missing', async () => {
+    it('throws an error when segment is missing', () => {
 
         const config = {
             expiresIn: 50000
@@ -319,9 +319,9 @@ describe('Policy', () => {
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
-                client.get = async function (key) {
+                client.get = function (key) {
 
-                    throw new Error('bad client');
+                    return Promise.reject(new Error('bad client'));
                 };
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
@@ -346,9 +346,9 @@ describe('Policy', () => {
                 };
 
                 const client = new Catbox.Client(Connections.Callbacks, { partition: 'test-partition' });
-                client.get = async function (key) {
+                client.get = function (key) {
 
-                    throw new Error('bad client');
+                    return Promise.reject(new Error('bad client'));
                 };
 
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
@@ -822,7 +822,7 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     dropOnError: false,
                     generateTimeout: 10,
-                    generateFunc: async function (id) {
+                    generateFunc: function (id) {
 
                         ++gen;
                         if (gen === 1) {
@@ -866,7 +866,7 @@ describe('Policy', () => {
                     staleTimeout: 5,
                     dropOnError: true,
                     generateTimeout: 10,
-                    generateFunc: async function (id) {
+                    generateFunc: function (id) {
 
                         ++gen;
                         if (gen === 1) {
@@ -901,7 +901,7 @@ describe('Policy', () => {
                     staleIn: 20,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: async function (id) {
+                    generateFunc: function (id) {
 
                         ++gen;
                         if (gen === 1) {
@@ -1054,7 +1054,7 @@ describe('Policy', () => {
                     staleIn: 5,
                     staleTimeout: 5,
                     generateTimeout: 10,
-                    generateFunc: async function (id) {
+                    generateFunc: function (id) {
 
                         ++gen;
                         if (gen !== 2) {
@@ -1431,7 +1431,7 @@ describe('Policy', () => {
 
     describe('ttl()', () => {
 
-        it('returns the ttl factoring in the created time', async () => {
+        it('returns the ttl factoring in the created time', () => {
 
             const engine = {
                 start: function (callback) {
@@ -1459,7 +1459,7 @@ describe('Policy', () => {
             expect(result).to.be.within(39999, 40001);                    // There can occasionally be a 1ms difference
         });
 
-        it('returns expired when created in the future', async () => {
+        it('returns expired when created in the future', () => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1474,7 +1474,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(0);
         });
 
-        it('returns expired on c-e-n same day', async () => {
+        it('returns expired on c-e-n same day', () => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1489,7 +1489,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(0);
         });
 
-        it('returns expired on c-(midnight)-e-n', async () => {
+        it('returns expired on c-(midnight)-e-n', () => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1504,7 +1504,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(0);
         });
 
-        it('returns ttl on c-n-e same day', async () => {
+        it('returns ttl on c-n-e same day', () => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1519,7 +1519,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(30 * 60 * 1000);
         });
 
-        it('returns ttl on c-(midnight)-n-e', async () => {
+        it('returns ttl on c-(midnight)-n-e', () => {
 
             const config = {
                 expiresAt: '10:00'
@@ -1537,13 +1537,13 @@ describe('Policy', () => {
 
     describe('compile()', () => {
 
-        it('does not try to compile a null config', async () => {
+        it('does not try to compile a null config', () => {
 
             const rule = Catbox.policy.compile(null);
             expect(rule).to.equal({});
         });
 
-        it('compiles a single rule', async () => {
+        it('compiles a single rule', () => {
 
             const config = {
                 expiresIn: 50000
@@ -1553,7 +1553,7 @@ describe('Policy', () => {
             expect(rule.expiresIn).to.equal(config.expiresIn);
         });
 
-        it('ignores external options', async () => {
+        it('ignores external options', () => {
 
             const config = {
                 expiresIn: 50000,
@@ -1564,7 +1564,7 @@ describe('Policy', () => {
             expect(rule.expiresIn).to.equal(config.expiresIn);
         });
 
-        it('assigns the expiresIn when the rule is cached', async () => {
+        it('assigns the expiresIn when the rule is cached', () => {
 
             const config = {
                 expiresIn: 50000
@@ -1574,7 +1574,7 @@ describe('Policy', () => {
             expect(rule.expiresIn).to.equal(config.expiresIn);
         });
 
-        it('allows a rule with neither expiresAt or expiresIn', async () => {
+        it('allows a rule with neither expiresAt or expiresIn', () => {
 
             const fn = function () {
 
@@ -1584,7 +1584,7 @@ describe('Policy', () => {
             expect(fn).to.not.throw();
         });
 
-        it('allows a rule with expiresAt and undefined expiresIn', async () => {
+        it('allows a rule with expiresAt and undefined expiresIn', () => {
 
             const fn = function () {
 
@@ -1594,7 +1594,7 @@ describe('Policy', () => {
             expect(fn).to.not.throw();
         });
 
-        it('allows combination of expiresIn, staleTimeout and staleIn function', async () => {
+        it('allows combination of expiresIn, staleTimeout and staleIn function', () => {
 
             const staleIn = function (stored, ttl) {
 
@@ -1620,7 +1620,7 @@ describe('Policy', () => {
             expect(fn).to.not.throw();
         });
 
-        it('throws an error when staleIn is greater than expiresIn', async () => {
+        it('throws an error when staleIn is greater than expiresIn', () => {
 
             const config = {
                 expiresIn: 500000,
@@ -1641,7 +1641,7 @@ describe('Policy', () => {
             expect(fn).to.throw('staleIn must be less than expiresIn');
         });
 
-        it('throws an error when staleTimeout is greater than expiresIn', async () => {
+        it('throws an error when staleTimeout is greater than expiresIn', () => {
 
             const config = {
                 expiresIn: 500000,
@@ -1662,7 +1662,7 @@ describe('Policy', () => {
             expect(fn).to.throw('staleTimeout must be less than expiresIn');
         });
 
-        it('throws an error when staleTimeout is greater than expiresIn - staleIn', async () => {
+        it('throws an error when staleTimeout is greater than expiresIn - staleIn', () => {
 
             const config = {
                 expiresIn: 30000,
@@ -1683,7 +1683,7 @@ describe('Policy', () => {
             expect(fn).to.throw('staleTimeout must be less than the delta between expiresIn and staleIn');
         });
 
-        it('throws an error when staleTimeout is used without server mode', async () => {
+        it('throws an error when staleTimeout is used without server mode', () => {
 
             const config = {
                 expiresIn: 1000000,
@@ -1704,7 +1704,7 @@ describe('Policy', () => {
             expect(fn).to.throw('Cannot use stale options without server-side caching');
         });
 
-        it('returns rule when staleIn is less than expiresIn', async () => {
+        it('returns rule when staleIn is less than expiresIn', () => {
 
             const config = {
                 expiresIn: 1000000,
@@ -1722,7 +1722,7 @@ describe('Policy', () => {
             expect(rule.expiresIn).to.equal(1000 * 1000);
         });
 
-        it('returns rule when staleIn is less than 24 hours and using expiresAt', async () => {
+        it('returns rule when staleIn is less than 24 hours and using expiresAt', () => {
 
             const config = {
                 expiresAt: '03:00',
@@ -1739,7 +1739,7 @@ describe('Policy', () => {
             expect(rule.staleIn).to.equal(5000 * 1000);
         });
 
-        it('does not throw an error if has both staleTimeout and staleIn', async () => {
+        it('does not throw an error if has both staleTimeout and staleIn', () => {
 
             const config = {
                 staleIn: 30000,
@@ -1759,7 +1759,7 @@ describe('Policy', () => {
             expect(fn).to.not.throw();
         });
 
-        it('throws an error if trying to use stale caching on the client', async () => {
+        it('throws an error if trying to use stale caching on the client', () => {
 
             const config = {
                 staleIn: 30000,
@@ -1780,7 +1780,7 @@ describe('Policy', () => {
             expect(fn).to.throw('Cannot use stale options without server-side caching');
         });
 
-        it('converts the stale time to ms', async () => {
+        it('converts the stale time to ms', () => {
 
             const config = {
                 staleIn: 30000,
@@ -1798,7 +1798,7 @@ describe('Policy', () => {
             expect(rule.staleIn).to.equal(config.staleIn);
         });
 
-        it('throws an error if staleTimeout is greater than expiresIn', async () => {
+        it('throws an error if staleTimeout is greater than expiresIn', () => {
 
             const config = {
                 staleIn: 2000,
@@ -1819,7 +1819,7 @@ describe('Policy', () => {
             expect(fn).to.throw('staleTimeout must be less than expiresIn');
         });
 
-        it('throws an error if staleIn is greater than expiresIn', async () => {
+        it('throws an error if staleIn is greater than expiresIn', () => {
 
             const config = {
                 staleIn: 1000000,
@@ -1840,7 +1840,7 @@ describe('Policy', () => {
             expect(fn).to.throw('staleIn must be less than expiresIn');
         });
 
-        it('allows a rule with generateFunc and generateTimeout', async () => {
+        it('allows a rule with generateFunc and generateTimeout', () => {
 
             const config = {
                 expiresIn: 50000,
@@ -1859,7 +1859,7 @@ describe('Policy', () => {
             expect(fn).to.not.throw();
         });
 
-        it('throws an error with generateFunc but no generateTimeout', async () => {
+        it('throws an error with generateFunc but no generateTimeout', () => {
 
             const config = {
                 expiresIn: 50000,
@@ -1877,7 +1877,7 @@ describe('Policy', () => {
             expect(fn).to.throw(/Invalid cache policy configuration/);
         });
 
-        it('throws an error with generateTimeout but no generateFunc', async () => {
+        it('throws an error with generateTimeout but no generateFunc', () => {
 
             const config = {
                 expiresIn: 50000,
@@ -1892,7 +1892,7 @@ describe('Policy', () => {
             expect(fn).to.throw(/Invalid cache policy configuration/);
         });
 
-        it('throws an error if staleTimeout is greater than pendingGenerateTimeout', async () => {
+        it('throws an error if staleTimeout is greater than pendingGenerateTimeout', () => {
 
             const config = {
                 staleIn: 30000,
@@ -1914,7 +1914,7 @@ describe('Policy', () => {
             expect(fn).to.throw('pendingGenerateTimeout must be greater than staleTimeout if specified');
         });
 
-        it('should accept a valid pendingGenerateTimeout', async () => {
+        it('should accept a valid pendingGenerateTimeout', () => {
 
             const config = {
                 staleIn: 30000,
@@ -1932,7 +1932,7 @@ describe('Policy', () => {
             expect(rule.pendingGenerateTimeout).to.equal(5000);
         });
 
-        it('throws an error if staleIn is greater than one day when expiredAt is used', async () => {
+        it('throws an error if staleIn is greater than one day when expiredAt is used', () => {
 
             const config = {
                 staleIn: 1000 * 60 * 60 * 24 + 1,
@@ -1953,7 +1953,7 @@ describe('Policy', () => {
             expect(fn).to.throw();
         });
 
-        it('allows staleIn to be greater than one day when expiredAt is not used', async () => {
+        it('allows staleIn to be greater than one day when expiredAt is not used', () => {
 
             const config = {
                 staleIn: 1000 * 60 * 60 * 24 + 1,
@@ -1977,7 +1977,7 @@ describe('Policy', () => {
 
     describe('Policy.ttl()', () => {
 
-        it('returns zero when a rule is expired', async () => {
+        it('returns zero when a rule is expired', () => {
 
             const config = {
                 expiresIn: 50000
@@ -1990,7 +1990,7 @@ describe('Policy', () => {
             expect(ttl).to.be.equal(0);
         });
 
-        it('returns a positive number when a rule is not expired', async () => {
+        it('returns a positive number when a rule is not expired', () => {
 
             const config = {
                 expiresIn: 50000
@@ -2002,7 +2002,7 @@ describe('Policy', () => {
             expect(ttl).to.be.greaterThan(0);
         });
 
-        it('returns the correct expires time when no created time is provided', async () => {
+        it('returns the correct expires time when no created time is provided', () => {
 
             const config = {
                 expiresIn: 50000
@@ -2013,7 +2013,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(50000);
         });
 
-        it('returns 0 when created several days ago and expiresAt is used', async () => {
+        it('returns 0 when created several days ago and expiresAt is used', () => {
 
             const config = {
                 expiresAt: '13:00'
@@ -2025,7 +2025,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(0);
         });
 
-        it('returns 0 when created in the future', async () => {
+        it('returns 0 when created in the future', () => {
 
             const config = {
                 expiresIn: 100
@@ -2037,14 +2037,14 @@ describe('Policy', () => {
             expect(ttl).to.equal(0);
         });
 
-        it('returns 0 for bad rule', async () => {
+        it('returns 0 for bad rule', () => {
 
             const created = Date.now() - 1000;
             const ttl = Catbox.policy.ttl({}, created);
             expect(ttl).to.equal(0);
         });
 
-        it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour', async () => {
+        it('returns 0 when created 60 hours ago and expiresAt is used with an hour before the created hour', () => {
 
             const config = {
                 expiresAt: '12:00'
@@ -2056,7 +2056,7 @@ describe('Policy', () => {
             expect(ttl).to.equal(0);
         });
 
-        it('returns a positive number when using a future expiresAt', async () => {
+        it('returns a positive number when using a future expiresAt', () => {
 
             let hour = new Date(Date.now() + 60 * 60 * 1000).getHours();
             hour = hour === 0 ? 1 : hour;
@@ -2071,7 +2071,7 @@ describe('Policy', () => {
             expect(ttl).to.be.greaterThan(0);
         });
 
-        it('returns the correct number when using a future expiresAt', async () => {
+        it('returns the correct number when using a future expiresAt', () => {
 
             const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000);
             const hours = twoHoursAgo.getHours();
@@ -2089,7 +2089,7 @@ describe('Policy', () => {
             expect(ttl).to.be.about(22 * 60 * 60 * 1000, 60 * 1000);
         });
 
-        it('returns correct number when using an expiresAt time tomorrow', async () => {
+        it('returns correct number when using an expiresAt time tomorrow', () => {
 
             const hour = new Date(Date.now() - 60 * 60 * 1000).getHours();
 
@@ -2103,7 +2103,7 @@ describe('Policy', () => {
             expect(ttl).to.be.about(23 * 60 * 60 * 1000, 60 * 60 * 1000);
         });
 
-        it('returns correct number when using a created time from yesterday and expires in 2 hours', async () => {
+        it('returns correct number when using a created time from yesterday and expires in 2 hours', () => {
 
             const hour = new Date(Date.now() + 2 * 60 * 60 * 1000).getHours();
 
@@ -2152,7 +2152,7 @@ describe('Policy', () => {
             expect(policy.isReady()).to.equal(expected);
         });
 
-        it('returns false when no cache client provided', async () => {
+        it('returns false when no cache client provided', () => {
 
             const policy = new Catbox.Policy({ expiresIn: 1 });
 

@@ -71,24 +71,11 @@ describe('Catbox', () => {
         await expect(client.set(key, value, 10)).to.reject('Converting circular structure to JSON');
     });
 
-    it('ignored starting a connection twice on same event', (done) => {
+    it('ignored starting a connection twice on same event', async () => {
 
         const client = new Catbox.Client(Connections.Promises);
-        let x = 2;
-        const start = function () {
-
-            client.start().then(() => {
-
-                expect(client.isReady()).to.equal(true);
-                --x;
-                if (!x) {
-                    done();
-                }
-            });
-        };
-
-        start();
-        start();
+        client.start();
+        await client.start();
     });
 
     it('ignored starting a connection twice chained', async () => {
@@ -201,7 +188,7 @@ describe('Catbox', () => {
         await expect(client.drop(key)).to.reject(Error);
     });
 
-    it('throws error on missing segment name', async () => {
+    it('throws error on missing segment name', () => {
 
         const config = {
             expiresIn: 50000
@@ -214,7 +201,7 @@ describe('Catbox', () => {
         expect(fn).to.throw(Error);
     });
 
-    it('throws error on bad segment name', async () => {
+    it('throws error on bad segment name', () => {
 
         const config = {
             expiresIn: 50000
