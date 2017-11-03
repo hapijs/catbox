@@ -1228,7 +1228,7 @@ describe('Policy', () => {
                 await Promise.all([compare(), compare()]);
             });
 
-            it('does not return stale value from previous request timeout left behind', { parallel: false }, async () => {
+            it('does not return stale value from previous request timeout left behind', async () => {
 
                 let gen = 0;
 
