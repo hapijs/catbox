@@ -1,7 +1,7 @@
 {
     "name": "catbox",
     "description": "Multi-strategy object caching service",
-    "version": "10.0.0",
+    "version": "10.0.1",
     "repository": "git://github.com/hapijs/catbox",
     "main": "lib/index.js",
     "keywords": [
@@ -13,7 +13,7 @@
         "node": ">=8.9.0"
     },
     "dependencies": {
-        "boom": "6.x.x",
+        "boom": "7.x.x",
         "hoek": "5.x.x",
         "joi": "13.x.x"
     },
