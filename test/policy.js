@@ -349,6 +349,33 @@ describe('Policy', () => {
                 await expect(policy.get('test')).to.reject(Error, 'bad client');
             });
 
+            it('returns an error when get fails with type error', async () => {
+
+                let gen = 0;
+
+                const rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateOnReadError: false,
+                    generateTimeout: 10,
+                    generateFunc: (id) => ({ gen: ++gen })
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                client.get = function (key) {
+
+                    global.foo.bar;
+                };
+
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                await client.start();
+
+                await expect(policy.get('test')).to.reject(Error, /Cannot read property/);
+            });
+
+
             it('returns the processed cached item using manual ttl', async () => {
 
                 let gen = 0;
