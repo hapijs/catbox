@@ -314,6 +314,7 @@ describe('Policy', () => {
 
                     return Promise.reject(new Error('bad client'));
                 };
+
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
@@ -1736,6 +1737,7 @@ describe('Policy', () => {
 
                 Catbox.policy.compile(config, true);
             };
+
             expect(fn).to.not.throw();
         });
 

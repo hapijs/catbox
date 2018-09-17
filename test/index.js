@@ -198,6 +198,7 @@ describe('Catbox', () => {
             const client = new Catbox.Client(Connection);
             new Catbox.Policy(config, client, '');
         };
+
         expect(fn).to.throw(Error);
     });
 
@@ -211,6 +212,7 @@ describe('Catbox', () => {
             const client = new Catbox.Client(Connection);
             new Catbox.Policy(config, client, 'a\0b');
         };
+
         expect(fn).to.throw(Error);
     });
 
