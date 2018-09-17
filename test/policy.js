@@ -197,6 +197,40 @@ describe('Policy', () => {
             expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 0 });
         });
 
+        it('errors when staleIn function throws', async () => {
+
+            let gen = 0;
+
+            const staleIn = function () {
+
+                if (++gen === 1) {
+                    throw new TypeError();
+                }
+
+                return 100;
+            };
+
+            const rule = {
+                expiresIn: 100,
+                staleIn,
+                staleTimeout: 5,
+                generateTimeout: 20,
+                generateFunc() {
+
+                    return true;
+                }
+            };
+
+            const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+            const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+            await client.start();
+
+            expect(await policy.get('test')).to.equal(true);
+            await expect(policy.get('test')).to.reject(TypeError);
+            expect(await policy.get('test')).to.equal(true);
+        });
+
         describe('generate', () => {
 
             it('returns falsey items', async () => {
@@ -1217,6 +1251,38 @@ describe('Policy', () => {
                 const compare = async () => {
 
                     const error = await expect(policy.get('test')).to.reject(Error, 'generate failed');
+
+                    if (!result) {
+                        result = error;
+                        return;
+                    }
+
+                    expect(result).to.equal(error);
+                };
+
+                await Promise.all([compare(), compare()]);
+            });
+
+            it('catches system errors thrown in generateFunc and passes to all pending requests', async () => {
+
+                const rule = {
+                    expiresIn: 100,
+                    generateTimeout: 10,
+                    generateFunc: (id) => {
+
+                        throw new TypeError('generate failed');
+                    }
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                await client.start();
+
+                let result = null;
+                const compare = async () => {
+
+                    const error = await expect(policy.get('test')).to.reject(TypeError, 'generate failed');
 
                     if (!result) {
                         result = error;

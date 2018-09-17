@@ -14,7 +14,6 @@
     },
     "dependencies": {
         "boom": "7.x.x",
-        "bounce": "1.x.x",
         "hoek": "5.x.x",
         "joi": "13.x.x"
     },
