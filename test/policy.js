@@ -1512,7 +1512,7 @@ describe('Policy', () => {
                 expiresAt: '10:00'
             };
 
-            const rules = new Catbox.Policy.compile(config);
+            const rules = Catbox.Policy.compile(config);
 
             const created = new Date('Sat Sep 06 2014 13:00:00').getTime();
             const now = new Date('Sat Sep 06 2014 12:00:00').getTime();
@@ -1527,7 +1527,7 @@ describe('Policy', () => {
                 expiresAt: '10:00'
             };
 
-            const rules = new Catbox.Policy.compile(config);
+            const rules = Catbox.Policy.compile(config);
 
             const created = new Date('Sat Sep 06 2014 9:00:00').getTime();
             const now = new Date('Sat Sep 06 2014 11:00:00').getTime();
@@ -1542,7 +1542,7 @@ describe('Policy', () => {
                 expiresAt: '10:00'
             };
 
-            const rules = new Catbox.Policy.compile(config);
+            const rules = Catbox.Policy.compile(config);
 
             const created = new Date('Sat Sep 06 2014 11:00:00').getTime();
             const now = new Date('Sat Sep 07 2014 10:00:01').getTime();
@@ -1557,7 +1557,7 @@ describe('Policy', () => {
                 expiresAt: '10:00'
             };
 
-            const rules = new Catbox.Policy.compile(config);
+            const rules = Catbox.Policy.compile(config);
 
             const created = new Date('Sat Sep 06 2014 9:00:00').getTime();
             const now = new Date('Sat Sep 06 2014 9:30:00').getTime();
@@ -1572,7 +1572,7 @@ describe('Policy', () => {
                 expiresAt: '10:00'
             };
 
-            const rules = new Catbox.Policy.compile(config);
+            const rules = Catbox.Policy.compile(config);
 
             const created = new Date('Sat Sep 06 2014 11:00:00').getTime();
             const now = new Date('Sat Sep 07 2014 9:00:00').getTime();
