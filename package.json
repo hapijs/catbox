@@ -9,9 +9,6 @@
         "generic",
         "adapter"
     ],
-    "engines": {
-        "node": ">=8.12.0"
-    },
     "dependencies": {
         "boom": "7.x.x",
         "hoek": "6.x.x",
