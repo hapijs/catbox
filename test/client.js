@@ -186,6 +186,26 @@ describe('Client', () => {
             expect(cached).to.equal(null);
         });
 
+        it('returns nothing when item is not found (null item)', async () => {
+
+            const engine = {
+                start: function () { },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key) {
+
+                    return { item: null };
+                }
+            };
+
+            const client = new Catbox.Client(engine);
+            const cached = await client.get({ id: 'id', segment: 'segment' });
+
+            expect(cached).to.equal(null);
+        });
+
         it('returns falsey items', async () => {
 
             const engine = {

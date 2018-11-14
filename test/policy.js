@@ -303,6 +303,39 @@ describe('Policy', () => {
                 expect(value.gen).to.equal(1);
             });
 
+            it('drops entry if flags.ttl is 0', async () => {
+
+                let gen = 0;
+                const rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateTimeout: 10,
+                    generateFunc(id, flags) {
+
+                        if (++gen === 2) {
+                            flags.ttl = 0;
+                        }
+
+                        return gen;
+                    }
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                await client.start();
+
+                expect(await policy.get('test')).to.equal(1);
+                expect(await policy.get('test')).to.equal(1);
+
+                await Hoek.wait(25);
+
+                expect(await policy.get('test')).to.equal(2);
+                expect(await policy.get('test')).to.equal(3);
+                expect(await policy.get('test')).to.equal(3);
+            });
+
             it('switches rules after construction', async () => {
 
                 let gen = 0;
