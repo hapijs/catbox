@@ -11,8 +11,8 @@ Lead Maintainer: [Gil Pedersen](https://github.com/kanongil)
 cache,
  [Redis](http://redis.io/),
  [MongoDB](http://www.mongodb.org/),
- [Memcached](http://memcached.org/),
- [Amazon S3](http://aws.amazon.com/s3/),
+ [Memcached](http://memcached.org/), and
+ [Amazon S3](http://aws.amazon.com/s3/).
 
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
 
