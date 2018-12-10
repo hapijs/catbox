@@ -12,12 +12,7 @@ cache,
  [Redis](http://redis.io/),
  [MongoDB](http://www.mongodb.org/),
  [Memcached](http://memcached.org/),
- [Riak](http://basho.com/riak/),
  [Amazon S3](http://aws.amazon.com/s3/),
- [RethinkDB](http://rethinkdb.com),
- [Couchbase](http://www.couchbase.com/),
- [Aerospike](http://www.aerospike.com/) and
- [LevelDB](http://leveldb.org/).
 
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
 
@@ -32,12 +27,7 @@ dependencies manually. The available strategies are:
 - [Redis](https://github.com/hapijs/catbox-redis)
 - [MongoDB](https://github.com/hapijs/catbox-mongodb)
 - [Memcached](https://github.com/hapijs/catbox-memcached)
-- [Riak](https://github.com/DanielBarnes/catbox-riak)
 - [Amazon S3](https://github.com/fhemberger/catbox-s3)
-- [RethinkDB](https://github.com/codedmart/catbox-rethinkdb)
-- [Couchbase](https://github.com/cmfatih/catbox-couchbase)
-- [Aerospike](https://github.com/ooogway/catbox-aerospike)
-- [LevelDB](https://github.com/mshick/catbox-multilevel)
 - [Local Disk](https://github.com/mirusresearch/catbox-disk)
 
 
