@@ -1,16 +1,24 @@
 'use strict';
 
+const Hoek = require('hoek');
+
 // Load modules
 
 
 // Declare internals
 
-const internals = {};
+const internals = {
+    defaults: {
+        a: 123
+    }
+};
 
 
 module.exports = class {
+
     constructor(options) {
 
+        this.options = Hoek.applyToDefaultsWithShallow(internals.defaults, options, ['shallow']);
         this.cache = null;
     }
 

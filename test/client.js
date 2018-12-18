@@ -61,6 +61,29 @@ describe('Client', () => {
         expect(result.item).to.equal('123');
     });
 
+    it('passes options with default partition', () => {
+
+        const client = new Catbox.Client(Connection);
+
+        expect(client.connection.options).to.contain({ partition: 'catbox' });
+    });
+
+    it('passes options with custom partition', () => {
+
+        const client = new Catbox.Client(Connection, { partition: 'custom' });
+
+        expect(client.connection.options).to.contain({ partition: 'custom' });
+    });
+
+    it('supports shallow copied option properties', () => {
+
+        const obj = {};
+        const client = new Catbox.Client(Connection, { shallow: obj, deep: obj });
+
+        expect(client.connection.options.shallow).to.shallow.equal(obj);
+        expect(client.connection.options.deep).to.not.shallow.equal(obj);
+    });
+
     it('errors when calling get on a bad connection', async () => {
 
         const errorEngine = {
