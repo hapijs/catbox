@@ -58,7 +58,7 @@ The `Client` object provides the following methods:
 
 - `await start()` - creates a connection to the cache server. Must be called before any other
   method is available. Any errors are thrown.
-- `stop()` - terminates the connection to the cache server.
+- `await stop()` - terminates the connection to the cache server.
 - `await get(key)` - retrieve an item from the cache engine if found where:
     - `key` - a cache key object (see below).
     - return value:
