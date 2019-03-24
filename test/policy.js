@@ -1,19 +1,16 @@
 'use strict';
 
-// Load modules
+const Domain = require('domain');
 
 const Catbox = require('..');
 const Code = require('code');
 const Lab = require('lab');
-const Import = require('./import');
-const Domain = require('domain');
 
-// Declare internals
+const Import = require('./import');
+
 
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.experiment;
@@ -547,7 +544,7 @@ describe('Policy', () => {
                     generateTimeout: 10,
                     generateFunc: function (id, next) {
 
-                        return next(null, { gen: ++gen });
+                        return next(null, {});
                     }
                 };
 

@@ -1,18 +1,12 @@
 'use strict';
 
-// Load modules
-
 const Catbox = require('..');
 const Code = require('code');
 const Lab = require('lab');
 
 
-// Declare internals
-
 const internals = {};
 
-
-// Test shortcuts
 
 const lab = exports.lab = Lab.script();
 const describe = lab.experiment;
