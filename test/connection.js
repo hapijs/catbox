@@ -1,11 +1,7 @@
 'use strict';
 
-const Hoek = require('hoek');
+const Hoek = require('@hapi/hoek');
 
-// Load modules
-
-
-// Declare internals
 
 const internals = {
     defaults: {

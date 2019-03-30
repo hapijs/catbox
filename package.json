@@ -1,26 +1,22 @@
 {
-    "name": "catbox",
-    "description": "Multi-strategy object caching service",
-    "version": "10.0.6",
-    "repository": "git://github.com/hapijs/catbox",
-    "main": "lib/index.js",
-    "keywords": [
-        "cache",
-        "generic",
-        "adapter"
-    ],
-    "dependencies": {
-        "boom": "7.x.x",
-        "hoek": "6.x.x",
-        "joi": "14.x.x"
-    },
-    "devDependencies": {
-        "code": "5.x.x",
-        "lab": "18.x.x"
-    },
-    "scripts": {
-        "test": "lab -a code -t 100 -L",
-        "test-cov-html": "lab -a code -r html -o coverage.html"
-    },
-    "license": "BSD-3-Clause"
+  "name": "catbox",
+  "description": "Multi-strategy object caching service",
+  "version": "10.0.6",
+  "repository": "git://github.com/hapijs/catbox",
+  "main": "lib/index.js",
+  "keywords": ["cache", "generic", "adapter"],
+  "dependencies": {
+    "@hapi/boom": "7.x.x",
+    "@hapi/hoek": "6.x.x",
+    "@hapi/joi": "14.x.x"
+  },
+  "devDependencies": {
+    "@hapi/code": "5.x.x",
+    "@hapi/lab": "18.x.x"
+  },
+  "scripts": {
+    "test": "lab -a @hapi/code -t 100 -L",
+    "test-cov-html": "lab -a @hapi/code -r html -o coverage.html"
+  },
+  "license": "BSD-3-Clause"
 }

@@ -1,15 +1,11 @@
 'use strict';
 
-// Load modules
-
 const Catbox = require('..');
-const Code = require('code');
-const Lab = require('lab');
+const Code = require('@hapi/code');
+const Lab = require('@hapi/lab');
 
 const Connection = require('./connection');
 
-
-// Declare internals
 
 const internals = {};
 
