@@ -1,5 +1,5 @@
 {
-  "name": "catbox",
+  "name": "@hapi/catbox",
   "description": "Multi-strategy object caching service",
   "version": "10.1.0",
   "repository": "git://github.com/hapijs/catbox",

@@ -593,28 +593,27 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
-
                 expect(value1.gen).to.equal(1);        // Fresh
 
                 await Hoek.wait(101);
-                const value2 = await policy.get('test');
 
+                const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
 
                 await Hoek.wait(8);
-                const value3 = await policy.get('test');
 
+                const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(50);
+                await Hoek.wait(100);
 
                 const value4 = await policy.get('test');
+                expect(value4.gen).to.equal(2);         // Fresh
 
-                expect(value4.gen).to.equal(2);        // Fresh
-                expect(generateCalled).to.equal(2); // original generate + 1 call while stale
+                expect(generateCalled).to.equal(2);     // original generate + 1 call while stale
             });
 
-            it('returns fresh object when cache is expired and called during a pendingGenerateTimeout period', async () => {
+            it('returns fresh object after cache is expired and called during a pendingGenerateTimeout period', async () => {
 
                 let gen = 0;
 
@@ -638,18 +637,17 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
+                expect(value1.gen).to.equal(1);         // Fresh
 
-                expect(value1.gen).to.equal(1);        // Fresh
+                await Hoek.wait(900);
 
-                await Hoek.wait(980);
                 const value2 = await policy.get('test');
-
-                expect(value2.gen).to.equal(1);        // Stale
+                expect(value2.gen).to.equal(1);         // Stale
 
                 await Hoek.wait(40);
-                const value3 = await policy.get('test');
 
-                expect(value3.gen).to.equal(2);        // New
+                const value3 = await policy.get('test');
+                expect(value3.gen).to.equal(2);         // New
             });
 
             it('returns stale object then fresh object based on timing using staleIn function', async () => {
