@@ -507,24 +507,22 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
-
-                expect(value1.gen).to.equal(1);        // Fresh
+                expect(value1.gen).to.equal(1);         // Fresh
 
                 await Hoek.wait(101);
+
                 const value2 = await policy.get('test');
+                expect(value2.gen).to.equal(1);         // Stale
 
-                expect(value2.gen).to.equal(1);        // Stale
-
-                await Hoek.wait(8);
                 const value3 = await policy.get('test');
+                expect(value3.gen).to.equal(1);         // Stale
 
-                expect(value3.gen).to.equal(1);        // Stale
+                await Hoek.wait(60);
 
-                await Hoek.wait(50);
                 const value4 = await policy.get('test');
+                expect(value4.gen).to.equal(3);         // Fresh
 
-                expect(value4.gen).to.equal(3);        // Fresh
-                expect(generateCalled).to.equal(3);    // original generate + 2 calls while stale
+                expect(generateCalled).to.equal(3);     // original generate + 2 calls while stale
             });
 
             it('generateTimeout is triggered when staleTimeout is greater than ttl and generation is slow', async () => {
