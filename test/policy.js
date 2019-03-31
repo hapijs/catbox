@@ -569,7 +569,7 @@ describe('Policy', () => {
                     expiresIn: 1000,
                     staleIn: 100,
                     staleTimeout: 5,
-                    pendingGenerateTimeout: 300,
+                    pendingGenerateTimeout: 200,
                     generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
@@ -591,12 +591,12 @@ describe('Policy', () => {
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(10);
+                await Hoek.wait(30);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(100);
+                await Hoek.wait(65);
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
