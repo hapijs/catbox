@@ -567,13 +567,13 @@ describe('Policy', () => {
 
                 const rule = {
                     expiresIn: 1000,
-                    staleIn: 300,
-                    staleTimeout: 10,
-                    pendingGenerateTimeout: 500,
-                    generateTimeout: 200,
+                    staleIn: 150 * 3,
+                    staleTimeout: 5 * 3,
+                    pendingGenerateTimeout: 250 * 3,
+                    generateTimeout: 100 * 3,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(100);
+                        await Hoek.wait(50 * 3);
                         return { gen: ++gen };
                     }
                 };
@@ -586,17 +586,17 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await Hoek.wait(320);
+                await Hoek.wait(160 * 3);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(20);
+                await Hoek.wait(10 * 3);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(100);
+                await Hoek.wait(50 * 3);
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
