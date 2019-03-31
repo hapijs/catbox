@@ -591,12 +591,12 @@ describe('Policy', () => {
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(30);
+                await Hoek.wait(10);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(65);
+                await Hoek.wait(86);
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
