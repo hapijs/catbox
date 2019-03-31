@@ -565,8 +565,6 @@ describe('Policy', () => {
 
                 let gen = 0;
 
-                let generateCalled = 0;
-
                 const rule = {
                     expiresIn: 1000,
                     staleIn: 100,
@@ -576,8 +574,6 @@ describe('Policy', () => {
                     generateFunc: async function (id, flags) {
 
                         await Hoek.wait(50);
-                        flags.ttl = 1000;
-                        ++generateCalled;
                         return { gen: ++gen };
                     }
                 };
@@ -590,12 +586,12 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await Hoek.wait(101);
+                await Hoek.wait(110);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(8);
+                await Hoek.wait(10);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
@@ -605,7 +601,7 @@ describe('Policy', () => {
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
 
-                expect(generateCalled).to.equal(2);     // original generate + 1 call while stale
+                expect(gen).to.equal(2);     // original generate + 1 call while stale
             });
 
             it('returns fresh object after cache is expired and called during a pendingGenerateTimeout period', async () => {
