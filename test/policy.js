@@ -417,14 +417,14 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 26,
-                    staleIn: 20,
-                    staleTimeout: 5,
-                    generateTimeout: 20,
+                    expiresIn: 100,
+                    staleIn: 50,
+                    staleTimeout: 10,
+                    generateTimeout: 50,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(6);
-                        flags.ttl = 100;
+                        await Hoek.wait(15);
+                        flags.ttl = 200;
                         return { gen: ++gen };
                     }
                 };
@@ -435,13 +435,12 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
+                expect(value1.gen).to.equal(1);         // Fresh
 
-                expect(value1.gen).to.equal(1);        // Fresh
+                await Hoek.wait(110);
 
-                await Hoek.wait(27);
                 const value2 = await policy.get('test');
-
-                expect(value2.gen).to.equal(1);        // Stale
+                expect(value2.gen).to.equal(1);         // Stale
             });
 
             it('returns stale object then fresh object based on timing', async () => {
@@ -449,14 +448,13 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 100,
-                    staleIn: 20,
-                    staleTimeout: 5,
-                    generateTimeout: 20,
+                    expiresIn: 200,
+                    staleIn: 50,
+                    staleTimeout: 10,
+                    generateTimeout: 50,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(6);
-                        flags.ttl = 100;
+                        await Hoek.wait(15);
                         return { gen: ++gen };
                     }
                 };
@@ -467,18 +465,17 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
+                expect(value1.gen).to.equal(1);         // Fresh
 
-                expect(value1.gen).to.equal(1);        // Fresh
+                await Hoek.wait(60);
 
-                await Hoek.wait(21);
                 const value2 = await policy.get('test');
+                expect(value2.gen).to.equal(1);         // Stale
 
-                expect(value2.gen).to.equal(1);        // Stale
+                await Hoek.wait(15);
 
-                await Hoek.wait(3);
                 const value3 = await policy.get('test');
-
-                expect(value3.gen).to.equal(2);        // Fresh
+                expect(value3.gen).to.equal(2);         // Fresh
             });
 
             it('returns stale objects then fresh object based on timing, with concurrent generateFunc calls', async () => {
