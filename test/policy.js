@@ -815,15 +815,15 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 100,
-                    staleIn: 20,
+                    expiresIn: 100 * 3,
+                    staleIn: 20 * 3,
                     staleTimeout: 5,
                     dropOnError: false,
-                    generateTimeout: 20,
+                    generateTimeout: 20 * 3,
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await Hoek.wait(6);
+                        await Hoek.wait(6 * 3);
                         if (gen === 1) {
                             return { gen };
                         }
@@ -841,14 +841,14 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await Hoek.wait(21);
+                await Hoek.wait(21 * 3);
                 const value2 = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await Hoek.wait(3);
+                await Hoek.wait(3 * 3);
                 const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);     // Stale
