@@ -567,9 +567,9 @@ describe('Policy', () => {
 
                 const rule = {
                     expiresIn: 1000,
-                    staleIn: 100,
+                    staleIn: 150,
                     staleTimeout: 5,
-                    pendingGenerateTimeout: 200,
+                    pendingGenerateTimeout: 250,
                     generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
@@ -586,7 +586,7 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await Hoek.wait(110);
+                await Hoek.wait(160);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
@@ -596,7 +596,7 @@ describe('Policy', () => {
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(86);
+                await Hoek.wait(50);
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
@@ -617,7 +617,6 @@ describe('Policy', () => {
                     generateFunc: async function (id, flags) {
 
                         await Hoek.wait(50);
-                        flags.ttl = 1000;
                         return { gen: ++gen };
                     }
                 };
@@ -630,7 +629,7 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);         // Fresh
 
-                await Hoek.wait(900);
+                await Hoek.wait(960);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);         // Stale
