@@ -1047,11 +1047,11 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 15 * 3,
-                    generateTimeout: 5 * 3,
+                    expiresIn: 15 * 5,
+                    generateTimeout: 5 * 5,
                     generateFunc: async function (id) {
 
-                        await Hoek.wait(10 * 3);
+                        await Hoek.wait(10 * 5);
                         return { gen: ++gen };
                     },
                     getDecoratedValue: true
@@ -1065,14 +1065,14 @@ describe('Policy', () => {
                 const error1 = await expect(policy.get('test')).to.reject(Error);
                 expect(error1.output.statusCode).to.equal(503);
 
-                await Hoek.wait(10 * 3);
+                await Hoek.wait(10 * 5);
 
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);
                 expect(report2.error).to.not.exist();
 
-                await Hoek.wait(15 * 3);
+                await Hoek.wait(15 * 5);
 
                 const error3 = await expect(policy.get('test')).to.reject(Error);
                 expect(error3.output.statusCode).to.equal(503);
