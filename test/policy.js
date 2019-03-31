@@ -1004,89 +1004,6 @@ describe('Policy', () => {
                 expect(value3.gen).to.equal(2);     // Fresh
             });
 
-            // FIXME: borken
-            it('returns error when generated within stale timeout', async () => {
-
-                let gen = 0;
-
-                const rule = {
-                    expiresIn: 100,
-                    staleIn: 20,
-                    staleTimeout: 10,
-                    generateTimeout: 10,
-                    dropOnError: false,
-                    generateFunc: async function (id) {
-
-                        ++gen;
-                        await Hoek.wait(6);
-                        if (gen !== 2) {
-                            return { gen };
-                        }
-
-                        throw new Error();
-                    },
-                    getDecoratedValue: true
-                };
-
-                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
-                const policy = new Catbox.Policy(rule, client, 'test-segment');
-
-                await client.start();
-
-                const { value: value1, report: report1 } = await policy.get('test');
-
-                expect(value1.gen).to.equal(1);     // Fresh
-                expect(report1.error).to.not.exist();
-
-                await Hoek.wait(21);
-                const { value: value2, report: report2 } = await policy.get('test');
-
-                // Generates a new one which will produce Error
-
-                expect(value2).to.equal(value1);     // Stale
-                expect(report2.error).to.exist();
-            });
-
-            // FIXME: wrong description or implementation?!?
-            it('returns new object when stale has less than staleTimeout time left', async () => {
-
-                let gen = 0;
-
-                const rule = {
-                    expiresIn: 31,
-                    staleIn: 15,
-                    staleTimeout: 15,
-                    generateTimeout: 10,
-                    generateFunc: (id) => ({ gen: ++gen }),
-                    getDecoratedValue: true
-                };
-
-                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
-                const policy = new Catbox.Policy(rule, client, 'test-segment');
-
-                await client.start();
-
-                const { value: value1, report: report1 } = await policy.get('test');
-
-                expect(value1.gen).to.equal(1);        // Fresh
-                expect(report1.error).to.not.exist();
-
-                await Hoek.wait(5);
-                const { value: value2, report: report2 } = await policy.get('test');
-
-                expect(value2.gen).to.equal(1);        // Fresh
-                expect(report2.error).to.not.exist();
-
-                await Hoek.wait(11);
-
-                const { value: value3, cached: cached3, report: report3 } = await policy.get('test');
-
-                expect(value3.gen).to.equal(2);        // Fresh
-                expect(cached3).to.not.exist();
-                expect(report3.error).to.not.exist();
-                expect(policy.stats).to.equal({ sets: 2, gets: 3, hits: 2, stales: 1, generates: 2, errors: 0 });
-            });
-
             it('invalidates cache on error without stale', async () => {
 
                 let gen = 0;
@@ -1130,11 +1047,11 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 15,
-                    generateTimeout: 5,
+                    expiresIn: 15 * 3,
+                    generateTimeout: 5 * 3,
                     generateFunc: async function (id) {
 
-                        await Hoek.wait(10);
+                        await Hoek.wait(10 * 3);
                         return { gen: ++gen };
                     },
                     getDecoratedValue: true
@@ -1148,14 +1065,14 @@ describe('Policy', () => {
                 const error1 = await expect(policy.get('test')).to.reject(Error);
                 expect(error1.output.statusCode).to.equal(503);
 
-                await Hoek.wait(10);
+                await Hoek.wait(10 * 3);
 
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);
                 expect(report2.error).to.not.exist();
 
-                await Hoek.wait(15);
+                await Hoek.wait(15 * 3);
 
                 const error3 = await expect(policy.get('test')).to.reject(Error);
                 expect(error3.output.statusCode).to.equal(503);
