@@ -567,13 +567,13 @@ describe('Policy', () => {
 
                 const rule = {
                     expiresIn: 1000,
-                    staleIn: 150,
-                    staleTimeout: 5,
-                    pendingGenerateTimeout: 250,
-                    generateTimeout: 100,
+                    staleIn: 300,
+                    staleTimeout: 10,
+                    pendingGenerateTimeout: 500,
+                    generateTimeout: 200,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(50);
+                        await Hoek.wait(100);
                         return { gen: ++gen };
                     }
                 };
@@ -586,17 +586,17 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);        // Fresh
 
-                await Hoek.wait(160);
+                await Hoek.wait(320);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(10);
+                await Hoek.wait(20);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
 
-                await Hoek.wait(50);
+                await Hoek.wait(100);
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
@@ -616,7 +616,7 @@ describe('Policy', () => {
                     generateTimeout: false,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(50);
+                        await Hoek.wait(100);
                         return { gen: ++gen };
                     }
                 };
