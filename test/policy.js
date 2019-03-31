@@ -563,17 +563,21 @@ describe('Policy', () => {
 
             it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period ', async () => {
 
+                const bench = new Hoek.Bench();
+
                 let gen = 0;
 
                 const rule = {
                     expiresIn: 1000,
-                    staleIn: 150 * 3,
-                    staleTimeout: 5 * 3,
-                    pendingGenerateTimeout: 250 * 3,
-                    generateTimeout: 100 * 3,
+                    staleIn: 150,
+                    staleTimeout: 5,
+                    pendingGenerateTimeout: 250,
+                    generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(50 * 3);
+                        console.log(1, bench.elapsed());
+                        await Hoek.wait(50);
+                        console.log(2, bench.elapsed());
                         return { gen: ++gen };
                     }
                 };
@@ -582,24 +586,32 @@ describe('Policy', () => {
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
+                console.log(3, bench.elapsed());
 
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);        // Fresh
+                console.log(4, bench.elapsed());
 
-                await Hoek.wait(160 * 3);
+                await Hoek.wait(160);
+                console.log(5, bench.elapsed());
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
+                console.log(6, bench.elapsed());
 
-                await Hoek.wait(10 * 3);
+                await Hoek.wait(10);
+                console.log(7, bench.elapsed());
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
+                console.log(8, bench.elapsed());
 
-                await Hoek.wait(50 * 3);
+                await Hoek.wait(50);
+                console.log(9, bench.elapsed());
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
+                console.log(10, bench.elapsed());
 
                 expect(gen).to.equal(2);     // original generate + 1 call while stale
             });
@@ -815,15 +827,15 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 100 * 3,
-                    staleIn: 20 * 3,
+                    expiresIn: 100,
+                    staleIn: 20,
                     staleTimeout: 5,
                     dropOnError: false,
-                    generateTimeout: 20 * 3,
+                    generateTimeout: 20,
                     generateFunc: async function (id) {
 
                         ++gen;
-                        await Hoek.wait(6 * 3);
+                        await Hoek.wait(6);
                         if (gen === 1) {
                             return { gen };
                         }
@@ -841,14 +853,14 @@ describe('Policy', () => {
 
                 expect(value1.gen).to.equal(1);     // Fresh
 
-                await Hoek.wait(21 * 3);
+                await Hoek.wait(21);
                 const value2 = await policy.get('test');
 
                 // Generates a new one in background which will produce Error, but not clear the cache
 
                 expect(value2.gen).to.equal(1);     // Stale
 
-                await Hoek.wait(3 * 3);
+                await Hoek.wait(3);
                 const value3 = await policy.get('test');
 
                 expect(value3.gen).to.equal(1);     // Stale
@@ -1047,11 +1059,11 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 15 * 5,
-                    generateTimeout: 5 * 5,
+                    expiresIn: 15,
+                    generateTimeout: 5,
                     generateFunc: async function (id) {
 
-                        await Hoek.wait(10 * 5);
+                        await Hoek.wait(10);
                         return { gen: ++gen };
                     },
                     getDecoratedValue: true
@@ -1065,14 +1077,14 @@ describe('Policy', () => {
                 const error1 = await expect(policy.get('test')).to.reject(Error);
                 expect(error1.output.statusCode).to.equal(503);
 
-                await Hoek.wait(10 * 5);
+                await Hoek.wait(10);
 
                 const { value: value2, report: report2 } = await policy.get('test');
 
                 expect(value2.gen).to.equal(1);
                 expect(report2.error).to.not.exist();
 
-                await Hoek.wait(15 * 5);
+                await Hoek.wait(15);
 
                 const error3 = await expect(policy.get('test')).to.reject(Error);
                 expect(error3.output.statusCode).to.equal(503);
