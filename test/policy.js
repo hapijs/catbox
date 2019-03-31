@@ -569,7 +569,7 @@ describe('Policy', () => {
                     expiresIn: 1000,
                     staleIn: 100,
                     staleTimeout: 5,
-                    pendingGenerateTimeout: 200,
+                    pendingGenerateTimeout: 300,
                     generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
