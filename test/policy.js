@@ -448,14 +448,15 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 200,
-                    staleIn: 50,
+                    expiresIn: 1000,
+                    staleIn: 200,
                     staleTimeout: 10,
-                    generateTimeout: 50,
+                    generateTimeout: 100,
                     generateFunc: async function (id, flags) {
 
+                        const serial = ++gen;
                         await Hoek.wait(15);
-                        return { gen: ++gen };
+                        return { gen: serial };
                     }
                 };
 
@@ -467,12 +468,12 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);         // Fresh
 
-                await Hoek.wait(60);
+                await Hoek.wait(210);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);         // Stale
 
-                await Hoek.wait(15);
+                await Hoek.wait(50);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(2);         // Fresh
@@ -584,22 +585,22 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
-                expect(value1.gen).to.equal(1);        // Fresh
+                expect(value1.gen).to.equal(1);             // Fresh
 
                 await Hoek.wait(160);
 
                 const value2 = await policy.get('test');
-                expect(value2.gen).to.equal(1);        // Stale
+                expect(value2.gen).to.equal(1);             // Stale
 
                 const value3 = await policy.get('test');
-                expect(value3.gen).to.equal(1);        // Stale
+                expect(value3.gen).to.equal(1);             // Stale
 
                 await Hoek.wait(50);
 
                 const value4 = await policy.get('test');
-                expect(value4.gen).to.equal(2);         // Fresh
+                expect(value4.gen).to.equal(2);             // Fresh
 
-                expect(gen).to.equal(2);     // original generate + 1 call while stale
+                expect(gen).to.equal(2);                    // original generate + 1 call while stale
             });
 
             it('return fresh object after pendingGenerateTimeout period ', async () => {
@@ -650,8 +651,9 @@ describe('Policy', () => {
                     generateTimeout: false,
                     generateFunc: async function (id, flags) {
 
+                        const serial = ++gen;
                         await Hoek.wait(100);
-                        return { gen: ++gen };
+                        return { gen: serial };
                     }
                 };
 
