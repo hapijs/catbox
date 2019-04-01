@@ -645,14 +645,14 @@ describe('Policy', () => {
 
                 const rule = {
                     expiresIn: 1000,
-                    staleIn: 100,
+                    staleIn: 500,
                     staleTimeout: 5,
-                    pendingGenerateTimeout: 200,
+                    pendingGenerateTimeout: 300,
                     generateTimeout: false,
                     generateFunc: async function (id, flags) {
 
                         const serial = ++gen;
-                        await Hoek.wait(100);
+                        await Hoek.wait(200);
                         return { gen: serial };
                     }
                 };
@@ -665,12 +665,12 @@ describe('Policy', () => {
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);         // Fresh
 
-                await Hoek.wait(960);
+                await Hoek.wait(900);
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);         // Stale
 
-                await Hoek.wait(40);
+                await Hoek.wait(100);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(2);         // New
