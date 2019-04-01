@@ -4,7 +4,7 @@ Multi-strategy object caching service
 
 [![Build Status](https://secure.travis-ci.org/hapijs/catbox.svg)](http://travis-ci.org/hapijs/catbox)
 
-Lead Maintainer: [Gil Pedersen](https://github.com/kanongil)
+Lead Maintainer: [Eran Hammer](https://github.com/hueniverse)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory
 cache,
