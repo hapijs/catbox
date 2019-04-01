@@ -1268,16 +1268,17 @@ describe('Policy', () => {
                 let gen = 0;
 
                 const rule = {
-                    expiresIn: 100,
-                    staleIn: 20,
-                    staleTimeout: 10,
-                    generateTimeout: 20,
+                    getDecoratedValue: true,
+                    expiresIn: 1000,
+                    staleIn: 200,
+                    staleTimeout: 100,
+                    generateTimeout: 200,
                     generateFunc: async (id) => {
 
-                        await Hoek.wait(5);
-                        return { gen: ++gen };
-                    },
-                    getDecoratedValue: true
+                        const serial = ++gen;
+                        await Hoek.wait(50);
+                        return { gen: serial };
+                    }
                 };
 
                 const client = new Catbox.Client(Connection, { partition: 'test-partition' });
@@ -1285,7 +1286,7 @@ describe('Policy', () => {
                 const orig = client.connection.get;
                 client.connection.get = async function (key) {      // Delayed get
 
-                    await Hoek.wait(10);
+                    await Hoek.wait(100);
                     return orig.call(client.connection, key);
                 };
 
@@ -1293,20 +1294,18 @@ describe('Policy', () => {
 
                 await client.start();
 
-                const { value: value1, report: report1 } = await policy.get('test');       // Cache lookup takes 10 + generate 5
-
-                expect(value1.gen).to.equal(1);                      // Fresh
+                const { value: value1, report: report1 } = await policy.get('test');        // Cache lookup takes 100 + generate 50
+                expect(value1.gen).to.equal(1);                                             // Fresh
                 expect(report1.error).to.not.exist();
 
-                await Hoek.wait(21);                           // Wait for stale
-                const { value: value2, report: report2 } = await policy.get('test');       // Cache lookup takes 10, generate comes back after 5
+                await Hoek.wait(210);                                                       // Wait for stale
 
-                expect(value2.gen).to.equal(2);                      // Fresh
+                const { value: value2, report: report2 } = await policy.get('test');        // Cache lookup takes 100, generate comes back after 50
+                expect(value2.gen).to.equal(2);                                             // Fresh
                 expect(report2.error).to.not.exist();
 
-                const { value: value3, report: report3 } = await policy.get('test');       // Cache lookup takes 10
-
-                expect(value3.gen).to.equal(2);                                 // Cached (10 left to stale)
+                const { value: value3, report: report3 } = await policy.get('test');        // Cache lookup takes 100
+                expect(value3.gen).to.equal(2);                                             // Cached (100 left to stale)
                 expect(report3.error).to.not.exist();
 
                 client.connection.get = orig;
