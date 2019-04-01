@@ -90,6 +90,17 @@ describe('Policy', () => {
         }).to.throw('Invalid segment name: undefined (Empty string)');
     });
 
+    it('generates events on demand', () => {
+
+        const client = new Catbox.Client(Connection);
+        const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+
+        expect(policy._events).to.be.null();
+        const events = policy.events;
+        expect(policy._events).to.equal(events);
+        expect(policy.events).to.equal(events);     // Second get
+    });
+
     describe('get()', () => {
 
         it('returns cached item using object id', async () => {
@@ -145,6 +156,41 @@ describe('Policy', () => {
 
             await expect(policy.get('test1')).to.reject(Error);
             expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 1 });
+        });
+
+        it('rejects the promise when an error occurs getting the item (with event)', async () => {
+
+            const engine = {
+                start: function () { },
+                isReady: function () {
+
+                    return true;
+                },
+                get: function (key) {
+
+                    throw new Error('Failed...');
+                },
+                validateSegmentName: function () {
+
+                    return null;
+                }
+            };
+
+            const policyConfig = {
+                expiresIn: 50000
+            };
+
+            const client = new Catbox.Client(engine);
+            const policy = new Catbox.Policy(policyConfig, client, 'test');
+
+            const log = policy.events.once('error');
+
+            await expect(policy.get('test1')).to.reject(Error);
+            expect(policy.stats).to.equal({ sets: 0, gets: 1, hits: 0, stales: 0, generates: 0, errors: 1 });
+
+            const [event] = await log;
+            expect(event.source).to.equal('persist');
+            expect(event.error).to.be.an.error('Failed...');
         });
 
         it('returns the cached result when no error occurs', async () => {
@@ -296,6 +342,60 @@ describe('Policy', () => {
                 const value = await policy.get('test');
 
                 expect(value.gen).to.equal(1);
+            });
+
+            it('logs generate error', async () => {
+
+                const rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateTimeout: 10,
+                    generateFunc: (id) => {
+
+                        throw new Error('Failed...');
+                    }
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+                const log = policy.events.once('error');
+
+                await client.start();
+
+                await expect(policy.get('test')).to.reject('Failed...');
+
+                const [event] = await log;
+                expect(event.source).to.equal('generate');
+                expect(event.error).to.be.an.error('Failed...');
+            });
+
+            it('logs persist error', async () => {
+
+                const rule = {
+                    expiresIn: 100,
+                    staleIn: 20,
+                    staleTimeout: 5,
+                    generateTimeout: 10,
+                    generateFunc: (id) => ({ id })
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+                const log = policy.events.once('error');
+
+                policy.set = function (key, value, ttl) {
+
+                    throw new Error('bad cache');
+                };
+
+                await client.start();
+
+                expect(await policy.get('test')).to.equal({ id: 'test' });
+
+                const [event] = await log;
+                expect(event.source).to.equal('persist');
+                expect(event.error).to.be.an.error('bad cache');
             });
 
             it('drops entry if flags.ttl is 0', async () => {
