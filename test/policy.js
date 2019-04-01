@@ -563,21 +563,17 @@ describe('Policy', () => {
 
             it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period ', async () => {
 
-                const bench = new Hoek.Bench();
-
                 let gen = 0;
 
                 const rule = {
                     expiresIn: 1000,
                     staleIn: 150,
                     staleTimeout: 5,
-                    pendingGenerateTimeout: 250,
-                    generateTimeout: 100,
+                    pendingGenerateTimeout: 500,
+                    generateTimeout: 200,
                     generateFunc: async function (id, flags) {
 
-                        console.log(1, bench.elapsed());
                         await Hoek.wait(50);
-                        console.log(2, bench.elapsed());
                         return { gen: ++gen };
                     }
                 };
@@ -586,34 +582,62 @@ describe('Policy', () => {
                 const policy = new Catbox.Policy(rule, client, 'test-segment');
 
                 await client.start();
-                console.log(3, bench.elapsed());
 
                 const value1 = await policy.get('test');
                 expect(value1.gen).to.equal(1);        // Fresh
-                console.log(4, bench.elapsed());
 
                 await Hoek.wait(160);
-                console.log(5, bench.elapsed());
 
                 const value2 = await policy.get('test');
                 expect(value2.gen).to.equal(1);        // Stale
-                console.log(6, bench.elapsed());
 
                 await Hoek.wait(10);
-                console.log(7, bench.elapsed());
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(1);        // Stale
-                console.log(8, bench.elapsed());
 
                 await Hoek.wait(50);
-                console.log(9, bench.elapsed());
 
                 const value4 = await policy.get('test');
                 expect(value4.gen).to.equal(2);         // Fresh
-                console.log(10, bench.elapsed());
 
                 expect(gen).to.equal(2);     // original generate + 1 call while stale
+            });
+
+            it('return fresh object after pendingGenerateTimeout period ', async () => {
+
+                let gen = 0;
+
+                const rule = {
+                    expiresIn: 1000,
+                    staleIn: 150,
+                    staleTimeout: 5,
+                    pendingGenerateTimeout: 300,
+                    generateTimeout: 400,
+                    generateFunc: async function (id, flags) {
+
+                        await Hoek.wait(310);
+                        return { gen: ++gen };
+                    }
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                await client.start();
+
+                const value1 = await policy.get('test');
+                expect(value1.gen).to.equal(1);        // Fresh
+
+                await Hoek.wait(160);
+
+                const value2 = await policy.get('test');
+                expect(value2.gen).to.equal(1);        // Stale
+
+                await Hoek.wait(350);
+
+                const value3 = await policy.get('test');
+                expect(value3.gen).to.equal(2);        // Fresh
             });
 
             it('returns fresh object after cache is expired and called during a pendingGenerateTimeout period', async () => {
