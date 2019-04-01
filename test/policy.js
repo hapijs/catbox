@@ -527,17 +527,19 @@ describe('Policy', () => {
 
                 let gen = 0;
 
-                let generateCalled = 0;
-
                 const rule = {
-                    expiresIn: 121,
-                    staleIn: 1,
-                    staleTimeout: 50,
-                    generateTimeout: 100,
+                    expiresIn: 300,
+                    staleIn: 200,
+                    staleTimeout: 90,
+                    generateTimeout: 200,
                     generateFunc: async function (id, flags) {
 
-                        await Hoek.wait(generateCalled++ === 1 ? 2500 : 1);
-                        return { gen: ++gen };
+                        const serial = ++gen;
+                        if (serial === 2) {
+                            await Hoek.wait(1000);
+                        }
+
+                        return { gen: serial };
                     }
                 };
 
@@ -547,19 +549,16 @@ describe('Policy', () => {
                 await client.start();
 
                 const value1 = await policy.get('test');
+                expect(value1.gen).to.equal(1);                         // Fresh
 
-                expect(value1.gen).to.equal(1);        // Fresh
+                await Hoek.wait(250);                                   // Wait until stale and almost expired
 
-                await Hoek.wait(80);
                 const error = await expect(policy.get('test')).to.reject(Error);
-
                 expect(error).to.exist();
-                expect(error.output.statusCode).to.equal(503);       // Service Unavailable
+                expect(error.output.statusCode).to.equal(503);          // Service Unavailable
 
-                await Hoek.wait(8);
                 const value3 = await policy.get('test');
-
-                expect(value3.gen).to.equal(2);        // Fresh
+                expect(value3.gen).to.equal(3);                         // Fresh (gen 3 since gen 2 was an error)
             });
 
             it('returns stale objects then fresh object based on timing, with only 1 concurrent generateFunc call during pendingGenerateTimeout period ', async () => {
