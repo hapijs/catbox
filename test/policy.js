@@ -568,7 +568,7 @@ describe('Policy', () => {
                 const rule = {
                     expiresIn: 1000,
                     staleIn: 150,
-                    staleTimeout: 5,
+                    staleTimeout: 1,
                     pendingGenerateTimeout: 500,
                     generateTimeout: 200,
                     generateFunc: async function (id, flags) {
