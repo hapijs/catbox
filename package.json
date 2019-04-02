@@ -12,7 +12,7 @@
   "dependencies": {
     "@hapi/boom": "7.x.x",
     "@hapi/hoek": "6.x.x",
-    "@hapi/joi": "14.x.x",
+    "@hapi/joi": "15.x.x",
     "@hapi/podium": "3.x.x"
   },
   "devDependencies": {
