@@ -7,14 +7,10 @@ Multi-strategy object caching service
 [![Build Status](https://secure.travis-ci.org/hapijs/catbox.svg)](http://travis-ci.org/hapijs/catbox)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory
-cache,
- [Redis](http://redis.io/),
- [MongoDB](http://www.mongodb.org/),
- [Memcached](http://memcached.org/), and
- [Amazon S3](http://aws.amazon.com/s3/).
+cache, [Redis](http://redis.io/), and [Memcached](http://memcached.org/). Additional providers from the
+community can be found on the [npm Registry](https://www.npmjs.com/search?q=keywords:catbox).
 
 **catbox** provides two interfaces: a low-level `Client` and a high-level `Policy`.
-
 
 ### Installation
 
@@ -24,10 +20,7 @@ dependencies manually. The available strategies are:
 
 - [Memory](https://github.com/hapijs/catbox-memory)
 - [Redis](https://github.com/hapijs/catbox-redis)
-- [MongoDB](https://github.com/hapijs/catbox-mongodb)
 - [Memcached](https://github.com/hapijs/catbox-memcached)
-- [Amazon S3](https://github.com/fhemberger/catbox-s3)
-- [Local Disk](https://github.com/mirusresearch/catbox-disk)
 
 
 ### `Client`
