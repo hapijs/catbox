@@ -64,7 +64,7 @@ describe('Catbox', () => {
         const value = { a: 1 };
         value.b = value;
 
-        await expect(client.set(key, value, 10)).to.reject('Converting circular structure to JSON');
+        await expect(client.set(key, value, 10)).to.reject(/Converting circular structure to JSON/);
     });
 
     it('ignored starting a connection twice on same event', async () => {

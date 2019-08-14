@@ -14,7 +14,7 @@ module.exports = class {
 
     constructor(options) {
 
-        this.options = Hoek.applyToDefaultsWithShallow(internals.defaults, options, ['shallow']);
+        this.options = Hoek.applyToDefaults(internals.defaults, options, { shallow: ['shallow'] });
         this.cache = null;
     }
 
