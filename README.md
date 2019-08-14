@@ -4,7 +4,7 @@
 
 Multi-strategy object caching service
 
-[![Build Status](https://secure.travis-ci.org/hapijs/catbox.svg)](http://travis-ci.org/hapijs/catbox)
+[![Build Status](https://secure.travis-ci.org/hapijs/catbox.svg)](http://travis-ci.org/hapijs/catbox) [![Greenkeeper badge](https://badges.greenkeeper.io/hapijs/catbox.svg)](https://greenkeeper.io/)
 
 **catbox** is a multi-strategy key-value object store. It comes with extensions supporting a memory
 cache, [Redis](http://redis.io/), and [Memcached](http://memcached.org/). Additional providers from the
