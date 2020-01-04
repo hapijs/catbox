@@ -15,7 +15,7 @@ const { describe, it } = exports.lab = Lab.script();
 const expect = Code.expect;
 
 
-describe('Policy', () => {
+describe('Policy', { retry: true }, () => {
 
     it('returns cached item', async () => {
 
