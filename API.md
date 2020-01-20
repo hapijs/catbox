@@ -88,7 +88,7 @@ automatically applied to every storage action. The object is constructed using
       `expiresIn`.
     - `generateFunc` - a function used to generate a new cache item if one is not found in the
       cache when calling `get()`. The method's signature is `async function(id, flags)` where:
-        - `id` - the `id` string or object provided to the `get()` method.
+        - `id` - the `id` string or object provided to the `get()` method as-is (not normalized).
         - `flags` - an object used to pass back additional flags:
             - `ttl` - the cache ttl value in milliseconds. Set to `0` to skip storing in the cache.
               Defaults to the cache global policy.

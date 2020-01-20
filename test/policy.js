@@ -340,7 +340,6 @@ describe('Policy', { retry: true }, () => {
                 await client.start();
 
                 const value = await policy.get('test');
-
                 expect(value.gen).to.equal(1);
             });
 
@@ -392,6 +391,7 @@ describe('Policy', { retry: true }, () => {
                 await client.start();
 
                 expect(await policy.get('test')).to.equal({ id: 'test' });
+                expect(await policy.get({ id: 'test' })).to.equal({ id: { id: 'test' } });
 
                 const [event] = await log;
                 expect(event.source).to.equal('persist');
@@ -770,6 +770,43 @@ describe('Policy', { retry: true }, () => {
                 expect(value2.gen).to.equal(1);         // Stale
 
                 await Hoek.wait(100);
+
+                const value3 = await policy.get('test');
+                expect(value3.gen).to.equal(2);         // New
+            });
+
+            it('handles pending call after a generate timeout', async () => {
+
+                let gen = 0;
+
+                const rule = {
+                    expiresIn: 200,
+                    staleIn: 150,
+                    staleTimeout: 10,
+                    pendingGenerateTimeout: 90,
+                    generateTimeout: false,
+                    generateFunc: async function (id, flags) {
+
+                        const serial = ++gen;
+                        await Hoek.wait(100);
+                        return { gen: serial };
+                    }
+                };
+
+                const client = new Catbox.Client(Connection, { partition: 'test-partition' });
+                const policy = new Catbox.Policy(rule, client, 'test-segment');
+
+                await client.start();
+
+                const value1 = await policy.get('test');
+                expect(value1.gen).to.equal(1);         // Fresh
+
+                await Hoek.wait(160);
+
+                const value2 = await policy.get('test');
+                expect(value2.gen).to.equal(1);         // Stale
+
+                await Hoek.wait(50);
 
                 const value3 = await policy.get('test');
                 expect(value3.gen).to.equal(2);         // New
