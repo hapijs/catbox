@@ -23,7 +23,7 @@
     "@hapi/lab": "22.x.x"
   },
   "scripts": {
-    "test": "lab -a @hapi/code -t 100 -L",
+    "test": "lab -a @hapi/code -t 100 -L -m 5000",
     "test-cov-html": "lab -a @hapi/code -r html -o coverage.html"
   },
   "license": "BSD-3-Clause"
