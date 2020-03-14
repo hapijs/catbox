@@ -21,6 +21,7 @@ describe('Policy', { retry: true }, () => {
 
         const client = new Catbox.Client(Connection);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
+        expect(policy.client).to.shallow.equal(client);
 
         await client.start();
 
