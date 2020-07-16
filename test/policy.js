@@ -2,7 +2,7 @@
 
 const Catbox = require('..');
 const Code = require('@hapi/code');
-const Hoek = require('@hapi/hoek');
+const Hoek = require('@commercial/hoek');
 const Lab = require('@hapi/lab');
 
 const Connection = require('./connection');

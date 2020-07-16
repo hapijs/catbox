@@ -1,8 +1,11 @@
 {
-  "name": "@hapi/catbox",
+  "name": "@commercial/catbox",
   "description": "Multi-strategy object caching service",
   "version": "11.1.0",
   "repository": "git://github.com/hapijs/catbox",
+  "engines": {
+    "node": ">=12.0.0"
+  },
   "main": "lib/index.js",
   "files": [
     "lib"
@@ -13,10 +16,10 @@
     "adapter"
   ],
   "dependencies": {
-    "@hapi/boom": "9.x.x",
-    "@hapi/hoek": "9.x.x",
-    "@hapi/joi": "17.x.x",
-    "@hapi/podium": "4.x.x"
+    "@commercial/boom": "9.x.x",
+    "@commercial/hoek": "9.x.x",
+    "@commercial/podium": "4.x.x",
+    "joi": "17.x.x"
   },
   "devDependencies": {
     "@hapi/code": "8.x.x",
@@ -26,5 +29,5 @@
     "test": "lab -a @hapi/code -t 100 -L -m 5000",
     "test-cov-html": "lab -a @hapi/code -r html -o coverage.html"
   },
-  "license": "BSD-3-Clause"
+  "license": "SEE LICENSE IN LICENSE.md"
 }
