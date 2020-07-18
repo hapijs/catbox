@@ -15,8 +15,8 @@
   "dependencies": {
     "@hapi/boom": "9.x.x",
     "@hapi/hoek": "9.x.x",
-    "@hapi/joi": "17.x.x",
-    "@hapi/podium": "4.x.x"
+    "@hapi/podium": "4.x.x",
+    "@hapi/validate": "1.x.x"
   },
   "devDependencies": {
     "@hapi/code": "8.x.x",
