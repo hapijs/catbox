@@ -22,6 +22,7 @@ describe('Policy', { retry: true }, () => {
         const client = new Catbox.Client(Connection);
         const policy = new Catbox.Policy({ expiresIn: 1000 }, client, 'test');
         expect(policy.client).to.shallow.equal(client);
+        expect(policy.segment).to.equal('test');
 
         await client.start();
 
@@ -1211,7 +1212,7 @@ describe('Policy', { retry: true }, () => {
 
                 await expect(policy.get('test')).to.reject(Error);
 
-                const value3 = await policy._cache.get({ segment: policy._segment, id: 'test' });
+                const value3 = await policy.client.get({ segment: policy.segment, id: 'test' });
                 expect(value3).to.equal(null);
             });
 

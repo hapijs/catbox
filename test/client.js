@@ -78,6 +78,13 @@ describe('Client', () => {
         expect(client.connection.options.deep).to.not.shallow.equal(obj);
     });
 
+    it('uses optional client name', () => {
+
+        const client = new Catbox.Client(Connection, null, 'named');
+
+        expect(client.name).to.equal('named');
+    });
+
     it('errors when calling get on a bad connection', async () => {
 
         const errorEngine = {
