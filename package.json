@@ -18,15 +18,15 @@
     ]
   },
   "dependencies": {
-    "@hapi/boom": "9.x.x",
-    "@hapi/hoek": "9.x.x",
-    "@hapi/podium": "4.x.x",
-    "@hapi/validate": "1.x.x"
+    "@hapi/boom": "^10.0.0",
+    "@hapi/hoek": "^10.0.0",
+    "@hapi/podium": "^5.0.0",
+    "@hapi/validate": "^2.0.0"
   },
   "devDependencies": {
-    "@hapi/code": "8.x.x",
+    "@hapi/code": "^9.0.0",
     "@hapi/eslint-plugin": "*",
-    "@hapi/lab": "24.x.x"
+    "@hapi/lab": "^25.0.1"
   },
   "scripts": {
     "test": "lab -a @hapi/code -t 100 -L -m 5000",
