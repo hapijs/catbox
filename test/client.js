@@ -55,6 +55,11 @@ describe('Client', () => {
         expect(result.item).to.equal('123');
     });
 
+    it('errors on invalid instance engine', () => {
+
+        expect(() => new Catbox.Client({})).to.throw();
+    });
+
     it('passes options with default partition', () => {
 
         const client = new Catbox.Client(Connection);
