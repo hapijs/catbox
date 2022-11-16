@@ -292,7 +292,7 @@ export interface CacheStatisticsObject {
     errors: number;
 }
 
-// Definitions adapter from DefinitelyTyped, Originally created by:
+// Definitions adapted from DefinitelyTyped, originally created by:
 // Jason Swearingen <https://github.com/jasonswearingen>
 // AJP <https://github.com/AJamesPhillips>
 // Rodrigo Saboya <https://github.com/saboya>
