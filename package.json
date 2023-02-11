@@ -19,15 +19,15 @@
     ]
   },
   "dependencies": {
-    "@hapi/boom": "^10.0.0",
-    "@hapi/hoek": "^10.0.0",
+    "@hapi/boom": "^10.0.1",
+    "@hapi/hoek": "^11.0.2",
     "@hapi/podium": "^5.0.0",
-    "@hapi/validate": "^2.0.0"
+    "@hapi/validate": "^2.0.1"
   },
   "devDependencies": {
-    "@hapi/code": "^9.0.0",
+    "@hapi/code": "^9.0.3",
     "@hapi/eslint-plugin": "*",
-    "@hapi/lab": "^25.0.1",
+    "@hapi/lab": "^25.1.2",
     "@types/node": "^18.11.9",
     "typescript": "^4.9.3"
   },
