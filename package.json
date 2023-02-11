@@ -1,7 +1,7 @@
 {
   "name": "@hapi/catbox",
   "description": "Multi-strategy object caching service",
-  "version": "12.1.0",
+  "version": "12.1.1",
   "repository": "git://github.com/hapijs/catbox",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
