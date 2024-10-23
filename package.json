@@ -26,8 +26,8 @@
   },
   "devDependencies": {
     "@hapi/code": "^9.0.3",
-    "@hapi/eslint-plugin": "*",
-    "@hapi/lab": "^25.1.2",
+    "@hapi/eslint-plugin": "^7.0.0",
+    "@hapi/lab": "^26.0.0",
     "@types/node": "^18.11.9",
     "typescript": "^4.9.3"
   },
