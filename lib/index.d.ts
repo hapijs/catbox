@@ -113,9 +113,9 @@ export interface ClientOptions {
     partition?: string | undefined;
 }
 
-export type PolicyOptionVariants<T> = PolicyOptions<T> | DecoratedPolicyOptions<T>;
+export type PolicyOptionVariants<T, TId extends Id = any> = PolicyOptions<T, TId> | DecoratedPolicyOptions<T, TId>;
 
-export type Id = string | { id: string };
+export type Id = string | { id: string, [key: string]: any };
 
 /**
  * The Policy object provides a convenient cache interface by setting a
@@ -127,7 +127,7 @@ export type Id = string | { id: string };
  * isolate cached items within the cache partition.
  * @see {@link https://github.com/hapijs/catbox#policy}
  */
-export class Policy<T, O extends PolicyOptionVariants<T>> {
+export class Policy<T, O extends PolicyOptionVariants<T, any> = PolicyOptions<T>, TId extends Id = Id> {
     constructor(options: O, cache: Client<T>, segment: string);
     /**
      *  retrieve an item from the cache. If the item is not
@@ -137,7 +137,7 @@ export class Policy<T, O extends PolicyOptionVariants<T>> {
      * @param id the unique item identifier (within the policy segment).
      * Can be a string or an object with the required 'id' key.
      */
-    get(id: Id): Promise<O extends DecoratedPolicyOptions<T> ? DecoratedResult<T> : T | null>;
+    get(id: TId): Promise<O extends DecoratedPolicyOptions<T, any> ? DecoratedResult<T> : T | null>;
 
     /**
      * store an item in the cache where:
@@ -147,19 +147,19 @@ export class Policy<T, O extends PolicyOptionVariants<T>> {
      * removed from the cache (or is marked invalid).
      *    This should be set to 0 in order to use the caching rules configured when creating the Policy object.
      */
-    set(id: Id, value: T, ttl?: number): Promise<void>;
+    set(id: TId, value: T, ttl?: number): Promise<void>;
     /**
      * remove the item from cache where:
      * @param id the unique item identifier (within the policy segment).
      */
-    drop(id: Id): Promise<void>;
+    drop(id: TId): Promise<void>;
     /**
      * given a created timestamp in milliseconds, returns the time-to-live left
      * based on the configured rules.
      */
     ttl(created: number): number;
     /** changes the policy rules after construction (note that items already stored will not be affected) */
-    rules(options: PolicyOptions<T>): void;
+    rules(options: PolicyOptions<T, TId>): void;
     /**
      * returns true if cache engine determines itself as ready, false if it is not ready or if
      * here is no cache engine set.
@@ -199,13 +199,13 @@ export interface PolicyGetCachedOptions<T> {
 /**
  * @see {@link https://github.com/hapijs/catbox#policy}
  */
-export interface PolicyOptions<T> {
+export interface PolicyOptions<T, TId extends Id = any> {
     /** expiresIn - relative expiration expressed in the number of milliseconds since the item was saved in the cache. Cannot be used together with expiresAt. */
     expiresIn?: number | undefined;
     /** expiresAt - time of day expressed in 24h notation using the 'HH:MM' format, at which point all cache records for the route expire. Uses local time. Cannot be used together with expiresIn. */
     expiresAt?: string | undefined;
     /** generateFunc - a function used to generate a new cache item if one is not found in the cache when calling get(). The method's signature is function(id, next) where: */
-    generateFunc?: GenerateFunc<T> | undefined;
+    generateFunc?: GenerateFunc<T, TId> | undefined;
     /**
      * staleIn - number of milliseconds to mark an item stored in cache as stale and attempt to regenerate it when generateFunc is provided.
      * Must be less than expiresIn. Alternatively function that returns staleIn value in milliseconds. The function signature is function(stored, ttl) where:
@@ -234,7 +234,7 @@ export interface PolicyOptions<T> {
     pendingGenerateTimeout?: number | undefined;
 }
 
-export interface DecoratedPolicyOptions<T> extends PolicyOptions<T> {
+export interface DecoratedPolicyOptions<T, TId extends Id = any> extends PolicyOptions<T, TId> {
     /**
      * @default false
      */
@@ -256,7 +256,7 @@ export interface GenerateFuncFlags {
  *      * ttl - the cache ttl value in milliseconds. Set to 0 to skip storing in the cache. Defaults to the cache global policy.
  * @see {@link https://github.com/hapijs/catbox#policy}
  */
-export type GenerateFunc<T> = (id: Id, flags: GenerateFuncFlags) => Promise<T>;
+export type GenerateFunc<T, TId extends Id = any> = (id: TId, flags: GenerateFuncFlags) => Promise<T>;
 
 /**
  * An object with logging information about the generation operation containing the following keys (as relevant):
@@ -291,6 +291,8 @@ export interface CacheStatisticsObject {
     /** errors - cache operations errors. TODO check this */
     errors: number;
 }
+
+export const policy: typeof Policy;
 
 // Definitions adapted from DefinitelyTyped, originally created by:
 // Jason Swearingen <https://github.com/jasonswearingen>
