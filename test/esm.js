@@ -23,6 +23,7 @@ describe('import()', () => {
             'Client',
             'Policy',
             'default',
+            ...(process.version.match(/^v(\d+)/)[1] >= 23 ? ['module.exports'] : []),
             'policy'
         ]);
     });
